@@ -50,3 +50,6 @@ greektennis.com / public_html
 VITE_DATA_SOURCE=api
 VITE_API_URL=https://api.greektennis.com
 ```
+
+No configurar contraseñas admin como `VITE_*`: todo lo que empieza con `VITE_` queda público en el bundle.
+El login de producción usa usuario y contraseña contra la API (`/api/admin/auth/login`).

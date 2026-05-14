@@ -309,12 +309,12 @@ export type AdminLoginResponse = {
 };
 
 /** `POST /api/admin/auth/login` — no envía Authorization; guarda JWT en sessionStorage si ok. */
-export async function adminLogin(password: string): Promise<AdminLoginResponse> {
+export async function adminLogin(username: string, password: string): Promise<AdminLoginResponse> {
   const url = `${baseUrl()}/api/admin/auth/login`;
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ password }),
+    body: JSON.stringify({ username, password }),
   });
   const data = await parseJson<AdminLoginResponse>(res);
   if (!res.ok) {

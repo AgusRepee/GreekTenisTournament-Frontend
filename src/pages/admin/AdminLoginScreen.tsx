@@ -38,7 +38,7 @@ export default function AdminLoginScreen() {
     if (apiMode) {
       setSubmitting(true);
       try {
-        const res = await adminLogin(password);
+        const res = await adminLogin(username.trim() || 'admin', password);
         if (!res.token) {
           setError('El servidor no devolvió un token. Revisá la configuración.');
           return;
@@ -75,7 +75,7 @@ export default function AdminLoginScreen() {
               </h1>
               <p className="text-sm text-[#616f89] dark:text-gray-400 mt-2">
                 {apiMode
-                  ? 'Contraseña de administración configurada en la API.'
+                  ? 'Usuario y contraseña configurados en la API.'
                   : 'Acceso al panel de carga de resultados (modo local).'}
               </p>
             </div>
@@ -99,23 +99,22 @@ export default function AdminLoginScreen() {
                   </p>
                 ) : null}
 
-                {!apiMode ? (
-                  <div>
-                    <label htmlFor="admin-username" className="block text-sm font-semibold text-[#111318] dark:text-white mb-1.5">
-                      Usuario
-                    </label>
-                    <input
-                      id="admin-username"
-                      name="username"
-                      type="text"
-                      autoComplete="username"
-                      value={username}
-                      onChange={(ev) => setUsername(ev.target.value)}
-                      className={inputBase}
-                      required
-                    />
-                  </div>
-                ) : null}
+                <div>
+                  <label htmlFor="admin-username" className="block text-sm font-semibold text-[#111318] dark:text-white mb-1.5">
+                    Usuario
+                  </label>
+                  <input
+                    id="admin-username"
+                    name="username"
+                    type="text"
+                    autoComplete="username"
+                    value={username}
+                    onChange={(ev) => setUsername(ev.target.value)}
+                    className={inputBase}
+                    required={!apiMode}
+                    placeholder={apiMode ? 'admin' : undefined}
+                  />
+                </div>
 
                 <div>
                   <label htmlFor="admin-password" className="block text-sm font-semibold text-[#111318] dark:text-white mb-1.5">
