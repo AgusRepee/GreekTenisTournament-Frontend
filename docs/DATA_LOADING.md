@@ -14,6 +14,8 @@ El club trabaja **todas las ligas de la 1 a la 5**. En código, cada una tiene u
 | 4 | `t-novak-l4` | `Cuarta` | Fixtures de grupos + interzonal: `LIGA4_GROUP_FIXTURES` en `mockData.ts`. Partidos de eliminatoria (si aplica) en `matches` con `t-novak-l4`. |
 | 5 | `t-novak-l5` | `Quinta A` | Torneo y cupos en `tournaments`; partidos en `matches` con `t-novak-l5` cuando haya cuadro o fechas. |
 
+Torneo independiente de Liga 5: `Liga 5 ND 2026` usa `t-liga5-nd-2026`. No se debe mezclar con `t-novak-l5`.
+
 **Jugadores del ranking:** viven en `players`; la **liga** de cada uno es su `category` (mapeada a número con `categoryToLeague` en `mockData.ts`). Al actualizar una liga concreta, conviene filtrar por esa categoría y por el `tournamentId` de la tabla de arriba.
 
 Si más adelante se agregan archivos tipo `liga2Data.ts` / `liga5Data.ts` (igual que Liga 3), esta guía se amplía con las nuevas rutas; el flujo sigue siendo el mismo: **indicar siempre la liga (1–5) o el `tournamentId`**.

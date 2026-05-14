@@ -6,6 +6,12 @@
 import type { CategoryKey, LeagueNum, Player, Tournament } from './mockData'; // type-only: no runtime cycle
 import { generatePlayersFromLigas } from './tennis/generatePlayersFromLigas';
 import { countPlayersInGrupos, generateTournamentsFromLigas } from './tennis/generateTournamentsFromLigas';
+import {
+  LIGA5_ND_GROUPS,
+  LIGA5_ND_LEAGUE_NUM,
+  LIGA5_ND_TEMPLATE,
+  LIGA5_ND_TOURNAMENT_ID,
+} from './tennis/liga5Nd2026Data';
 
 function leagueNumToCategory(n: number): CategoryKey {
   const m: Record<number, CategoryKey> = {
@@ -74,6 +80,21 @@ export function buildClubDataDefaults(): { defaultPlayers: Player[]; defaultTour
   }));
   const defaultTournaments: Tournament[] = [
     ...buildNovakTournamentsFromDocs(currentPeriod),
+    {
+      id: LIGA5_ND_TOURNAMENT_ID,
+      name: 'Liga 5 ND 2026',
+      category: leagueNumToCategory(LIGA5_ND_LEAGUE_NUM),
+      tournamentType: 'greek500',
+      status: 'upcoming',
+      startDate: '2026-03-11',
+      endDate: '2026-05-31',
+      location: 'Club de Tenis',
+      coverImage: 'novaknegro.jpg',
+      league: LIGA5_ND_LEAGUE_NUM,
+      slotsTotal: Object.values(LIGA5_ND_GROUPS).flat().length,
+      slotsTaken: Object.values(LIGA5_ND_GROUPS).flat().length,
+      ligaDoc: LIGA5_ND_TEMPLATE,
+    },
     {
       id: 't-nadal',
       name: 'Torneo Rafael Nadal',
