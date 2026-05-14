@@ -2,11 +2,14 @@ import type { MatchInput } from '@/data/types';
 import { MATCH_RESULTS_STORAGE_KEY } from '@/data/types/persistenceKeys';
 import type { MatchResultsPort } from '../contracts/matchResultsPort';
 import { matchInputDedupeKey } from '@/lib/tennis/matchDedupe';
+import { DEFAULT_LIGA2_RESULTS } from '@/lib/tennis/liga2DefaultResults';
 import { DEFAULT_NOVAK_LIGA1_RESULTS } from '@/lib/tennis/novakLiga1DefaultResults';
 
 /** Misma referencia en cada `getServerSnapshot` (evita bucle con useSyncExternalStore). */
 const EMPTY_MATCH_RESULTS: MatchInput[] = Object.freeze([]) as unknown as MatchInput[];
 const NOVAK_LIGA1_RESULTS_SEED_KEY = 'greek-tennis-results-seed-novak-l1-2026-v1';
+const LIGA2_RESULTS_SEED_KEY = 'greek-tennis-results-seed-liga2-2026-v1';
+const DEFAULT_RESULT_SEEDS: MatchInput[] = [...DEFAULT_NOVAK_LIGA1_RESULTS, ...DEFAULT_LIGA2_RESULTS];
 
 function normalizeSeedName(value: string): string {
   return value
@@ -49,7 +52,7 @@ export function createLocalMatchResultsRepository(): MatchResultsPort {
 
   function loadFromStorage(): void {
     if (typeof localStorage === 'undefined') {
-      resultsByMatchId = Object.fromEntries(DEFAULT_NOVAK_LIGA1_RESULTS.map((m) => [matchInputDedupeKey(m), { ...m, matchId: matchInputDedupeKey(m) }]));
+      resultsByMatchId = Object.fromEntries(DEFAULT_RESULT_SEEDS.map((m) => [matchInputDedupeKey(m), { ...m, matchId: matchInputDedupeKey(m) }]));
       rebuildList();
       return;
     }
@@ -75,6 +78,17 @@ export function createLocalMatchResultsRepository(): MatchResultsPort {
         }
         rebuildList();
         localStorage.setItem(NOVAK_LIGA1_RESULTS_SEED_KEY, '1');
+        persist();
+      }
+      if (localStorage.getItem(LIGA2_RESULTS_SEED_KEY) !== '1') {
+        const existingSemantic = new Set(Object.values(resultsByMatchId).map(semanticResultKey));
+        for (const m of DEFAULT_LIGA2_RESULTS) {
+          if (existingSemantic.has(semanticResultKey(m))) continue;
+          const id = matchInputDedupeKey(m);
+          resultsByMatchId[id] = { ...m, matchId: id };
+        }
+        rebuildList();
+        localStorage.setItem(LIGA2_RESULTS_SEED_KEY, '1');
         persist();
       }
     } catch {

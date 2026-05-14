@@ -4,7 +4,7 @@
     "grupos": {
       "A": [
         "Lacave L.",
-        "Monzon M.",
+        "Monzón M.",
         "Colomer S.",
         "Cancio M.",
         "Del Pino A."
@@ -29,7 +29,7 @@
         "numero": 1,
         "grupos": {
           "A": [
-            "Lacave L. (P) vs Monzon M.",
+            "Lacave L. (P) vs Monzón M.",
             "Colomer S. (P) vs Cancio M.",
             "Libre: Del Pino A."
           ],
@@ -51,7 +51,7 @@
           "A": [
             "Cancio M. (P) vs Lacave L.",
             "Colomer S. (P) vs Del Pino A.",
-            "Libre: Monzon M."
+            "Libre: Monzón M."
           ],
           "B": [
             "Guareschi A. (P) vs Ferreyra O.",
@@ -70,7 +70,7 @@
         "grupos": {
           "A": [
             "Lacave L. (P) vs Colomer S.",
-            "Del Pino A. (P) vs Monzon M.",
+            "Del Pino A. (P) vs Monzón M.",
             "Libre: Cancio M."
           ],
           "B": [
@@ -90,7 +90,7 @@
         "grupos": {
           "A": [
             "Del Pino A. (P) vs Lacave L.",
-            "Monzon M. (P) vs Cancio M.",
+            "Monzón M. (P) vs Cancio M.",
             "Libre: Colomer S."
           ],
           "B": [
@@ -109,7 +109,7 @@
         "numero": 5,
         "grupos": {
           "A": [
-            "Monzon M. (P) vs Colomer S.",
+            "Monzón M. (P) vs Colomer S.",
             "Cancio M. (P) vs Del Pino A.",
             "Libre: Lacave L."
           ],
@@ -126,5 +126,8 @@
         }
       }
     ],
-    "nota": "(P): Jugador asignado para llevar pelotas en ese partido."
+    "nota": "(P): Jugador asignado para llevar pelotas en ese partido.",
+    "inconsistenciasPendientes": [
+      "Grupo A - Cancio M. a Cancio M. 6-4/6-1: no se carga porque Cancio M. no puede jugar contra sí mismo; rival pendiente de confirmación."
+    ]
   }

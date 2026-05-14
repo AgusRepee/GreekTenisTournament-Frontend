@@ -3,6 +3,7 @@
  */
 
 import { ligasData, LIGA_NUMBERS } from './loadLigasFromDocs';
+import { DEFAULT_LIGA2_RESULTS } from './liga2DefaultResults';
 import { DEFAULT_NOVAK_LIGA1_RESULTS } from './novakLiga1DefaultResults';
 
 export interface DocPlayerSeed {
@@ -42,6 +43,10 @@ export function generatePlayersFromLigas(): DocPlayerSeed[] {
   for (const result of DEFAULT_NOVAK_LIGA1_RESULTS) {
     addPlayer(1, result.playerA);
     addPlayer(1, result.playerB);
+  }
+  for (const result of DEFAULT_LIGA2_RESULTS) {
+    addPlayer(2, result.playerA);
+    addPlayer(2, result.playerB);
   }
   return Array.from(map.values());
 }

@@ -78,6 +78,10 @@ Versión mínima:
 - [ ] Ligas 1, 2, 4, 5: partidos y jugadores coherentes (misma categoría / torneo).
 - [ ] Imágenes nuevas en la ruta que espera el campo (`public/players/…` o `/img`).
 
+## Inconsistencias pendientes
+
+- Liga 2 / Grupo A: `Cancio M. a Cancio M. 6-4/6-1` no se carga porque Cancio M. no puede jugar contra sí mismo; rival pendiente de confirmación.
+
 ## Regla automática del editor
 
 `.cursor/rules/data-loading.mdc`: al editar `mockData.ts` o `liga3Data.ts`, Cursor aplica estas convenciones (incluye **todas las ligas 1–5**).

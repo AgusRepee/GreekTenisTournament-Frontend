@@ -221,11 +221,11 @@ import type {
       );
     }
   
-    const isRetired = /\bRET\.?\b/.test(score);
-    const cleaned = score.replace(/\bRET\.?\b/g, "").trim();
+    const isRetired = /\bRET\.?\b|\bABANDONO\b/.test(score);
+    const cleaned = score.replace(/\bRET\.?\b|\bY\s+ABANDONO\b|\bABANDONO\b/g, "").trim();
   
     const rawSegments = cleaned
-      .split(/[;,]|\s+/)
+      .split(/[;,/]|\s+/)
       .map((segment) => segment.trim())
       .filter(Boolean);
   
@@ -237,7 +237,9 @@ import type {
       throw new ParseError("El marcador tiene demasiados segmentos para un partido al mejor de tres.");
     }
   
-    const sets: ParsedSet[] = rawSegments.map(parseScoreSegment);
+    const sets: ParsedSet[] = rawSegments.map((segment, index) =>
+      parseScoreSegment(segment, { allowPartialRegularSet: isRetired && index === rawSegments.length - 1 })
+    );
   
     validateSetSequence(sets, { isRetired });
   
@@ -294,7 +296,7 @@ import type {
    * - 7-6(5)
    * - 10-2
    */
-  export function parseScoreSegment(segmentRaw: string): ParsedSet {
+  export function parseScoreSegment(segmentRaw: string, options?: { allowPartialRegularSet?: boolean }): ParsedSet {
     const segment = segmentRaw.trim().toUpperCase();
   
     const tbMatch = segment.match(/^(\d+)-(\d+)\((\d+)\)$/);
@@ -331,7 +333,11 @@ import type {
       };
     }
   
-    validateRegularSet(gamesA, gamesB, false);
+    if (options?.allowPartialRegularSet) {
+      validatePartialRegularSet(gamesA, gamesB);
+    } else {
+      validateRegularSet(gamesA, gamesB, false);
+    }
   
     return {
       gamesA,
@@ -401,6 +407,18 @@ import type {
       }
 
       return;
+    }
+  }
+
+  function validatePartialRegularSet(a: number, b: number): void {
+    if (a < 0 || b < 0) {
+      throw new ParseError("No se permiten valores negativos.");
+    }
+    if (a === b) {
+      throw new ParseError("No puede haber empate en el set parcial.");
+    }
+    if (Math.max(a, b) > 7) {
+      throw new ParseError("El set parcial no puede superar 7 games.");
     }
   }
 
