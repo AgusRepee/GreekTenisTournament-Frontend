@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_NOVAK_LIGA1_RESULTS, DEFAULT_NOVAK_LIGA1_SCHEDULES } from '../novakLiga1DefaultResults';
 import { parseMatch } from '../matchStatsEngine';
+import { generatePlayersFromLigas } from '../generatePlayersFromLigas';
 
 describe('Novak Djokovic Liga 1 default results', () => {
   it('loads the provided played results and walkovers with parseable winners', () => {
@@ -24,5 +25,13 @@ describe('Novak Djokovic Liga 1 default results', () => {
     expect(names).toContain('Córdoba D.');
     expect(names).not.toContain('Alvarez I.');
     expect(names).not.toContain('Cordoba D.');
+  });
+
+  it('adds every default result participant to the generated Liga 1 player registry', () => {
+    const liga1Names = new Set(generatePlayersFromLigas().filter((p) => p.liga === 1).map((p) => p.name));
+    for (const name of DEFAULT_NOVAK_LIGA1_RESULTS.flatMap((m) => [m.playerA, m.playerB])) {
+      expect(liga1Names.has(name)).toBe(true);
+    }
+    expect(liga1Names.has('Naddeo M.')).toBe(true);
   });
 });
