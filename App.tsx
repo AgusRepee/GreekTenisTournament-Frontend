@@ -11,7 +11,9 @@ import { PlayerSearchScreen } from './screens/PlayerSearchScreen';
 import { ContactScreen } from './screens/ContactScreen';
 import { NewsScreen } from './screens/NewsScreen';
 import AdminLayout from '@/pages/admin/AdminLayout';
+import AdminForgotPasswordScreen from '@/pages/admin/AdminForgotPasswordScreen';
 import AdminLoginScreen from '@/pages/admin/AdminLoginScreen';
+import AdminResetPasswordScreen from '@/pages/admin/AdminResetPasswordScreen';
 import ProtectedAdminRoute from '@/pages/admin/ProtectedAdminRoute';
 import AdminTournamentWorkspace from '@/pages/admin/AdminTournamentWorkspace';
 import {
@@ -237,6 +239,8 @@ const MainApp: React.FC = () => {
 const App: React.FC = () => (
   <Routes>
     <Route path="/login" element={<AdminLoginScreen />} />
+    <Route path="/forgot-password" element={<AdminForgotPasswordScreen />} />
+    <Route path="/reset-password" element={<AdminResetPasswordScreen />} />
     <Route
       path="/admin"
       element={

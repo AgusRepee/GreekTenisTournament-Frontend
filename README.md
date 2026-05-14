@@ -52,4 +52,5 @@ VITE_API_URL=https://api.greektennis.com
 ```
 
 No configurar contraseñas admin como `VITE_*`: todo lo que empieza con `VITE_` queda público en el bundle.
-El login de producción usa usuario y contraseña contra la API (`/api/admin/auth/login`).
+El login de producción usa email y contraseña contra la API (`/api/admin/auth/login`).
+La recuperación de contraseña usa `/forgot-password` y `/reset-password`, enviando el email desde la API.

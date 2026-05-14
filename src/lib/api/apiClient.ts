@@ -309,12 +309,12 @@ export type AdminLoginResponse = {
 };
 
 /** `POST /api/admin/auth/login` — no envía Authorization; guarda JWT en sessionStorage si ok. */
-export async function adminLogin(username: string, password: string): Promise<AdminLoginResponse> {
+export async function adminLogin(email: string, password: string): Promise<AdminLoginResponse> {
   const url = `${baseUrl()}/api/admin/auth/login`;
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password }),
+    body: JSON.stringify({ email, password }),
   });
   const data = await parseJson<AdminLoginResponse>(res);
   if (!res.ok) {
@@ -322,5 +322,33 @@ export async function adminLogin(username: string, password: string): Promise<Ad
     throw new Error(msg);
   }
   if (data.token) setStoredAdminToken(data.token);
+  return data;
+}
+
+export async function requestAdminPasswordReset(email: string): Promise<{ ok?: boolean; message?: string; error?: string }> {
+  const url = `${baseUrl()}/api/admin/auth/forgot-password`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  });
+  const data = await parseJson<{ ok?: boolean; message?: string; error?: string }>(res);
+  if (!res.ok) {
+    throw new Error(data.error ?? res.statusText ?? 'No se pudo enviar el email de recuperación');
+  }
+  return data;
+}
+
+export async function resetAdminPassword(token: string, password: string): Promise<{ ok?: boolean; error?: string }> {
+  const url = `${baseUrl()}/api/admin/auth/reset-password`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token, password }),
+  });
+  const data = await parseJson<{ ok?: boolean; error?: string }>(res);
+  if (!res.ok) {
+    throw new Error(data.error ?? res.statusText ?? 'No se pudo cambiar la contraseña');
+  }
   return data;
 }

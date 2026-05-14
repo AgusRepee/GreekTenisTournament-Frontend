@@ -11,7 +11,7 @@ export default function AdminLoginScreen() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const apiMode = isApiDataSource();
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
@@ -38,7 +38,7 @@ export default function AdminLoginScreen() {
     if (apiMode) {
       setSubmitting(true);
       try {
-        const res = await adminLogin(username.trim() || 'admin', password);
+        const res = await adminLogin(email.trim(), password);
         if (!res.token) {
           setError('El servidor no devolvió un token. Revisá la configuración.');
           return;
@@ -53,7 +53,7 @@ export default function AdminLoginScreen() {
       return;
     }
 
-    if (credentialsMatch(username.trim(), password)) {
+    if (credentialsMatch(email.trim(), password)) {
       setAdminSession();
       navigate('/admin/dashboard', { replace: true });
       return;
@@ -75,7 +75,7 @@ export default function AdminLoginScreen() {
               </h1>
               <p className="text-sm text-[#616f89] dark:text-gray-400 mt-2">
                 {apiMode
-                  ? 'Usuario y contraseña configurados en la API.'
+                  ? 'Email y contraseña configurados en la API.'
                   : 'Acceso al panel de carga de resultados (modo local).'}
               </p>
             </div>
@@ -100,19 +100,19 @@ export default function AdminLoginScreen() {
                 ) : null}
 
                 <div>
-                  <label htmlFor="admin-username" className="block text-sm font-semibold text-[#111318] dark:text-white mb-1.5">
-                    Usuario
+                  <label htmlFor="admin-email" className="block text-sm font-semibold text-[#111318] dark:text-white mb-1.5">
+                    {apiMode ? 'Email' : 'Usuario'}
                   </label>
                   <input
-                    id="admin-username"
-                    name="username"
-                    type="text"
-                    autoComplete="username"
-                    value={username}
-                    onChange={(ev) => setUsername(ev.target.value)}
+                    id="admin-email"
+                    name={apiMode ? 'email' : 'username'}
+                    type={apiMode ? 'email' : 'text'}
+                    autoComplete={apiMode ? 'email' : 'username'}
+                    value={email}
+                    onChange={(ev) => setEmail(ev.target.value)}
                     className={inputBase}
-                    required={!apiMode}
-                    placeholder={apiMode ? 'admin' : undefined}
+                    required
+                    placeholder={apiMode ? 'agustinrepecka@gmail.com' : undefined}
                   />
                 </div>
 
@@ -145,6 +145,12 @@ export default function AdminLoginScreen() {
                     Modo desarrollo: también podés usar <code className="font-mono">VITE_ADMIN_TOKEN</code> en el cliente
                     para llamadas admin sin pasar por este formulario.
                   </p>
+                ) : null}
+
+                {apiMode ? (
+                  <Link to="/forgot-password" className="text-center text-sm font-semibold text-primary hover:underline">
+                    Olvidé mi contraseña
+                  </Link>
                 ) : null}
               </form>
             </section>

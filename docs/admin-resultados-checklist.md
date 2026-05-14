@@ -26,7 +26,7 @@ Checklist manual para cerrar que un **torneo ya creado** puede operarse en produ
 | 1.1 | Entrada al panel | Con sesión válida, abrir `/admin` carga el layout admin (sidebar, sin MainApp). |
 | 1.2 | Sin sesión | `/admin` redirige a `/login` (`ProtectedAdminRoute`). |
 | 1.3 | Navbar público | En `/` la barra **no** muestra botón/link “Admin” (acceso por URL conocida `/login`). |
-| 1.4 | Login | En producción (`VITE_DATA_SOURCE=api`), usuario y contraseña se validan contra `/api/admin/auth/login`; las credenciales demo solo aplican en modo local. |
+| 1.4 | Login | En producción (`VITE_DATA_SOURCE=api`), email y contraseña se validan contra `/api/admin/auth/login`; las credenciales demo solo aplican en modo local. |
 | 1.5 | Cerrar sesión | Acción “Salir”/cerrar sesión limpia la sesión admin; **persisten** `partidos`/resultados al volver al sitio público. |
 | 1.6 | Vuelta a entrar | Tras login de nuevo, se ven los mismos torneos/resultados que antes de cerrar sesión. |
 
