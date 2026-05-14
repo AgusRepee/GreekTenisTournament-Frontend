@@ -1,0 +1,29 @@
+{
+  "torneo": "Novak Djokovic",
+  "liga": 3,
+  "grupos": {
+    "A": [
+      "Pusterla P.",
+      "Santi M.",
+      "Rusel S.",
+      "Bocchicchio F.",
+      "Repecka A."
+    ],
+    "B": [
+      "Marin G.",
+      "Fernandez B.",
+      "Casadio M.",
+      "Volpe S.",
+      "Bianco D."
+    ],
+    "C": [
+      "Vito C.",
+      "Santi G.",
+      "Del Valle G.",
+      "Ferreres G.",
+      "Komesu F."
+    ]
+  },
+  "fechas": [],
+  "nota": "Fixtures detallados siguen en mockData LIGA3_GROUP_FIXTURES hasta unificar formato."
+}

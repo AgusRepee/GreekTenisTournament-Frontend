@@ -1,0 +1,91 @@
+{
+    "torneo": "Novak Djokovic",
+    "liga": 4,
+    "tipo": "grupos-4",
+    "grupos": {
+      "A": [
+        "Chantada M.",
+        "Beitia J.",
+        "Malcangi R.",
+        "Cardozo M."
+      ],
+      "B": [
+        "Anetta D.",
+        "Vera F.",
+        "Blanco J.",
+        "Repecka J."
+      ],
+      "C": [
+        "Bernardini G.",
+        "Murchio M.",
+        "Cellilli M.",
+        "Garcia J."
+      ]
+    },
+    "fechas": [
+      {
+        "numero": 1,
+        "grupos": {
+          "A": [
+            "Chantada M. (P) vs Beitia J.",
+            "Malcangi R. (P) vs Cardozo M."
+          ],
+          "B": [
+            "Anetta D. (P) vs Vera F.",
+            "Blanco J. (P) vs Repecka J."
+          ],
+          "C": [
+            "Bernardini G. (P) vs Murchio M.",
+            "Cellilli M. (P) vs Garcia J."
+          ]
+        }
+      },
+      {
+        "numero": 2,
+        "grupos": {
+          "A": [
+            "Chantada M. (P) vs Malcangi R.",
+            "Cardozo M. (P) vs Beitia J."
+          ],
+          "B": [
+            "Blanco J. (P) vs Anetta D.",
+            "Vera F. (P) vs Repecka J."
+          ],
+          "C": [
+            "Bernardini G. (P) vs Cellilli M.",
+            "Murchio M. (P) vs Garcia J."
+          ]
+        }
+      },
+      {
+        "numero": 3,
+        "grupos": {
+          "A": [
+            "Cardozo M. (P) vs Chantada M.",
+            "Beitia J. (P) vs Malcangi R."
+          ],
+          "B": [
+            "Repecka J. (P) vs Anetta D.",
+            "Blanco J. (P) vs Fernandez B."
+          ],
+          "C": [
+            "Garcia J. (P) vs Bernardini G.",
+            "Murchio M. (P) vs Cellilli M."
+          ]
+        }
+      },
+      {
+        "numero": 4,
+        "tipo": "interzonal",
+        "partidos": [
+          "Cellilli M. (P) vs Chantada M.",
+          "Beitia J. (P) vs Bernardini G.",
+          "Malcangi R. (P) vs Blanco J.",
+          "Repecka J. (P) vs Cardozo M.",
+          "Anetta D. (P) vs Murchio M.",
+          "Garcia J. (P) vs Vera F."
+        ]
+      }
+    ],
+    "nota": "(P): Jugador asignado para llevar pelotas en ese partido."
+  }

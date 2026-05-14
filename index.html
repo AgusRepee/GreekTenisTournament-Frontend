@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GREEK TENNIS - Torneos de Tenis</title>
+    <meta name="description" content="GREEK TENNIS - Torneos oficiales de tenis amateur. Inscripciones y calendario." />
+    <link rel="icon" href="/favicon.webp" type="image/webp" sizes="any" />
+    <link rel="apple-touch-icon" href="/favicon.webp" />
+    <meta name="theme-color" content="#0d3b8a" />
+    <meta property="og:site_name" content="GREEK TENNIS" />
+    <meta property="og:title" content="GREEK TENNIS - Torneos de Tenis" />
+    <meta property="og:description" content="GREEK TENNIS - Torneos oficiales de tenis amateur. Inscripciones y calendario." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/favicon.webp" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="GREEK TENNIS - Torneos de Tenis" />
+    <meta name="twitter:description" content="GREEK TENNIS - Torneos oficiales de tenis amateur. Inscripciones y calendario." />
+    <meta name="twitter:image" content="/favicon.webp" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#0d3b8a",
+              "primary-hover": "#0a2d6b",
+              "secondary": "#e8f1fc",
+              "accent": "#c9a227",
+              "accent-hover": "#b8921f",
+              "background-light": "#e5e7eb",
+              "background-dark": "#0d1320",
+              "card-light": "#ffffff",
+              "card-dark": "#1a202c",
+            },
+            fontFamily: {
+              "display": ["Lexend", "sans-serif"]
+            },
+            boxShadow: {
+              "sport-card": "0 1px 2px rgba(15, 23, 42, 0.045), 0 4px 24px -4px rgba(13, 59, 138, 0.1)",
+              "sport-card-dark": "0 2px 10px rgba(0, 0, 0, 0.32), 0 18px 44px -14px rgba(0, 0, 0, 0.5)",
+              "sport-lift": "0 10px 36px -8px rgba(13, 59, 138, 0.16), 0 4px 14px -4px rgba(0, 0, 0, 0.07)",
+              "sport-lift-dark": "0 12px 40px -8px rgba(0, 0, 0, 0.55), 0 4px 16px rgba(0, 0, 0, 0.35)",
+            },
+          },
+        },
+      }
+    </script>
+    <style>
+      body {
+        font-family: 'Lexend', sans-serif;
+      }
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4",
+    "@google/genai": "https://esm.sh/@google/genai@^1.39.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-background-light dark:bg-background-dark text-[#111318] dark:text-white overflow-x-hidden min-h-screen flex flex-col">
+    <div id="root" class="flex flex-col min-h-screen"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

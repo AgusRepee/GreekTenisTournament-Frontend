@@ -1,0 +1,630 @@
+/* Base styles - Tailwind handles most styling */
+
+/* Reserve scrollbar gutter so route changes do not shift layout horizontally. */
+html {
+  overflow-y: scroll;
+}
+
+/* —— App: layered page canvas (gradient + fixed glow + texture) —— */
+.app-page-canvas {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+}
+
+html.dark .app-page-canvas {
+  color: #f1f5f9;
+  background: linear-gradient(
+    145deg,
+    #060a12 0%,
+    #0c1929 36%,
+    rgba(13, 59, 138, 0.46) 100%
+  );
+}
+
+html.light .app-page-canvas {
+  color: #0f172a;
+  background: linear-gradient(
+    145deg,
+    #f4f7fb 0%,
+    #edf1f8 42%,
+    rgba(186, 210, 253, 0.48) 100%
+  );
+}
+
+/* Clay court photo: thematic texture only (below glows, above canvas gradient) */
+.app-page-canvas::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: url("./img/pagefondo.png") center / cover no-repeat;
+}
+
+html.dark .app-page-canvas::after {
+  opacity: 0.14;
+  filter: saturate(0.35) brightness(0.5);
+}
+
+html.light .app-page-canvas::after {
+  opacity: 0.045;
+  filter: saturate(0.22) brightness(1.08);
+}
+
+.app-page-canvas::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+html.dark .app-page-canvas::before {
+  background:
+    radial-gradient(ellipse 72% 90% at 88% 38%, rgba(59, 130, 246, 0.22), transparent 52%),
+    radial-gradient(ellipse 100% 74% at 10% 100%, rgba(96, 165, 250, 0.15), transparent 56%),
+    radial-gradient(ellipse 50% 45% at 50% 0%, rgba(147, 197, 253, 0.06), transparent 70%),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 47px,
+      rgba(255, 255, 255, 0.032) 47px,
+      rgba(255, 255, 255, 0.032) 48px
+    );
+}
+
+html.light .app-page-canvas::before {
+  background:
+    radial-gradient(ellipse 72% 90% at 88% 32%, rgba(59, 130, 246, 0.11), transparent 52%),
+    radial-gradient(ellipse 100% 74% at 12% 100%, rgba(96, 165, 250, 0.07), transparent 56%),
+    radial-gradient(ellipse 50% 42% at 50% 0%, rgba(147, 197, 253, 0.045), transparent 70%),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 47px,
+      rgba(15, 23, 42, 0.028) 47px,
+      rgba(15, 23, 42, 0.028) 48px
+    );
+}
+
+.app-page-content {
+  position: relative;
+  z-index: 2;
+}
+
+/* Full-bleed bars: mismo vidrio, sin radios (debe vencer a html.dark/light .app-glass-panel) */
+html.dark .app-glass-panel.app-glass-panel--bar,
+html.light .app-glass-panel.app-glass-panel--bar {
+  border-radius: 0;
+}
+
+/* Navbar sitio público: barra superior edge-to-edge, sin sombra tipo tarjeta ni radios */
+.app-site-header {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-top: none !important;
+}
+
+html.dark .app-site-header {
+  background: rgba(7, 12, 24, 0.88);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+html.light .app-site-header {
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+/* Drawer móvil del menú: mismo trato plano, ancho completo */
+.app-site-header-drawer {
+  border-radius: 0 !important;
+  border-left: none !important;
+  border-right: none !important;
+  box-shadow: 0 10px 24px -14px rgba(0, 0, 0, 0.35);
+}
+
+html.dark .app-site-header-drawer {
+  background: rgba(12, 20, 36, 0.96);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+html.light .app-site-header-drawer {
+  background: rgba(248, 250, 252, 0.97);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.1);
+}
+
+/* Glass panels (dashboard / cards / tables shell) */
+html.dark .app-glass-panel {
+  border-radius: 1rem;
+  background: linear-gradient(
+    155deg,
+    rgba(14, 24, 42, 0.62) 0%,
+    rgba(7, 12, 24, 0.45) 48%,
+    rgba(10, 22, 44, 0.38) 100%
+  );
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.07),
+    0 22px 56px -20px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(59, 130, 246, 0.04);
+}
+
+html.light .app-glass-panel {
+  border-radius: 1rem;
+  background: linear-gradient(
+    155deg,
+    rgba(255, 255, 255, 0.88) 0%,
+    rgba(248, 250, 252, 0.72) 48%,
+    rgba(241, 245, 249, 0.62) 100%
+  );
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.95),
+    0 18px 44px -18px rgba(15, 23, 42, 0.14),
+    0 0 0 1px rgba(59, 130, 246, 0.06);
+}
+
+/* Clic pequeño: borde/fondo suave — no en paneles grandes (.app-glass-panel solo) */
+html.dark .app-interactive-card {
+  transition: border-color 180ms ease, background-color 180ms ease;
+}
+
+html.dark .app-glass-panel.app-interactive-card:hover {
+  border-color: rgba(96, 165, 250, 0.35);
+}
+
+html.dark .app-interactive-card:not(.app-glass-panel):hover {
+  border-color: rgba(96, 165, 250, 0.35);
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+html.light .app-interactive-card {
+  transition: border-color 180ms ease, background-color 180ms ease;
+}
+
+html.light .app-glass-panel.app-interactive-card:hover {
+  border-color: rgba(59, 130, 246, 0.38);
+}
+
+html.light .app-interactive-card:not(.app-glass-panel):hover {
+  border-color: rgba(59, 130, 246, 0.35);
+  background-color: rgba(255, 255, 255, 0.72);
+}
+
+/* Tables inside glass: header + row rhythm */
+html.dark .app-data-table thead th {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(148, 163, 184, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+html.light .app-data-table thead th {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(71, 85, 105, 0.95);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+html.dark .app-data-table tbody tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.055);
+}
+
+html.light .app-data-table tbody tr {
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+html.dark .app-data-table tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+html.light .app-data-table tbody tr:hover {
+  background-color: rgba(59, 130, 246, 0.06);
+}
+
+/* Admin: single content column (all admin screens). */
+.container-admin {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: max(0.875rem, env(safe-area-inset-left, 0px));
+  padding-right: max(0.875rem, env(safe-area-inset-right, 0px));
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (min-width: 769px) {
+  .container-admin {
+    padding-left: max(1.5rem, env(safe-area-inset-left, 0px));
+    padding-right: max(1.5rem, env(safe-area-inset-right, 0px));
+  }
+}
+
+/* Page shell: match canvas base to avoid flash at edges / overscroll */
+html.light body,
+html.light #root {
+  background-color: #f4f7fb;
+}
+
+html.dark body,
+html.dark #root {
+  background-color: #060a12;
+}
+html.light .min-h-screen.bg-gray-100 {
+  background-color: #eceff4;
+}
+
+/* Noticias: sin “salto” de sombra en el bloque; solo leve zoom de imagen */
+.news-card-visual .news-card-image {
+  transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.news-card-visual:hover .news-card-image {
+  transform: scale(1.02);
+}
+/* Force visible borders in light mode (helps Edge render borders) */
+html.light [class*="border-gray-300"] {
+  border-color: #d1d5db;
+}
+/* Mobile (max-width: 768px): no internal scrollbars, avoid horizontal overflow */
+@media (max-width: 768px) {
+  body {
+    overflow-x: hidden;
+  }
+}
+
+/* —— Admin: tema dinámico por torneo/liga (`--color-torneo` vía JS en `.admin-tournament-theme`) —— */
+.admin-tournament-theme {
+  --color-torneo: #0d3b8a;
+  --color-torneo-rgb: 13 59 138;
+  --color-torneo-foreground: #ffffff;
+}
+
+/* Tournament admin strip: league accent over same glass language */
+html.dark .app-glass-panel.admin-theme-header-strip {
+  border: 1px solid rgba(var(--color-torneo-rgb) / 0.24);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.07),
+    0 22px 56px -20px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(var(--color-torneo-rgb) / 0.06);
+  background: linear-gradient(
+      118deg,
+      rgba(var(--color-torneo-rgb) / 0.22) 0%,
+      rgba(var(--color-torneo-rgb) / 0.07) 52%,
+      transparent 100%
+    ),
+    linear-gradient(
+      155deg,
+      rgba(14, 24, 42, 0.62) 0%,
+      rgba(7, 12, 24, 0.45) 48%,
+      rgba(10, 22, 44, 0.38) 100%
+    );
+}
+
+html.light .app-glass-panel.admin-theme-header-strip {
+  border: 1px solid rgba(var(--color-torneo-rgb) / 0.28);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.95),
+    0 18px 44px -18px rgba(15, 23, 42, 0.12),
+    0 0 0 1px rgba(var(--color-torneo-rgb) / 0.08);
+  background: linear-gradient(
+      118deg,
+      rgba(var(--color-torneo-rgb) / 0.12) 0%,
+      rgba(var(--color-torneo-rgb) / 0.04) 50%,
+      transparent 100%
+    ),
+    linear-gradient(
+      155deg,
+      rgba(255, 255, 255, 0.88) 0%,
+      rgba(248, 250, 252, 0.72) 48%,
+      rgba(241, 245, 249, 0.62) 100%
+    );
+}
+
+.admin-theme-card {
+  border-top: 4px solid var(--color-torneo);
+}
+
+.admin-theme-btn {
+  background-color: var(--color-torneo);
+  color: var(--color-torneo-foreground);
+  border-color: color-mix(in srgb, var(--color-torneo) 82%, #000000);
+}
+.admin-theme-btn:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+.admin-theme-btn:active:not(:disabled) {
+  filter: brightness(0.94);
+}
+.admin-theme-btn:disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.admin-theme-tab-active {
+  background-color: var(--color-torneo) !important;
+  color: var(--color-torneo-foreground) !important;
+  border-color: var(--color-torneo) !important;
+}
+
+.admin-theme-tab-inactive:hover {
+  border-color: rgba(var(--color-torneo-rgb) / 0.45);
+  background-color: rgba(var(--color-torneo-rgb) / 0.07);
+}
+
+.admin-theme-section-title {
+  color: var(--color-torneo);
+}
+
+.admin-theme-icon {
+  color: var(--color-torneo);
+}
+
+.admin-theme-accent-text {
+  color: var(--color-torneo);
+}
+
+.admin-theme-link {
+  color: var(--color-torneo);
+  border-color: rgba(var(--color-torneo-rgb) / 0.35);
+}
+.admin-theme-link:hover {
+  background-color: rgba(var(--color-torneo-rgb) / 0.1);
+}
+
+.admin-tournament-theme select:focus,
+.admin-tournament-theme input:focus:not([disabled]),
+.admin-tournament-theme textarea:focus:not([disabled]) {
+  outline: none;
+  border-color: var(--color-torneo);
+  box-shadow: 0 0 0 2px rgba(var(--color-torneo-rgb) / 0.35);
+}
+
+.admin-theme-hero-overlay {
+  background: linear-gradient(105deg, rgba(0, 0, 0, 0.75) 0%, rgba(var(--color-torneo-rgb) / 0.42) 100%);
+}
+
+.admin-theme-hero-fallback {
+  background: linear-gradient(135deg, var(--color-torneo) 0%, color-mix(in srgb, var(--color-torneo) 65%, #0a1628) 100%);
+}
+
+.admin-score-cell:focus {
+  outline: none;
+  border-color: var(--color-torneo);
+  box-shadow: 0 0 0 2px rgba(var(--color-torneo-rgb) / 0.4);
+}
+
+.admin-theme-step-on {
+  background-color: var(--color-torneo);
+  color: var(--color-torneo-foreground);
+}
+
+.admin-theme-hover-card:hover {
+  border-color: rgba(var(--color-torneo-rgb) / 0.22);
+}
+.admin-theme-hover-row:hover {
+  background-color: rgba(var(--color-torneo-rgb) / 0.045);
+}
+.admin-theme-btn-secondary:hover {
+  border-color: rgba(var(--color-torneo-rgb) / 0.5);
+}
+.admin-theme-dot {
+  background-color: rgba(var(--color-torneo-rgb) / 0.85);
+}
+
+/* —— Tabs y selector internos del torneo (acento = liga actual) —— */
+.admin-tournament-theme .admin-tour-section-tab-active {
+  border-bottom-color: var(--color-torneo) !important;
+  color: var(--color-torneo);
+}
+html.dark .admin-tournament-theme .admin-tour-section-tab-active {
+  color: color-mix(in srgb, var(--color-torneo) 88%, #ffffff);
+}
+
+.admin-tournament-theme .admin-tour-section-tab-inactive {
+  border-bottom-color: transparent;
+}
+.admin-tournament-theme .admin-tour-section-tab-inactive:hover {
+  color: var(--color-torneo);
+}
+
+.admin-league-badge {
+  border-width: 1px;
+  border-style: solid;
+  border-color: rgba(var(--color-torneo-rgb) / 0.52);
+  background: rgba(var(--color-torneo-rgb) / 0.12);
+  color: var(--color-torneo);
+}
+
+.admin-liga-selector-panel {
+  border: 1px solid rgba(var(--color-torneo-rgb) / 0.38);
+  box-shadow: inset 0 1px 0 rgba(var(--color-torneo-rgb) / 0.12);
+  background: rgba(var(--color-torneo-rgb) / 0.07);
+}
+
+html.dark .admin-liga-selector-panel {
+  border-color: rgba(var(--color-torneo-rgb) / 0.42);
+  background: rgba(var(--color-torneo-rgb) / 0.1);
+}
+
+.admin-liga-segment-active {
+  background: rgba(var(--color-torneo-rgb) / 0.22) !important;
+  color: var(--color-torneo) !important;
+  box-shadow: inset 0 0 0 1px rgba(var(--color-torneo-rgb) / 0.45);
+}
+
+.admin-liga-segment-inactive:hover {
+  background: rgba(var(--color-torneo-rgb) / 0.1);
+}
+
+.admin-result-card-editing {
+  border-width: 1px;
+  border-style: solid;
+  border-color: rgba(var(--color-torneo-rgb) / 0.38) !important;
+  box-shadow: 0 0 0 2px rgba(var(--color-torneo-rgb) / 0.16);
+}
+
+.admin-liga-selector-panel button:focus-visible {
+  outline: 2px solid rgba(var(--color-torneo-rgb) / 0.5);
+  outline-offset: 2px;
+}
+
+.admin-match-player-winner {
+  border-color: rgba(var(--color-torneo-rgb) / 0.5) !important;
+  background: rgba(var(--color-torneo-rgb) / 0.1) !important;
+}
+.admin-match-player-loser {
+  border-color: rgba(148, 163, 184, 0.45);
+  background: rgba(249, 250, 251, 0.75);
+}
+html.dark .admin-match-player-loser {
+  border-color: rgba(71, 85, 105, 0.55);
+  background: rgba(30, 41, 59, 0.45);
+}
+
+.admin-result-pill-complete {
+  background: rgba(var(--color-torneo-rgb) / 0.12);
+  color: var(--color-torneo);
+  border-color: rgba(var(--color-torneo-rgb) / 0.42) !important;
+}
+html.dark .admin-result-pill-complete {
+  color: color-mix(in srgb, var(--color-torneo) 92%, #ffffff);
+}
+
+.admin-result-score-summary {
+  color: var(--color-torneo);
+  font-weight: 700;
+}
+html.dark .admin-result-score-summary {
+  color: color-mix(in srgb, var(--color-torneo) 90%, #ffffff);
+}
+
+/* Entradas editables vs bloques solo lectura */
+.admin-input-editable {
+  border-width: 2px;
+  border-color: rgba(var(--color-torneo-rgb) / 0.45);
+  background-color: #fff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+}
+html.dark .admin-input-editable {
+  background-color: rgb(17 24 39);
+  border-color: rgba(var(--color-torneo-rgb) / 0.5);
+}
+
+.admin-readonly-panel {
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background-color: rgba(248, 250, 252, 0.95);
+}
+html.dark .admin-readonly-panel {
+  border-color: rgba(71, 85, 105, 0.55);
+  background-color: rgba(30, 41, 59, 0.55);
+}
+
+.admin-sidebar-link {
+  border-left: 4px solid transparent;
+  padding-left: 0.625rem;
+  padding-right: 0.75rem;
+}
+
+.admin-sidebar-link-active {
+  border-left-color: var(--color-torneo);
+  background: linear-gradient(
+    90deg,
+    rgba(var(--color-torneo-rgb) / 0.16) 0%,
+    rgba(var(--color-torneo-rgb) / 0.04) 100%
+  );
+  font-weight: 700;
+  color: var(--color-torneo);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+html.dark .admin-sidebar-link-active {
+  color: color-mix(in srgb, var(--color-torneo) 88%, #ffffff);
+}
+
+/* —— Admin global layout: scrim over page texture for calmer content legibility —— */
+.admin-layout-body {
+  position: relative;
+  isolation: isolate;
+}
+
+html.dark .admin-layout-body::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(4, 8, 16, 0.82) 0%,
+    rgba(6, 10, 18, 0.68) 42%,
+    rgba(6, 10, 18, 0.76) 100%
+  );
+}
+
+html.light .admin-layout-body::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.88) 0%, rgba(248, 250, 252, 0.75) 100%);
+}
+
+.admin-layout-body > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Agrupación visual de formularios admin (CMS-style) */
+.admin-form-block {
+  border-radius: 0.75rem;
+  padding: 1rem 1.125rem;
+  border: 1px solid rgba(148, 163, 184, 0.38);
+  background: rgba(255, 255, 255, 0.55);
+}
+
+html.dark .admin-form-block {
+  border-color: rgba(71, 85, 105, 0.5);
+  background: rgba(15, 23, 42, 0.42);
+}
+
+.admin-form-block-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #616f89;
+  margin-bottom: 0.875rem;
+}
+
+html.dark .admin-form-block-title {
+  color: #94a3b8;
+}
+
+.admin-content-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+@media (min-width: 768px) {
+  .admin-content-stack {
+    gap: 3rem;
+  }
+}

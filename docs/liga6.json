@@ -1,0 +1,98 @@
+{
+    "torneo": "Novak Djokovic",
+    "liga": 6,
+    "grupos": {
+      "A": [
+        "Cellilli F.",
+        "Bataglia F.",
+        "De Ruyck G.",
+        "Fedrjanic N.",
+        "Amezague J."
+      ],
+      "B": [
+        "Ballesta F.",
+        "Ferrarotti E.",
+        "Oshiro E.",
+        "Antuña A.",
+        "Fratini M."
+      ]
+    },
+    "fechas": [
+      {
+        "numero": 1,
+        "grupos": {
+          "A": [
+            "Cellilli F. (P) vs Bataglia F.",
+            "De Ruyck G. (P) vs Fedrjanic N.",
+            "Libre: Amezague J."
+          ],
+          "B": [
+            "Ballesta F. (P) vs Ferrarotti E.",
+            "Oshiro E. (P) vs Antuña A.",
+            "Libre: Fratini M."
+          ]
+        }
+      },
+      {
+        "numero": 2,
+        "grupos": {
+          "A": [
+            "Fedrjanic N. (P) vs Cellilli F.",
+            "De Ruyck G. (P) vs Amezague J.",
+            "Libre: Bataglia F."
+          ],
+          "B": [
+            "Antuña A. (P) vs Ballesta F.",
+            "Oshiro E. (P) vs Fratini M.",
+            "Libre: Ferrarotti E."
+          ]
+        }
+      },
+      {
+        "numero": 3,
+        "grupos": {
+          "A": [
+            "Cellilli F. (P) vs De Ruyck G.",
+            "Amezague J. (P) vs Bataglia F.",
+            "Libre: Fedrjanic N."
+          ],
+          "B": [
+            "Ballesta F. (P) vs Oshiro E.",
+            "Fratini M. (P) vs Ferrarotti E.",
+            "Libre: Antuña A."
+          ]
+        }
+      },
+      {
+        "numero": 4,
+        "grupos": {
+          "A": [
+            "Amezague J. (P) vs Cellilli F.",
+            "Bataglia F. (P) vs Fedrjanic N.",
+            "Libre: De Ruyck G."
+          ],
+          "B": [
+            "Fratini M. (P) vs Ballesta F.",
+            "Ferrarotti E. (P) vs Antuña A.",
+            "Libre: Oshiro E."
+          ]
+        }
+      },
+      {
+        "numero": 5,
+        "grupos": {
+          "A": [
+            "Bataglia F. (P) vs De Ruyck G.",
+            "Fedrjanic N. (P) vs Amezague J.",
+            "Libre: Cellilli F."
+          ],
+          "B": [
+            "Ferrarotti E. (P) vs Oshiro E.",
+            "Antuña A. (P) vs Fratini M.",
+            "Libre: Ballesta F."
+          ]
+        }
+      }
+    ],
+    "nota": "(P): Jugador asignado para llevar pelotas en ese partido."
+  }
