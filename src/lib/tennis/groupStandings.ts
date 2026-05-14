@@ -31,6 +31,21 @@ function registryFromPlayers(players: string[] | PlayerRegistry): PlayerRegistry
   return players.map((name) => ({ name: normalizePlayerName(name) }));
 }
 
+function registryWithMatchParticipants(registry: PlayerRegistry, matches: MatchInput[]): PlayerRegistry {
+  const out = [...registry];
+  const seen = new Set(out.map((entry) => normalizePlayerName(entry.name, { casefold: true })));
+  for (const match of matches) {
+    for (const raw of [match.playerA, match.playerB]) {
+      const name = normalizePlayerName(raw);
+      const key = normalizePlayerName(name, { casefold: true });
+      if (!name || seen.has(key)) continue;
+      out.push({ name });
+      seen.add(key);
+    }
+  }
+  return out;
+}
+
 function rosterCanonicalNames(players: string[] | PlayerRegistry, registry: PlayerRegistry): string[] {
   if (Array.isArray(players)) {
     return players.map((p) => resolvePlayerAlias(normalizePlayerName(p), registry));
@@ -91,7 +106,7 @@ export function calculateGroupStandings(
   players: string[] | PlayerRegistry,
   config: RuleConfig = DEFAULT_RULE_CONFIG
 ): GroupStandingEntry[] {
-  const registry = registryFromPlayers(players);
+  const registry = registryWithMatchParticipants(registryFromPlayers(players), matches);
   const computed = computeGroupStandings(matches, config, registry);
 
   const roster = rosterCanonicalNames(players, registry);
@@ -101,7 +116,14 @@ export function calculateGroupStandings(
   }
 
   const byPlayer = new Map(computed.map((r) => [r.player, { ...r }]));
-  const merged: ExtendedStandingRow[] = roster.map((name) => {
+  const mergedRoster = [...roster];
+  const rosterSet = new Set(mergedRoster);
+  for (const row of computed) {
+    if (rosterSet.has(row.player)) continue;
+    mergedRoster.push(row.player);
+    rosterSet.add(row.player);
+  }
+  const merged: ExtendedStandingRow[] = mergedRoster.map((name) => {
     const existing = byPlayer.get(name);
     if (existing) return existing;
     return emptyStandingRow(name);

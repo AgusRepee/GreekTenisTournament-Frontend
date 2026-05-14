@@ -29,10 +29,86 @@ const TournamentDetailScreen = lazy(() => import('./screens/TournamentDetailScre
 
 type HistoryState = { screen: string; tournamentId?: string | null; playerId?: string | null };
 
+function normalizePublicPath(pathname: string): string {
+  const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.replace(/\/$/, '');
+  const withoutBase = base && pathname.startsWith(base) ? pathname.slice(base.length) : pathname;
+  return withoutBase.replace(/\/+$/, '') || '/';
+}
+
+function parsePublicPath(pathname: string): HistoryState {
+  const path = normalizePublicPath(pathname);
+  if (path === '/novedades') return { screen: 'news' };
+  if (path === '/rankings') return { screen: 'rankings' };
+  if (path === '/jugadores') return { screen: 'players' };
+  if (path.startsWith('/jugadores/')) {
+    const playerId = decodeURIComponent(path.slice('/jugadores/'.length));
+    return playerId ? { screen: 'profile', playerId } : { screen: 'players' };
+  }
+  if (path === '/contacto') return { screen: 'contact' };
+  if (path === '/torneos') return { screen: 'directory' };
+  if (path.startsWith('/torneos/')) {
+    const tournamentId = decodeURIComponent(path.slice('/torneos/'.length));
+    return tournamentId ? { screen: 'tournament_detail', tournamentId } : { screen: 'directory' };
+  }
+  return { screen: 'home' };
+}
+
+function pathForState(state: HistoryState): string {
+  switch (state.screen) {
+    case 'news':
+      return '/novedades';
+    case 'rankings':
+      return '/rankings';
+    case 'players':
+      return '/jugadores';
+    case 'profile':
+      return state.playerId ? `/jugadores/${encodeURIComponent(state.playerId)}` : '/jugadores';
+    case 'contact':
+      return '/contacto';
+    case 'directory':
+      return '/torneos';
+    case 'tournament_detail':
+      return state.tournamentId ? `/torneos/${encodeURIComponent(state.tournamentId)}` : '/torneos';
+    default:
+      return '/';
+  }
+}
+
+class RouteErrorBoundary extends React.Component<
+  { children: React.ReactNode; label: string },
+  { error: Error | null }
+> {
+  state = { error: null };
+
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+
+  componentDidCatch(error: Error) {
+    console.error(`${this.props.label} crashed`, error);
+  }
+
+  render() {
+    if (!this.state.error) return this.props.children;
+    return (
+      <div className="flex flex-1 items-center justify-center px-6 py-24">
+        <div className="max-w-xl rounded-3xl border border-red-200 bg-white p-8 text-center shadow-sport-card dark:border-red-900/60 dark:bg-card-dark">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-red-600 dark:text-red-300">Error al cargar</p>
+          <h1 className="mt-3 text-2xl font-black text-[#111318] dark:text-white">No pudimos mostrar esta sección</h1>
+          <p className="mt-3 text-sm text-[#616f89] dark:text-gray-300">
+            Hay un dato inconsistente en el torneo. El resto del sitio sigue disponible mientras lo revisamos.
+          </p>
+        </div>
+      </div>
+    );
+  }
+}
+
 const MainApp: React.FC = () => {
-  const [currentScreen, setScreenState] = useState('home');
-  const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
-  const [selectedTournamentId, setSelectedTournamentId] = useState<string | null>(null);
+  const initialRoute = parsePublicPath(window.location.pathname);
+  const [currentScreen, setScreenState] = useState(initialRoute.screen);
+  const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(initialRoute.playerId ?? null);
+  const [selectedTournamentId, setSelectedTournamentId] = useState<string | null>(initialRoute.tournamentId ?? null);
   const [playerSearchQuery, setPlayerSearchQuery] = useState<string>('');
   const isRestoringFromPopState = useRef(false);
 
@@ -81,21 +157,22 @@ const MainApp: React.FC = () => {
       return;
     }
 
+    const nextPath = pathForState(state);
     if (!window.history.state || (window.history.state as HistoryState).screen === undefined) {
-      window.history.replaceState(state, '', window.location.pathname + window.location.search);
+      window.history.replaceState(state, '', nextPath);
     } else {
-      window.history.pushState(state, '', window.location.pathname + window.location.search);
+      window.history.pushState(state, '', nextPath);
     }
   }, [currentScreen, selectedTournamentId, selectedPlayerId]);
 
   useEffect(() => {
     const onPopState = (e: PopStateEvent) => {
       const state = e.state as HistoryState | null;
-      if (!state?.screen) return;
+      const nextState = state?.screen ? state : parsePublicPath(window.location.pathname);
       isRestoringFromPopState.current = true;
-      setScreenState(state.screen);
-      setSelectedTournamentId(state.tournamentId ?? null);
-      setSelectedPlayerId(state.playerId ?? null);
+      setScreenState(nextState.screen);
+      setSelectedTournamentId(nextState.tournamentId ?? null);
+      setSelectedPlayerId(nextState.playerId ?? null);
     };
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
@@ -128,9 +205,11 @@ const MainApp: React.FC = () => {
       case 'news': return <NewsScreen />;
       case 'tournament_detail':
         return (
-          <Suspense fallback={<div className="flex flex-1 items-center justify-center py-24 text-sm font-medium uppercase tracking-wide text-[#616f89] dark:text-gray-400">Cargando torneo...</div>}>
-            <TournamentDetailScreen tournamentId={selectedTournamentId} setScreen={setScreen} />
-          </Suspense>
+          <RouteErrorBoundary key={selectedTournamentId ?? 'tournament'} label="TournamentDetailScreen">
+            <Suspense fallback={<div className="flex flex-1 items-center justify-center py-24 text-sm font-medium uppercase tracking-wide text-[#616f89] dark:text-gray-400">Cargando torneo...</div>}>
+              <TournamentDetailScreen tournamentId={selectedTournamentId} setScreen={setScreen} />
+            </Suspense>
+          </RouteErrorBoundary>
         );
       default: return <HomeScreen setScreen={setScreen} setSelectedTournamentId={setSelectedTournamentId} />;
     }
@@ -188,7 +267,14 @@ const App: React.FC = () => (
           ENABLE_ADVANCED_ADMIN_CREATION ? <AdminTournamentBuilderPage /> : <Navigate to="/admin/torneos" replace />
         }
       />
-      <Route path="torneos/:tournamentId" element={<AdminTournamentWorkspace />} />
+      <Route
+        path="torneos/:tournamentId"
+        element={
+          <RouteErrorBoundary label="AdminTournamentWorkspace">
+            <AdminTournamentWorkspace />
+          </RouteErrorBoundary>
+        }
+      />
     </Route>
     <Route path="*" element={<MainApp />} />
   </Routes>

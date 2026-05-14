@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { DEFAULT_NOVAK_LIGA1_RESULTS, DEFAULT_NOVAK_LIGA1_SCHEDULES } from '../novakLiga1DefaultResults';
 import { parseMatch } from '../matchStatsEngine';
 import { generatePlayersFromLigas } from '../generatePlayersFromLigas';
+import { calculateGroupStandings } from '../groupStandings';
 
 describe('Novak Djokovic Liga 1 default results', () => {
   it('loads the provided played results and walkovers with parseable winners', () => {
@@ -33,5 +34,12 @@ describe('Novak Djokovic Liga 1 default results', () => {
       expect(liga1Names.has(name)).toBe(true);
     }
     expect(liga1Names.has('Naddeo M.')).toBe(true);
+  });
+
+  it('keeps group standings stable when persisted roster does not include a result participant', () => {
+    const groupBWithoutNaddeo = ['Garassi A.', 'Rothkel M.', 'Araujo J.', 'Zanella H.', 'Duarte D.'];
+    const groupBResults = DEFAULT_NOVAK_LIGA1_RESULTS.filter((m) => m.group === 'B');
+    const standings = calculateGroupStandings(groupBResults, groupBWithoutNaddeo);
+    expect(standings.map((row) => row.player)).toContain('Naddeo M.');
   });
 });

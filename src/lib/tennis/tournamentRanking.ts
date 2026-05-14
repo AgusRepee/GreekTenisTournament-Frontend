@@ -144,8 +144,19 @@ export interface CalculatedRankingRow {
   pointsChange: number | null;
 }
 
-function playersToRegistry(players: Player[]): PlayerRegistry {
-  return players.map((p) => ({ name: p.name, id: p.id }));
+function playersToRegistry(players: Player[], matches: MatchInput[] = []): PlayerRegistry {
+  const out: PlayerRegistry = players.map((p) => ({ name: p.name, id: p.id }));
+  const seen = new Set(out.map((entry) => normalizePlayerName(entry.name, { casefold: true })));
+  for (const match of matches) {
+    for (const raw of [match.playerA, match.playerB]) {
+      const name = normalizePlayerName(raw);
+      const key = normalizePlayerName(name, { casefold: true });
+      if (!name || seen.has(key)) continue;
+      out.push({ name });
+      seen.add(key);
+    }
+  }
+  return out;
 }
 
 function resolveToPlayerId(raw: string, players: Player[]): string | null {
@@ -198,7 +209,7 @@ export function calculateTournamentPoints(
   pointsTable: TournamentPhasePointsTable = DEFAULT_TOURNAMENT_PHASE_POINTS,
 ): TournamentPointsResult {
   const { resultMatches, knockoutMatches, players } = ctx;
-  const registry = playersToRegistry(players);
+  const registry = playersToRegistry(players, resultMatches.filter((m) => m.tournamentId === tournament.id));
   const tid = tournament.id;
   const ko = knockoutMatches.filter((m) => m.tournamentId === tid);
 
@@ -261,7 +272,7 @@ export function calculateClubLeagueGlobalRanking(
   const tidSet = new Set(leagueTournaments.map((t) => t.id));
 
   const leagueResults = resultMatches.filter((m) => tidSet.has(m.tournamentId));
-  const registry = playersToRegistry(players);
+  const registry = playersToRegistry(players, leagueResults);
   const agg = aggregatePlayerStats(leagueResults, registry);
   const aggById = new Map<string, (typeof agg)[0]>();
   for (const row of agg) {
