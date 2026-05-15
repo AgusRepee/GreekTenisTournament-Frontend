@@ -2,7 +2,7 @@ import type { MatchScheduleEntry } from '@/data/services/contracts/matchSchedule
 import type { LigaTemplate, MatchInput } from '@/types/tennisResults';
 import { matchInputDedupeKey } from './matchDedupe';
 
-export const LIGA5_ND_TOURNAMENT_ID = 't-liga5-nd-2026';
+export const LIGA5_ND_TOURNAMENT_ID = 't-novak-l5';
 export const LIGA5_ND_LEAGUE_NUM = 5;
 
 export const LIGA5_ND_CLASSIFICATION_RULE =
@@ -15,7 +15,7 @@ export const LIGA5_ND_GROUPS = {
 } as const;
 
 export const LIGA5_ND_TEMPLATE: LigaTemplate = {
-  torneo: 'Liga 5 ND 2026',
+  torneo: 'Novak Djokovic',
   liga: LIGA5_ND_LEAGUE_NUM,
   grupos: LIGA5_ND_GROUPS,
   fechas: [],
@@ -49,7 +49,7 @@ function toResult(seed: FixtureSeed): MatchInput | null {
   const winnerIsA = seed.winner === seed.playerA;
   const winnerIsB = seed.winner === seed.playerB;
   if (!winnerIsA && !winnerIsB) {
-    throw new Error(`Ganador fuera del partido Liga 5 ND 2026: ${seed.winner}`);
+    throw new Error(`Ganador fuera del partido Novak Djokovic - Liga 5: ${seed.winner}`);
   }
   if ((seed.status ?? 'played') === 'walkover') {
     return {

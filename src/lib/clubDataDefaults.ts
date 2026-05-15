@@ -7,7 +7,6 @@ import type { CategoryKey, LeagueNum, Player, Tournament } from './mockData'; //
 import { generatePlayersFromLigas } from './tennis/generatePlayersFromLigas';
 import { countPlayersInGrupos, generateTournamentsFromLigas } from './tennis/generateTournamentsFromLigas';
 import {
-  LIGA5_ND_GROUPS,
   LIGA5_ND_LEAGUE_NUM,
   LIGA5_ND_TEMPLATE,
   LIGA5_ND_TOURNAMENT_ID,
@@ -48,7 +47,7 @@ const NOVAK_COVER_BY_LEAGUE: Record<number, string> = {
 
 function buildNovakTournamentsFromDocs(period: { startDate: string; endDate: string }): Tournament[] {
   return generateTournamentsFromLigas().map((row) => {
-    const t = row.template;
+    const t = row.liga === LIGA5_ND_LEAGUE_NUM ? LIGA5_ND_TEMPLATE : row.template;
     const playersN = countPlayersInGrupos(t);
     const slotsTotal = Math.max(8, playersN <= 8 ? 8 : 12);
     const slotsTaken = Math.min(slotsTotal, Math.max(0, Math.floor(slotsTotal * 0.65)));
@@ -58,13 +57,13 @@ function buildNovakTournamentsFromDocs(period: { startDate: string; endDate: str
       category: leagueNumToCategory(t.liga),
       tournamentType: 'greek500' as const,
       status: 'upcoming' as const,
-      startDate: period.startDate,
-      endDate: period.endDate,
+      startDate: row.id === LIGA5_ND_TOURNAMENT_ID ? '2026-03-11' : period.startDate,
+      endDate: row.id === LIGA5_ND_TOURNAMENT_ID ? '2026-05-31' : period.endDate,
       location: t.liga === 1 ? 'Club de Tenis — Pistas centrales' : 'Club de Tenis',
       coverImage: NOVAK_COVER_BY_LEAGUE[t.liga] ?? 'novakrojo.webp',
       league: t.liga as LeagueNum,
       slotsTotal,
-      slotsTaken,
+      slotsTaken: row.id === LIGA5_ND_TOURNAMENT_ID ? playersN : slotsTaken,
       ligaDoc: t,
     };
   });
@@ -80,21 +79,6 @@ export function buildClubDataDefaults(): { defaultPlayers: Player[]; defaultTour
   }));
   const defaultTournaments: Tournament[] = [
     ...buildNovakTournamentsFromDocs(currentPeriod),
-    {
-      id: LIGA5_ND_TOURNAMENT_ID,
-      name: 'Liga 5 ND 2026',
-      category: leagueNumToCategory(LIGA5_ND_LEAGUE_NUM),
-      tournamentType: 'greek500',
-      status: 'upcoming',
-      startDate: '2026-03-11',
-      endDate: '2026-05-31',
-      location: 'Club de Tenis',
-      coverImage: 'novaknegro.jpg',
-      league: LIGA5_ND_LEAGUE_NUM,
-      slotsTotal: Object.values(LIGA5_ND_GROUPS).flat().length,
-      slotsTaken: Object.values(LIGA5_ND_GROUPS).flat().length,
-      ligaDoc: LIGA5_ND_TEMPLATE,
-    },
     {
       id: 't-nadal',
       name: 'Torneo Rafael Nadal',

@@ -8,11 +8,12 @@ import {
 import { generatePlayersFromLigas } from '../generatePlayersFromLigas';
 import { parseMatch } from '../matchStatsEngine';
 
-describe('Liga 5 ND 2026 data', () => {
-  it('loads fixtures, schedules and available results for the standalone tournament', () => {
+describe('Novak Djokovic Liga 5 data', () => {
+  it('loads fixtures, schedules and available results for the existing Novak Liga 5 tournament', () => {
     expect(LIGA5_ND_FIXTURES).toHaveLength(35);
     expect(DEFAULT_LIGA5_ND_RESULTS).toHaveLength(34);
     expect(DEFAULT_LIGA5_ND_SCHEDULES).toHaveLength(35);
+    expect(LIGA5_ND_TOURNAMENT_ID).toBe('t-novak-l5');
     expect(DEFAULT_LIGA5_ND_RESULTS.every((m) => m.tournamentId === LIGA5_ND_TOURNAMENT_ID)).toBe(true);
   });
 
