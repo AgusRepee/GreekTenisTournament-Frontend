@@ -222,7 +222,7 @@ import type {
     }
   
     const isRetired = /\bRET\.?\b|\bABANDONO\b/.test(score);
-    const cleaned = score.replace(/\bRET\.?\b|\bY\s+ABANDONO\b|\bABANDONO\b/g, "").trim();
+    const cleaned = score.replace(/\bRET\.?\b|\bY\s+ABANDONO(?:\s+POR\s+LESI[ÓO]N)?\b|\bABANDONO(?:\s+POR\s+LESI[ÓO]N)?\b/g, "").trim();
   
     const rawSegments = cleaned
       .split(/[;,/]|\s+/)

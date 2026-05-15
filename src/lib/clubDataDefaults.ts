@@ -11,6 +11,11 @@ import {
   LIGA5_ND_TEMPLATE,
   LIGA5_ND_TOURNAMENT_ID,
 } from './tennis/liga5Nd2026Data';
+import {
+  LIGA6_ND_LEAGUE_NUM,
+  LIGA6_ND_TEMPLATE,
+  LIGA6_ND_TOURNAMENT_ID,
+} from './tennis/liga6Nd2026Data';
 
 function leagueNumToCategory(n: number): CategoryKey {
   const m: Record<number, CategoryKey> = {
@@ -47,23 +52,30 @@ const NOVAK_COVER_BY_LEAGUE: Record<number, string> = {
 
 function buildNovakTournamentsFromDocs(period: { startDate: string; endDate: string }): Tournament[] {
   return generateTournamentsFromLigas().map((row) => {
-    const t = row.liga === LIGA5_ND_LEAGUE_NUM ? LIGA5_ND_TEMPLATE : row.template;
+    const t =
+      row.liga === LIGA5_ND_LEAGUE_NUM
+        ? LIGA5_ND_TEMPLATE
+        : row.liga === LIGA6_ND_LEAGUE_NUM
+          ? LIGA6_ND_TEMPLATE
+          : row.template;
     const playersN = countPlayersInGrupos(t);
     const slotsTotal = Math.max(8, playersN <= 8 ? 8 : 12);
     const slotsTaken = Math.min(slotsTotal, Math.max(0, Math.floor(slotsTotal * 0.65)));
+    const isNovakLiga5Nd = row.id === LIGA5_ND_TOURNAMENT_ID;
+    const isNovakLiga6Nd = row.id === LIGA6_ND_TOURNAMENT_ID;
     return {
       id: row.id,
       name: `${t.torneo} - Liga ${t.liga}`,
       category: leagueNumToCategory(t.liga),
       tournamentType: 'greek500' as const,
       status: 'upcoming' as const,
-      startDate: row.id === LIGA5_ND_TOURNAMENT_ID ? '2026-03-11' : period.startDate,
-      endDate: row.id === LIGA5_ND_TOURNAMENT_ID ? '2026-05-31' : period.endDate,
+      startDate: isNovakLiga5Nd ? '2026-03-11' : isNovakLiga6Nd ? '2026-03-15' : period.startDate,
+      endDate: isNovakLiga5Nd || isNovakLiga6Nd ? '2026-05-31' : period.endDate,
       location: t.liga === 1 ? 'Club de Tenis — Pistas centrales' : 'Club de Tenis',
       coverImage: NOVAK_COVER_BY_LEAGUE[t.liga] ?? 'novakrojo.webp',
       league: t.liga as LeagueNum,
       slotsTotal,
-      slotsTaken: row.id === LIGA5_ND_TOURNAMENT_ID ? playersN : slotsTaken,
+      slotsTaken: isNovakLiga5Nd || isNovakLiga6Nd ? playersN : slotsTaken,
       ligaDoc: t,
     };
   });

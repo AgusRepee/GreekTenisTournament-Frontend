@@ -5,6 +5,7 @@
 import { ligasData, LIGA_NUMBERS } from './loadLigasFromDocs';
 import { DEFAULT_LIGA2_RESULTS } from './liga2DefaultResults';
 import { DEFAULT_LIGA5_ND_RESULTS, LIGA5_ND_GROUPS } from './liga5Nd2026Data';
+import { DEFAULT_LIGA6_ND_RESULTS, LIGA6_ND_GROUPS } from './liga6Nd2026Data';
 import { DEFAULT_NOVAK_LIGA1_RESULTS } from './novakLiga1DefaultResults';
 
 export interface DocPlayerSeed {
@@ -55,6 +56,13 @@ export function generatePlayersFromLigas(): DocPlayerSeed[] {
   for (const result of DEFAULT_LIGA5_ND_RESULTS) {
     addPlayer(5, result.playerA);
     addPlayer(5, result.playerB);
+  }
+  for (const names of Object.values(LIGA6_ND_GROUPS)) {
+    for (const name of names) addPlayer(6, name);
+  }
+  for (const result of DEFAULT_LIGA6_ND_RESULTS) {
+    addPlayer(6, result.playerA);
+    addPlayer(6, result.playerB);
   }
   return Array.from(map.values());
 }
