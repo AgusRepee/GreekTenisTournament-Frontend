@@ -1,10 +1,24 @@
 import type { Match } from '@/lib/mockData';
 import { getAdminTournamentMatches } from '@/lib/api/apiClient';
+import { getClubSnapshot } from '@/lib/clubDataStore';
 import { mergePersistedMatches } from '@/lib/tennis/bracketPersist';
+import { normalizePlayerName } from '@/lib/tennis/matchStatsEngine';
+
+function localPlayerIdFromApiSide(player: { id?: string; name?: string; displayName?: string } | undefined, fallback: unknown): string {
+  const apiId = typeof fallback === 'string' ? fallback : '';
+  const rawName = player?.name ?? player?.displayName ?? '';
+  const normalized = normalizePlayerName(rawName, { casefold: true });
+  if (normalized) {
+    const local = getClubSnapshot().players.find((p) => normalizePlayerName(p.name, { casefold: true }) === normalized);
+    if (local) return local.id;
+    if (normalized === 'bye') return 'sys-ko-bye';
+  }
+  return player?.id ?? apiId;
+}
 
 export function mapPrismaMatchRowToClubMatch(row: Record<string, unknown>): Match {
-  const p1 = row.player1 as { id?: string } | undefined;
-  const p2 = row.player2 as { id?: string } | undefined;
+  const p1 = row.player1 as { id?: string; name?: string; displayName?: string } | undefined;
+  const p2 = row.player2 as { id?: string; name?: string; displayName?: string } | undefined;
   const scheduled = row.scheduledDate;
   let scheduledDate = '';
   if (scheduled != null) {
@@ -20,8 +34,8 @@ export function mapPrismaMatchRowToClubMatch(row: Record<string, unknown>): Matc
   return {
     id: String(row.id),
     tournamentId: String(row.tournamentId),
-    playerA: (p1?.id ?? row.player1Id) as string,
-    playerB: (p2?.id ?? row.player2Id) as string,
+    playerA: localPlayerIdFromApiSide(p1, row.player1Id),
+    playerB: localPlayerIdFromApiSide(p2, row.player2Id),
     score: String(row.score ?? ''),
     winnerId: row.winnerId != null ? String(row.winnerId) : null,
     round: typeof row.roundLabel === 'string' ? row.roundLabel : undefined,

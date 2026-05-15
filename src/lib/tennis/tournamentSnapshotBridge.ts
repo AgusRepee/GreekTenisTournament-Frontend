@@ -43,6 +43,9 @@ export function getTemplateForTournament(t: Tournament): LigaTemplate | null {
     if (league < 1 || league > 6) return null;
     return mastersShellTemplate(league);
   }
+  if (t.ligaDoc?.grupos && Object.keys(t.ligaDoc.grupos).length > 0) {
+    return t.ligaDoc;
+  }
   if (league < 1 || league > 6) return null;
   return ligasData[league];
 }
@@ -219,6 +222,21 @@ function rosterRegistryFromTemplateNames(names: string[]): PlayerRegistry {
   return names.map((name) => ({ name: normalizePlayerName(name) }));
 }
 
+function registryWithMatchParticipants(registry: PlayerRegistry, matches: MatchInput[]): PlayerRegistry {
+  const out = [...registry];
+  const seen = new Set(out.map((entry) => normalizePlayerName(entry.name, { casefold: true })));
+  for (const match of matches) {
+    for (const raw of [match.playerA, match.playerB]) {
+      const name = normalizePlayerName(raw);
+      const key = normalizePlayerName(name, { casefold: true });
+      if (!name || seen.has(key)) continue;
+      out.push({ name });
+      seen.add(key);
+    }
+  }
+  return out;
+}
+
 function extendedStandingRowEmpty(canonicalPlayer: string): ExtendedStandingRow {
   return {
     player: canonicalPlayer,
@@ -248,7 +266,7 @@ function mergeStandingsWithTemplateRoster(
     return computeGroupStandings(groupMatches, DEFAULT_RULE_CONFIG);
   }
 
-  const registry = rosterRegistryFromTemplateNames(templateNamesSorted);
+  const registry = registryWithMatchParticipants(rosterRegistryFromTemplateNames(templateNamesSorted), groupMatches);
   const computed = computeGroupStandings(groupMatches, DEFAULT_RULE_CONFIG, registry);
 
   const rosterCanonical = templateNamesSorted.map((p) =>
@@ -256,7 +274,14 @@ function mergeStandingsWithTemplateRoster(
   );
 
   const byPlayer = new Map(computed.map((r) => [r.player, { ...r }] as const));
-  const merged: ExtendedStandingRow[] = rosterCanonical.map((canonical) => {
+  const mergedRoster = [...rosterCanonical];
+  const rosterSet = new Set(mergedRoster);
+  for (const row of computed) {
+    if (rosterSet.has(row.player)) continue;
+    mergedRoster.push(row.player);
+    rosterSet.add(row.player);
+  }
+  const merged: ExtendedStandingRow[] = mergedRoster.map((canonical) => {
     const hit = byPlayer.get(canonical);
     return hit ? { ...hit } : extendedStandingRowEmpty(canonical);
   });

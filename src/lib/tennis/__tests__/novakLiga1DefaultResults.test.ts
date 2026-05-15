@@ -3,6 +3,9 @@ import { DEFAULT_NOVAK_LIGA1_RESULTS, DEFAULT_NOVAK_LIGA1_SCHEDULES } from '../n
 import { parseMatch } from '../matchStatsEngine';
 import { generatePlayersFromLigas } from '../generatePlayersFromLigas';
 import { calculateGroupStandings } from '../groupStandings';
+import { computeTournamentSnapshot } from '../computeTournamentSnapshot';
+import { snapshotToGroupTables } from '../tournamentSnapshotBridge';
+import { getPlayerById, type Tournament } from '../../mockData';
 
 describe('Novak Djokovic Liga 1 default results', () => {
   it('loads the provided played results and walkovers with parseable winners', () => {
@@ -41,5 +44,28 @@ describe('Novak Djokovic Liga 1 default results', () => {
     const groupBResults = DEFAULT_NOVAK_LIGA1_RESULTS.filter((m) => m.group === 'B');
     const standings = calculateGroupStandings(groupBResults, groupBWithoutNaddeo);
     expect(standings.map((row) => row.player)).toContain('Naddeo M.');
+  });
+
+  it('does not crash the admin snapshot when a result participant is missing from the static roster', () => {
+    const tournament: Tournament = {
+      id: 't-novak',
+      name: 'Novak Djokovic - Liga 1',
+      category: 'Primera',
+      status: 'upcoming',
+      startDate: '2026-03-01',
+      endDate: '2026-05-31',
+      location: 'Club de Tenis',
+      league: 1,
+    };
+    const snapshot = computeTournamentSnapshot(
+      { id: tournament.id, name: tournament.name, liga: 1, status: 'upcoming', startDate: tournament.startDate, endDate: tournament.endDate },
+      { grupos: { B: ['Garassi A.', 'Rothkel M.', 'Araujo J.', 'Zanella H.', 'Duarte D.'] } },
+      DEFAULT_NOVAK_LIGA1_RESULTS.filter((m) => m.group === 'B'),
+    );
+    const tables = snapshotToGroupTables(snapshot, tournament);
+    const names = tables.flatMap((table) =>
+      table.rows.map((row) => (row.playerId.startsWith('name:') ? row.playerId.slice('name:'.length) : getPlayerById(row.playerId)?.name)),
+    );
+    expect(names).toContain('Naddeo M.');
   });
 });

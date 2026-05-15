@@ -515,6 +515,11 @@ export function isPlayerProfileListingVisible(p: Player, viewerIsAdmin: boolean)
 }
 
 export function getPlayerById(id: string): Player | undefined {
+  if (id === 'sys-ko-bye') return { id, name: 'BYE', category: 'Quinta B' };
+  if (id === 'sys-ko-sf1b') return { id, name: 'Ganador Antuña A. / De Ruyck G.', category: 'Quinta B' };
+  if (id === 'sys-ko-sf2a') return { id, name: 'Ganador Amezague J. / Ferrarotti E.', category: 'Quinta B' };
+  if (id === 'sys-ko-fa') return { id, name: 'Ganador Semifinal 1', category: 'Quinta B' };
+  if (id === 'sys-ko-fb') return { id, name: 'Ganador Semifinal 2', category: 'Quinta B' };
   if (id.startsWith('l3-')) {
     const p = getLiga3PlayerById(id);
     return p ? { id: p.id, name: p.name, category: 'Tercera' as const } : undefined;
