@@ -19,6 +19,7 @@ function localPlayerIdFromApiSide(player: { id?: string; name?: string; displayN
 export function mapPrismaMatchRowToClubMatch(row: Record<string, unknown>): Match {
   const p1 = row.player1 as { id?: string; name?: string; displayName?: string } | undefined;
   const p2 = row.player2 as { id?: string; name?: string; displayName?: string } | undefined;
+  const winner = row.winner as { id?: string; name?: string; displayName?: string } | undefined;
   const scheduled = row.scheduledDate;
   let scheduledDate = '';
   if (scheduled != null) {
@@ -37,7 +38,7 @@ export function mapPrismaMatchRowToClubMatch(row: Record<string, unknown>): Matc
     playerA: localPlayerIdFromApiSide(p1, row.player1Id),
     playerB: localPlayerIdFromApiSide(p2, row.player2Id),
     score: String(row.score ?? ''),
-    winnerId: row.winnerId != null ? String(row.winnerId) : null,
+    winnerId: row.winnerId != null ? localPlayerIdFromApiSide(winner, row.winnerId) : null,
     round: typeof row.roundLabel === 'string' ? row.roundLabel : undefined,
     scheduledDate,
   };

@@ -686,9 +686,16 @@ export function getTournamentRanking(tournamentId: string): RankingRow[] {
 /** Bracket by rounds: Cuartos de final → Semifinales → Final */
 export function getBracketRounds(tournamentId: string): BracketRounds {
   const all = getMatchesByTournament(tournamentId);
-  const quarterfinals = all.filter(m => m.round === 'Cuartos de final' || m.round === 'Cuartos');
-  const semifinals = all.filter(m => m.round === 'Semifinales' || m.round === 'Semifinal');
-  const finalMatch = all.filter(m => m.round === 'Final');
+  const roundKey = (round: string | undefined) => (round ?? '').trim().toLocaleLowerCase('es-AR');
+  const quarterfinals = all.filter((m) => {
+    const key = roundKey(m.round);
+    return key === 'cuartos de final' || key === 'cuartos';
+  });
+  const semifinals = all.filter((m) => {
+    const key = roundKey(m.round);
+    return key === 'semifinales' || key === 'semifinal';
+  });
+  const finalMatch = all.filter((m) => roundKey(m.round) === 'final');
   return { quarterfinals, semifinals, final: finalMatch };
 }
 
