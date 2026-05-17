@@ -20,6 +20,7 @@ import {
   LIGA3_CLASSIFICATION_RULES,
 } from './liga3Data';
 import { getClubSnapshot } from './clubDataStore';
+import { LIGA6_ND_FIXTURES, LIGA6_ND_TOURNAMENT_ID } from './tennis/liga6Nd2026Data';
 import { effectiveTournamentCatalogType } from './tennis/rankingPointsGreek500';
 
 export const CATEGORIES = ['Primera', 'Segunda', 'Tercera', 'Cuarta', 'Quinta A', 'Quinta B'] as const;
@@ -794,6 +795,65 @@ export function getBracketMatchesForLibrary(
   tournamentId: string,
   seedMap?: ReadonlyMap<string, number> | Map<string, number>,
 ): BracketMatchForLibrary[] {
+  // Liga 6 special case: build bracket directly from LIGA6_ND_FIXTURES
+  if (tournamentId === LIGA6_ND_TOURNAMENT_ID) {
+    const qfs = LIGA6_ND_FIXTURES.filter((f) => f.group === 'Cuartos de Final');
+    const sfs = LIGA6_ND_FIXTURES.filter((f) => f.group === 'Semifinales');
+    const fin = LIGA6_ND_FIXTURES.filter((f) => f.group === 'Final');
+    const idFinal = 'b-f';
+    const idS1 = 'b-s1';
+    const idS2 = 'b-s2';
+    const out: BracketMatchForLibrary[] = [];
+    // Final
+    const fFix = fin[0];
+    out.push({
+      id: idFinal,
+      name: 'Final',
+      nextMatchId: null,
+      tournamentRoundText: '3',
+      startTime: '',
+      state: fFix?.winner ? 'SCORE_DONE' : 'SCHEDULED',
+      participants: [
+        { id: fFix?.playerA ?? 'tbd-fa', name: fFix?.playerA ?? 'TBD' },
+        { id: fFix?.playerB ?? 'tbd-fb', name: fFix?.playerB ?? 'TBD' },
+      ],
+    });
+    // Semifinals
+    sfs.forEach((sf, i) => {
+      const id = i === 0 ? idS1 : idS2;
+      out.push({
+        id,
+        name: `Semifinal ${i + 1}`,
+        nextMatchId: idFinal,
+        tournamentRoundText: '2',
+        startTime: '',
+        state: sf.winner ? 'SCORE_DONE' : 'SCHEDULED',
+        participants: [
+          { id: sf.playerA, name: sf.playerA, isWinner: sf.winner === sf.playerA },
+          { id: sf.playerB, name: sf.playerB, isWinner: sf.winner === sf.playerB },
+        ],
+      });
+    });
+    // Quarterfinals
+    const qfIds = ['b-q1', 'b-q2', 'b-q3', 'b-q4'];
+    const semiMap = [idS1, idS1, idS2, idS2];
+    qfs.forEach((qf, i) => {
+      out.push({
+        id: qfIds[i] ?? `b-q${i}`,
+        name: `Cuartos ${i + 1}`,
+        nextMatchId: semiMap[i] ?? idS1,
+        tournamentRoundText: '1',
+        startTime: '',
+        state: qf.winner ? 'SCORE_DONE' : 'SCHEDULED',
+        participants: [
+          { id: qf.playerA, name: qf.playerA, isWinner: qf.winner === qf.playerA, resultText: qf.winner ? (qf.winnerScore ?? null) : null },
+          { id: qf.playerB, name: qf.playerB, isWinner: qf.winner === qf.playerB, resultText: qf.winner ? (qf.winnerScore ?? null) : null },
+        ],
+      });
+    });
+    return out;
+  }
+
   const rounds = getBracketRounds(tournamentId);
   const tour = getTournamentById(tournamentId);
   const mastersKoLayout = tour != null && effectiveTournamentCatalogType(tour) === 'masters1000';
