@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { generatePlayersFromLigas } from '../generatePlayersFromLigas';
 import { calculateGroupStandings } from '../groupStandings';
 import { parseMatch } from '../matchStatsEngine';
+import { getBracketMatchesForLibrary } from '../../mockData';
 import {
   DEFAULT_LIGA6_ND_RESULTS,
   DEFAULT_LIGA6_ND_SCHEDULES,
@@ -53,5 +54,18 @@ describe('Novak Djokovic Liga 6 data', () => {
       expect(names.has(name)).toBe(true);
     }
     expect(names.has('Antuña R.')).toBe(false);
+  });
+
+  it('builds the public elimination bracket from Liga 6 fixtures', () => {
+    const matches = getBracketMatchesForLibrary(LIGA6_ND_TOURNAMENT_ID);
+    const quarterfinals = matches.filter((m) => m.tournamentRoundText === '1');
+
+    expect(quarterfinals.map((m) => m.participants.map((p) => p.name))).toEqual([
+      ['Cellilli F.', 'BYE'],
+      ['Antuña A.', 'De Ruyck G.'],
+      ['Amezague J.', 'Ferrarotti E.'],
+      ['BYE', 'Ballesta F.'],
+    ]);
+    expect(matches.some((m) => m.participants.some((p) => p.name === 'TBD'))).toBe(false);
   });
 });

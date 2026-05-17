@@ -790,68 +790,68 @@ export interface BracketMatchForLibrary {
   }>;
 }
 
+function getLiga6NdBracketMatchesForLibrary(
+  seedMap?: ReadonlyMap<string, number> | Map<string, number>,
+): BracketMatchForLibrary[] {
+  const roundMeta: Record<string, { tournamentRoundText: string; ids: string[]; names: string[]; nextMatchIds: Array<string | null> }> = {
+    'Cuartos de Final': {
+      tournamentRoundText: '1',
+      ids: ['b-q1', 'b-q2', 'b-q3', 'b-q4'],
+      names: ['Cuartos 1', 'Cuartos 2', 'Cuartos 3', 'Cuartos 4'],
+      nextMatchIds: ['b-s1', 'b-s1', 'b-s2', 'b-s2'],
+    },
+    Semifinales: {
+      tournamentRoundText: '2',
+      ids: ['b-s1', 'b-s2'],
+      names: ['Semifinal 1', 'Semifinal 2'],
+      nextMatchIds: ['b-f', 'b-f'],
+    },
+    Final: {
+      tournamentRoundText: '3',
+      ids: ['b-f'],
+      names: ['Final'],
+      nextMatchIds: [null],
+    },
+  };
+
+  return (['Final', 'Semifinales', 'Cuartos de Final'] as const).flatMap((group) => {
+    const meta = roundMeta[group];
+    return LIGA6_ND_FIXTURES.filter((fixture) => fixture.group === group).map((fixture, index) => {
+      const isPlayerAWinner = fixture.winner === fixture.playerA;
+      const isPlayerBWinner = fixture.winner === fixture.playerB;
+      const score = fixture.winnerScore ?? null;
+      const participant = (name: string, isWinner: boolean) => ({
+        id: name,
+        name,
+        resultText: score,
+        isWinner,
+        status: fixture.winner ? 'PLAYED' : null,
+        ranking: seedMap?.get(name),
+      });
+
+      return {
+        id: meta.ids[index],
+        name: meta.names[index],
+        nextMatchId: meta.nextMatchIds[index],
+        tournamentRoundText: meta.tournamentRoundText,
+        startTime: '',
+        state: fixture.winner ? 'SCORE_DONE' : 'SCHEDULED',
+        participants: [
+          participant(fixture.playerA, isPlayerAWinner),
+          participant(fixture.playerB, isPlayerBWinner),
+        ],
+      };
+    });
+  });
+}
+
 /** Build bracket matches in library format: Quarterfinals (1) → Semifinals (2) → Final (3) */
 export function getBracketMatchesForLibrary(
   tournamentId: string,
   seedMap?: ReadonlyMap<string, number> | Map<string, number>,
 ): BracketMatchForLibrary[] {
-  // Liga 6 special case: build bracket directly from LIGA6_ND_FIXTURES
   if (tournamentId === LIGA6_ND_TOURNAMENT_ID) {
-    const qfs = LIGA6_ND_FIXTURES.filter((f) => f.group === 'Cuartos de Final');
-    const sfs = LIGA6_ND_FIXTURES.filter((f) => f.group === 'Semifinales');
-    const fin = LIGA6_ND_FIXTURES.filter((f) => f.group === 'Final');
-    const idFinal = 'b-f';
-    const idS1 = 'b-s1';
-    const idS2 = 'b-s2';
-    const out: BracketMatchForLibrary[] = [];
-    // Final
-    const fFix = fin[0];
-    out.push({
-      id: idFinal,
-      name: 'Final',
-      nextMatchId: null,
-      tournamentRoundText: '3',
-      startTime: '',
-      state: fFix?.winner ? 'SCORE_DONE' : 'SCHEDULED',
-      participants: [
-        { id: fFix?.playerA ?? 'tbd-fa', name: fFix?.playerA ?? 'TBD' },
-        { id: fFix?.playerB ?? 'tbd-fb', name: fFix?.playerB ?? 'TBD' },
-      ],
-    });
-    // Semifinals
-    sfs.forEach((sf, i) => {
-      const id = i === 0 ? idS1 : idS2;
-      out.push({
-        id,
-        name: `Semifinal ${i + 1}`,
-        nextMatchId: idFinal,
-        tournamentRoundText: '2',
-        startTime: '',
-        state: sf.winner ? 'SCORE_DONE' : 'SCHEDULED',
-        participants: [
-          { id: sf.playerA, name: sf.playerA, isWinner: sf.winner === sf.playerA },
-          { id: sf.playerB, name: sf.playerB, isWinner: sf.winner === sf.playerB },
-        ],
-      });
-    });
-    // Quarterfinals
-    const qfIds = ['b-q1', 'b-q2', 'b-q3', 'b-q4'];
-    const semiMap = [idS1, idS1, idS2, idS2];
-    qfs.forEach((qf, i) => {
-      out.push({
-        id: qfIds[i] ?? `b-q${i}`,
-        name: `Cuartos ${i + 1}`,
-        nextMatchId: semiMap[i] ?? idS1,
-        tournamentRoundText: '1',
-        startTime: '',
-        state: qf.winner ? 'SCORE_DONE' : 'SCHEDULED',
-        participants: [
-          { id: qf.playerA, name: qf.playerA, isWinner: qf.winner === qf.playerA, resultText: qf.winner ? (qf.winnerScore ?? null) : null },
-          { id: qf.playerB, name: qf.playerB, isWinner: qf.winner === qf.playerB, resultText: qf.winner ? (qf.winnerScore ?? null) : null },
-        ],
-      });
-    });
-    return out;
+    return getLiga6NdBracketMatchesForLibrary(seedMap);
   }
 
   const rounds = getBracketRounds(tournamentId);
