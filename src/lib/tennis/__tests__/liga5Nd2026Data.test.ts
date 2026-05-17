@@ -7,6 +7,7 @@ import {
 } from '../liga5Nd2026Data';
 import { generatePlayersFromLigas } from '../generatePlayersFromLigas';
 import { parseMatch } from '../matchStatsEngine';
+import { getBracketMatchesForLibrary } from '../../mockData';
 
 describe('Novak Djokovic Liga 5 data', () => {
   it('loads fixtures, schedules and available results for the existing Novak Liga 5 tournament', () => {
@@ -34,6 +35,19 @@ describe('Novak Djokovic Liga 5 data', () => {
     for (const match of DEFAULT_LIGA5_ND_RESULTS) {
       expect(() => parseMatch(match)).not.toThrow();
     }
+  });
+
+  it('builds the public elimination bracket from Liga 5 fixtures', () => {
+    const matches = getBracketMatchesForLibrary(LIGA5_ND_TOURNAMENT_ID);
+    const quarterfinals = matches.filter((m) => m.tournamentRoundText === '1');
+
+    expect(quarterfinals.map((m) => m.participants.map((p) => p.name))).toEqual([
+      ['Chantada S.', 'González Días F.'],
+      ['Ríos J.', 'Oviedo M.'],
+      ['González Días C.', 'Peralta G.'],
+      ['Córdoba G.', 'Sola M.'],
+    ]);
+    expect(quarterfinals.some((m) => m.participants.some((p) => p.name === 'TBD'))).toBe(false);
   });
 
   it('adds accented Liga 5 names to the player registry', () => {

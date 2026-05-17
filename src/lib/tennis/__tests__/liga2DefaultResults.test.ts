@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { DEFAULT_LIGA2_RESULTS, LIGA2_INCONSISTENCIES, LIGA2_TOURNAMENT_ID } from '../liga2DefaultResults';
 import { generatePlayersFromLigas } from '../generatePlayersFromLigas';
 import { parseMatch } from '../matchStatsEngine';
+import { getBracketMatchesForLibrary, getPlayerById } from '../../mockData';
 
 describe('Liga 2 default results', () => {
   it('loads only Liga 2 results without dates', () => {
@@ -29,5 +30,19 @@ describe('Liga 2 default results', () => {
     const liga2Names = new Set(generatePlayersFromLigas().filter((p) => p.liga === 2).map((p) => p.name));
     expect(liga2Names.has('Monzón M.')).toBe(true);
     expect(liga2Names.has('Monzon M.')).toBe(false);
+  });
+
+  it('resolves backend-style Liga 2 player ids to local player names', () => {
+    expect(getPlayerById('p-l2-monzon-m')?.name).toBe('Monzón M.');
+  });
+
+  it('builds the public Liga 2 bracket from loaded knockout results', () => {
+    const matches = getBracketMatchesForLibrary(LIGA2_TOURNAMENT_ID);
+    const quarterfinals = matches.filter((m) => m.tournamentRoundText === '1');
+
+    expect(quarterfinals.map((m) => m.participants.map((p) => p.name)).slice(0, 2)).toEqual([
+      ['Lacave L.', 'Mayer D.'],
+      ['Colomer S.', 'Komesu M.'],
+    ]);
   });
 });

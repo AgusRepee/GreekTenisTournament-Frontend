@@ -20,6 +20,8 @@ import {
   LIGA3_CLASSIFICATION_RULES,
 } from './liga3Data';
 import { getClubSnapshot } from './clubDataStore';
+import { DEFAULT_LIGA2_RESULTS, LIGA2_TOURNAMENT_ID } from './tennis/liga2DefaultResults';
+import { LIGA5_ND_FIXTURES, LIGA5_ND_TOURNAMENT_ID } from './tennis/liga5Nd2026Data';
 import { LIGA6_ND_FIXTURES, LIGA6_ND_TOURNAMENT_ID } from './tennis/liga6Nd2026Data';
 import { effectiveTournamentCatalogType } from './tennis/rankingPointsGreek500';
 
@@ -515,6 +517,15 @@ export function isPlayerProfileListingVisible(p: Player, viewerIsAdmin: boolean)
   return p.profileVisibility !== 'hidden';
 }
 
+function playerNameSlug(name: string): string {
+  return name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 export function getPlayerById(id: string): Player | undefined {
   if (id === 'sys-ko-bye') return { id, name: 'BYE', category: 'Quinta B' };
   if (id === 'sys-ko-sf1b') return { id, name: 'Ganador Antuña A. / De Ruyck G.', category: 'Quinta B' };
@@ -525,7 +536,17 @@ export function getPlayerById(id: string): Player | undefined {
     const p = getLiga3PlayerById(id);
     return p ? { id: p.id, name: p.name, category: 'Tercera' as const } : undefined;
   }
-  return getClubSnapshot().players.find((p) => p.id === id);
+  const players = getClubSnapshot().players;
+  const exact = players.find((p) => p.id === id);
+  if (exact) return exact;
+
+  const apiStyle = /^p-l([1-6])-(.+)$/i.exec(id);
+  if (apiStyle) {
+    const league = Number(apiStyle[1]);
+    const slug = apiStyle[2];
+    return players.find((p) => categoryToLeague(p.category) === league && playerNameSlug(p.name) === slug);
+  }
+  return undefined;
 }
 
 export function getCurrentTournament(): Tournament | undefined {
@@ -790,59 +811,95 @@ export interface BracketMatchForLibrary {
   }>;
 }
 
-function getLiga6NdBracketMatchesForLibrary(
+type PublicKnockoutSeed = {
+  group?: string;
+  playerA?: string;
+  playerB?: string;
+  winner?: string;
+  winnerScore?: string;
+  score?: string;
+  status?: string;
+  date?: string;
+};
+
+function getFixtureBracketMatchesForLibrary(
+  fixtures: readonly PublicKnockoutSeed[],
   seedMap?: ReadonlyMap<string, number> | Map<string, number>,
 ): BracketMatchForLibrary[] {
-  const roundMeta: Record<string, { tournamentRoundText: string; ids: string[]; names: string[]; nextMatchIds: Array<string | null> }> = {
-    'Cuartos de Final': {
-      tournamentRoundText: '1',
-      ids: ['b-q1', 'b-q2', 'b-q3', 'b-q4'],
-      names: ['Cuartos 1', 'Cuartos 2', 'Cuartos 3', 'Cuartos 4'],
-      nextMatchIds: ['b-s1', 'b-s1', 'b-s2', 'b-s2'],
-    },
-    Semifinales: {
-      tournamentRoundText: '2',
-      ids: ['b-s1', 'b-s2'],
-      names: ['Semifinal 1', 'Semifinal 2'],
-      nextMatchIds: ['b-f', 'b-f'],
-    },
-    Final: {
-      tournamentRoundText: '3',
-      ids: ['b-f'],
-      names: ['Final'],
-      nextMatchIds: [null],
-    },
-  };
+  const qfs = fixtures.filter((fixture) => fixture.group === 'Cuartos de Final');
+  const sfs = fixtures.filter((fixture) => fixture.group === 'Semifinales');
+  const fin = fixtures.filter((fixture) => fixture.group === 'Final');
+  const roundDefs = [
+    { tournamentRoundText: '3', ids: ['b-f'], names: ['Final'], nextMatchIds: [null], fixtures: fin },
+    { tournamentRoundText: '2', ids: ['b-s1', 'b-s2'], names: ['Semifinal 1', 'Semifinal 2'], nextMatchIds: ['b-f', 'b-f'], fixtures: sfs },
+    { tournamentRoundText: '1', ids: ['b-q1', 'b-q2', 'b-q3', 'b-q4'], names: ['Cuartos 1', 'Cuartos 2', 'Cuartos 3', 'Cuartos 4'], nextMatchIds: ['b-s1', 'b-s1', 'b-s2', 'b-s2'], fixtures: qfs },
+  ] as const;
 
-  return (['Final', 'Semifinales', 'Cuartos de Final'] as const).flatMap((group) => {
-    const meta = roundMeta[group];
-    return LIGA6_ND_FIXTURES.filter((fixture) => fixture.group === group).map((fixture, index) => {
-      const isPlayerAWinner = fixture.winner === fixture.playerA;
-      const isPlayerBWinner = fixture.winner === fixture.playerB;
-      const score = fixture.winnerScore ?? null;
-      const participant = (name: string, isWinner: boolean) => ({
-        id: name,
-        name,
-        resultText: score,
-        isWinner,
-        status: fixture.winner ? 'PLAYED' : null,
-        ranking: seedMap?.get(name),
-      });
-
-      return {
-        id: meta.ids[index],
-        name: meta.names[index],
-        nextMatchId: meta.nextMatchIds[index],
-        tournamentRoundText: meta.tournamentRoundText,
-        startTime: '',
-        state: fixture.winner ? 'SCORE_DONE' : 'SCHEDULED',
-        participants: [
-          participant(fixture.playerA, isPlayerAWinner),
-          participant(fixture.playerB, isPlayerBWinner),
-        ],
+  const matches: BracketMatchForLibrary[] = [];
+  for (const def of roundDefs) {
+    for (let index = 0; index < def.ids.length; index++) {
+      const fixture = def.fixtures[index];
+      const playerA = fixture?.playerA ?? `tbd-${def.ids[index]}-a`;
+      const playerB = fixture?.playerB ?? `tbd-${def.ids[index]}-b`;
+      const score = fixture?.winnerScore ?? fixture?.score ?? null;
+      const hasResult = Boolean(score || fixture?.winner);
+      const participant = (name: string, isWinner: boolean, slot: 'a' | 'b') => {
+        const isPlaceholder = !fixture || name.startsWith('tbd-');
+        return {
+          id: isPlaceholder ? `${def.ids[index]}-${slot}` : name,
+          name: isPlaceholder ? 'TBD' : name,
+          resultText: score,
+          isWinner,
+          status: hasResult ? 'PLAYED' : null,
+          ranking: isPlaceholder ? undefined : seedMap?.get(name),
+        };
       };
-    });
-  });
+
+      matches.push({
+        id: def.ids[index],
+        name: def.names[index],
+        nextMatchId: def.nextMatchIds[index],
+        tournamentRoundText: def.tournamentRoundText,
+        startTime: fixture?.date ?? '',
+        state: hasResult ? 'SCORE_DONE' : 'SCHEDULED',
+        participants: [
+          participant(playerA, fixture?.winner === playerA, 'a'),
+          participant(playerB, fixture?.winner === playerB, 'b'),
+        ],
+      });
+    }
+  }
+
+  return matches;
+}
+
+function getLiga2BracketSeeds(): PublicKnockoutSeed[] {
+  return DEFAULT_LIGA2_RESULTS
+    .filter((match) => match.group === 'Cuartos de Final')
+    .map((match) => ({
+      group: match.group,
+      playerA: match.playerA,
+      playerB: match.playerB,
+      score: match.score,
+      status: match.status,
+      date: match.date,
+    }));
+}
+
+function getStaticBracketMatchesForLibrary(
+  tournamentId: string,
+  seedMap?: ReadonlyMap<string, number> | Map<string, number>,
+): BracketMatchForLibrary[] | null {
+  if (tournamentId === LIGA2_TOURNAMENT_ID) {
+    return getFixtureBracketMatchesForLibrary(getLiga2BracketSeeds(), seedMap);
+  }
+  if (tournamentId === LIGA5_ND_TOURNAMENT_ID) {
+    return getFixtureBracketMatchesForLibrary(LIGA5_ND_FIXTURES, seedMap);
+  }
+  if (tournamentId === LIGA6_ND_TOURNAMENT_ID) {
+    return getFixtureBracketMatchesForLibrary(LIGA6_ND_FIXTURES, seedMap);
+  }
+  return null;
 }
 
 /** Build bracket matches in library format: Quarterfinals (1) → Semifinals (2) → Final (3) */
@@ -850,8 +907,9 @@ export function getBracketMatchesForLibrary(
   tournamentId: string,
   seedMap?: ReadonlyMap<string, number> | Map<string, number>,
 ): BracketMatchForLibrary[] {
-  if (tournamentId === LIGA6_ND_TOURNAMENT_ID) {
-    return getLiga6NdBracketMatchesForLibrary(seedMap);
+  const staticBracket = getStaticBracketMatchesForLibrary(tournamentId, seedMap);
+  if (staticBracket) {
+    return staticBracket;
   }
 
   const rounds = getBracketRounds(tournamentId);
