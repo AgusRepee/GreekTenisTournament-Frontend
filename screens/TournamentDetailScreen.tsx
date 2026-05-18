@@ -542,6 +542,34 @@ export const TournamentDetailScreen: React.FC<TournamentDetailScreenProps> = ({ 
     return undefined;
   };
 
+  const playerIdSlug = (value: string): string =>
+    value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+
+  const displayGroupPlayerLabel = (playerId: string): string => {
+    const player = getPlayerById(playerId);
+    if (player?.name) return player.name;
+    if (playerId.startsWith('name:')) return playerId.slice('name:'.length).trim() || '—';
+
+    const apiStyle = /^p-l([1-6])-(.+)$/i.exec(playerId);
+    if (apiStyle && tournament?.ligaDoc?.grupos) {
+      const [, league, slug] = apiStyle;
+      const tournamentLeague = String(tournament.league ?? categoryToLeague(tournament.category));
+      if (league === tournamentLeague) {
+        const templateName = Object.values(tournament.ligaDoc.grupos)
+          .flat()
+          .find((name) => playerIdSlug(name) === slug);
+        if (templateName) return templateName;
+      }
+    }
+
+    return '—';
+  };
+
   const formatLiga3ResultPlayerName = (name: string): string => {
     const p = getLiga3PlayerByName(name);
     if (!p) return name;
@@ -804,7 +832,7 @@ export const TournamentDetailScreen: React.FC<TournamentDetailScreenProps> = ({ 
                     <div className="divide-y divide-[#f0f2f4] dark:divide-gray-700 overflow-visible">
                       {group.rows.map((row) => {
                         const setDiff = (row.setsWon ?? 0) - (row.setsLost ?? 0);
-                        const playerLabel = getPlayerById(row.playerId)?.name ?? '—';
+                        const playerLabel = displayGroupPlayerLabel(row.playerId);
                         const seed = displayTournamentSeed(row.playerId);
                         const playerWithRanking = seed != null ? `${playerLabel} (${seed})` : playerLabel;
                         const gPending = isGroupRowStatsPending(isLiga3, row.PJ);
@@ -889,8 +917,7 @@ export const TournamentDetailScreen: React.FC<TournamentDetailScreenProps> = ({ 
                       </thead>
                       <tbody className="divide-y divide-[#f0f2f4] dark:divide-gray-700">
                         {group.rows.map((row) => {
-                          const p = getPlayerById(row.playerId);
-                          const playerLabel = p?.name ?? '—';
+                          const playerLabel = displayGroupPlayerLabel(row.playerId);
                           const seed = displayTournamentSeed(row.playerId);
                           const playerWithRanking = seed != null ? `${playerLabel} (${seed})` : playerLabel;
                           const gPending = isGroupRowStatsPending(isLiga3, row.PJ);
