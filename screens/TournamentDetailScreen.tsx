@@ -1256,7 +1256,7 @@ export const TournamentDetailScreen: React.FC<TournamentDetailScreenProps> = ({ 
                     const bottomName = bottom?.name ?? 'TBD';
                     const topSeed = top?.ranking != null ? ` (${top.ranking})` : '';
                     const bottomSeed = bottom?.ranking != null ? ` (${bottom.ranking})` : '';
-                    const result = top?.resultText || bottom?.resultText || '–';
+                    const result = String(top?.resultText || bottom?.resultText || '').trim() || '–';
                     return (
                       <div
                         key={String(match.id)}

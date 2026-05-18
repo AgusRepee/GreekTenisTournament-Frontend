@@ -29,6 +29,7 @@ export function MatchCard({ match, className = '', showPhoto = true, leagueUi }:
   const { player1, player2, winner } = match;
   const p1Won = winner === 'player1';
   const p2Won = winner === 'player2';
+  const compactResult = match.resultText?.trim();
 
   const renderPlayer = (player: Match['player1'], isWinner: boolean) => (
     <div
@@ -88,6 +89,10 @@ export function MatchCard({ match, className = '', showPhoto = true, leagueUi }:
               {s}
             </span>
           ))
+        ) : compactResult && isWinner ? (
+          <span className="max-w-[4.5rem] truncate text-right text-xs font-semibold text-[#111318] dark:text-white" title={compactResult}>
+            {compactResult}
+          </span>
         ) : (
           <span className={`text-xs ${ui.scorePlaceholder}`}>–</span>
         )}

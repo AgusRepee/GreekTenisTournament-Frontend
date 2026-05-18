@@ -16,10 +16,13 @@ function parseScore(scoreStr: string | null | undefined): { sets1: number[]; set
   const sets1: number[] = [];
   const sets2: number[] = [];
   if (!scoreStr || typeof scoreStr !== 'string') return { sets1, sets2 };
-  const parts = scoreStr.split(',').map((s) => s.trim().split('-').map(Number));
-  for (const [a, b] of parts) {
-    if (!Number.isNaN(a)) sets1.push(a);
-    if (!Number.isNaN(b)) sets2.push(b);
+  if (/^(w\.?o\.?|bye|a|b)$/i.test(scoreStr.trim())) return { sets1, sets2 };
+  const parts = scoreStr.split(/[\/,]/).map((s) => s.trim());
+  for (const part of parts) {
+    const match = /(\d+)\s*-\s*(\d+)/.exec(part);
+    if (!match) continue;
+    sets1.push(Number(match[1]));
+    sets2.push(Number(match[2]));
   }
   return { sets1, sets2 };
 }
@@ -84,7 +87,7 @@ export function getBracketRoundsForUI(
     );
 
     byRound.set(roundName, byRound.get(roundName) ?? []);
-    byRound.get(roundName)!.push({ player1, player2, winner });
+    byRound.get(roundName)!.push({ player1, player2, winner, resultText: scoreStr });
   }
 
   const order: RoundName[] = ['quarterfinals', 'semifinals', 'final'];
