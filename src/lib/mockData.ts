@@ -354,9 +354,9 @@ export const LIGA3_GROUP_FIXTURES: GroupStageGroup[] = [
   {
     name: 'Grupo B',
     fechas: [
-      { fecha: 1, matches: [{ playerA: 'Marin G.', playerB: 'Fernandez B.', ballsByA: true }, { playerA: 'Casadio M.', playerB: 'Aguirre W.', ballsByA: true }], libre: 'Bianco D.' },
+      { fecha: 1, matches: [{ playerA: 'Marin G.', playerB: 'Fernandez B.', ballsByA: true }, { playerA: 'Casadio M.', playerB: 'Aguirre W.', ballsByA: true }], libre: '{ playerA: 'Blanco J.', playerB: 'Vera F.', ballsByA: true }' },
       { fecha: 2, matches: [{ playerA: 'Aguirre W.', playerB: 'Marin G.', ballsByA: true }, { playerA: 'Casadio M.', playerB: 'Bianco D.', ballsByA: true }], libre: 'Fernandez B.' },
-      { fecha: 3, matches: [{ playerA: 'Marin G.', playerB: 'Casadio M.', ballsByA: true }, { playerA: 'Bianco D.', playerB: 'Fernandez B.', ballsByA: true }], libre: 'Aguirre W.' },
+      { fecha: 3, matches: [{ playerA: 'Marin G.', playerB: 'Casadio M.', ballsByA: true }, { playerA: 'Blanco J.', playerB: 'Vera F.', ballsByA: true }], libre: 'Aguirre W.' },
       { fecha: 4, matches: [{ playerA: 'Bianco D.', playerB: 'Marin G.', ballsByA: true }, { playerA: 'Fernandez B.', playerB: 'Aguirre W.', ballsByA: true }], libre: 'Casadio M.' },
       { fecha: 5, matches: [{ playerA: 'Fernandez B.', playerB: 'Casadio M.', ballsByA: true }, { playerA: 'Aguirre W.', playerB: 'Bianco D.', ballsByA: true }], libre: 'Marin G.' },
     ],
@@ -430,7 +430,7 @@ export const LIGA4_GROUP_FIXTURES: GroupStageGroup[] = [
     fechas: [
       { fecha: 1, matches: [{ playerA: 'Anetta D.', playerB: 'Vera F.', ballsByA: true }, { playerA: 'Blanco J.', playerB: 'Repecka J.', ballsByA: true }] },
       { fecha: 2, matches: [{ playerA: 'Blanco J.', playerB: 'Anetta D.', ballsByA: true }, { playerA: 'Vera F.', playerB: 'Repecka J.', ballsByA: true }] },
-      { fecha: 3, matches: [{ playerA: 'Repecka J.', playerB: 'Anetta D.', ballsByA: true }, { playerA: 'Bianco D.', playerB: 'Fernandez B.', ballsByA: true }] },
+      { fecha: 3, matches: [{ playerA: 'Repecka J.', playerB: 'Anetta D.', ballsByA: true }, { playerA: 'Blanco J.', playerB: 'Vera F.', ballsByA: true }] },
     ],
   },
   {
