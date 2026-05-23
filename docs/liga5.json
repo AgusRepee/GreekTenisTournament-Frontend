@@ -3,25 +3,25 @@
     "liga": 5,
     "grupos": {
       "A": [
-        "Rios J.",
-        "Ali M.",
-        "Peralta G.",
-        "Oviedo M.",
-        "Manrique E."
+                    "Rios J.",
+                      "Peralta G.",
+                      "Oviedo M.",
+                      "Ali M.",
+                      "Manrique E."
       ],
-      "B": [
-        "Cirigliano D.",
-        "Cordoba A.",
-        "Gonzalez Dias F.",
-        "Chantada S.",
-        "Sola M."
+                "B": [
+                                "Gonzalez Dias F.",
+                                "Chantada S.",
+                                "Sola M.",
+                                "Cirigliano D.",
+                                "Cordoba A."
       ],
       "C": [
-        "Tellechea L.",
-        "Gonzalez Dias C.",
-        "Cordoba G.",
-        "Gimenez F.",
-        "Vila E."
+                    "Cordoba G.",
+                      "Gonzalez Dias C.",
+                      "Tellechea L.",
+                      "Vila E.",
+                      "Gimenez F."
       ]
     },
     "fechas": [
