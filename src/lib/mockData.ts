@@ -354,21 +354,21 @@ export const LIGA3_GROUP_FIXTURES: GroupStageGroup[] = [
   {
     name: 'Grupo B',
     fechas: [
-      { fecha: 1, matches: [{ playerA: 'Marin G.', playerB: 'Fernandez B.', ballsByA: true }, { playerA: 'Casadio M.', playerB: 'Volpe S.', ballsByA: true }], libre: 'Bianco D.' },
-      { fecha: 2, matches: [{ playerA: 'Volpe S.', playerB: 'Marin G.', ballsByA: true }, { playerA: 'Casadio M.', playerB: 'Bianco D.', ballsByA: true }], libre: 'Fernandez B.' },
-      { fecha: 3, matches: [{ playerA: 'Marin G.', playerB: 'Casadio M.', ballsByA: true }, { playerA: 'Bianco D.', playerB: 'Fernandez B.', ballsByA: true }], libre: 'Volpe S.' },
-      { fecha: 4, matches: [{ playerA: 'Bianco D.', playerB: 'Marin G.', ballsByA: true }, { playerA: 'Fernandez B.', playerB: 'Volpe S.', ballsByA: true }], libre: 'Casadio M.' },
-      { fecha: 5, matches: [{ playerA: 'Fernandez B.', playerB: 'Casadio M.', ballsByA: true }, { playerA: 'Volpe S.', playerB: 'Bianco D.', ballsByA: true }], libre: 'Marin G.' },
+      { fecha: 1, matches: [{ playerA: 'Marin G.', playerB: 'Fernandez B.', ballsByA: true }, { playerA: 'Casadio M.', playerB: 'Aguirre W.', ballsByA: true }], libre: 'Bianco D.' },
+      { fecha: 2, matches: [{ playerA: 'Aguirre W.', playerB: 'Marin G.', ballsByA: true }, { playerA: 'Casadio M.', playerB: 'Bianco D.', ballsByA: true }], libre: 'Fernandez B.' },
+      { fecha: 3, matches: [{ playerA: 'Marin G.', playerB: 'Casadio M.', ballsByA: true }, { playerA: 'Bianco D.', playerB: 'Fernandez B.', ballsByA: true }], libre: 'Aguirre W.' },
+      { fecha: 4, matches: [{ playerA: 'Bianco D.', playerB: 'Marin G.', ballsByA: true }, { playerA: 'Fernandez B.', playerB: 'Aguirre W.', ballsByA: true }], libre: 'Casadio M.' },
+      { fecha: 5, matches: [{ playerA: 'Fernandez B.', playerB: 'Casadio M.', ballsByA: true }, { playerA: 'Aguirre W.', playerB: 'Bianco D.', ballsByA: true }], libre: 'Marin G.' },
     ],
   },
   {
     name: 'Grupo C',
     fechas: [
-      { fecha: 1, matches: [{ playerA: 'Vito C.', playerB: 'Santi G.', ballsByA: true }, { playerA: 'Del Valle G.', playerB: 'Ferreres G.', ballsByA: true }], libre: 'Komesu F.' },
-      { fecha: 2, matches: [{ playerA: 'Ferreres G.', playerB: 'Vito C.', ballsByA: true }, { playerA: 'Del Valle G.', playerB: 'Komesu F.', ballsByA: true }], libre: 'Santi G.' },
-      { fecha: 3, matches: [{ playerA: 'Vito C.', playerB: 'Del Valle G.', ballsByA: true }, { playerA: 'Komesu F.', playerB: 'Santi G.', ballsByA: true }], libre: 'Ferreres G.' },
-      { fecha: 4, matches: [{ playerA: 'Komesu F.', playerB: 'Vito C.', ballsByA: true }, { playerA: 'Santi G.', playerB: 'Ferreres G.', ballsByA: true }], libre: 'Del Valle G.' },
-      { fecha: 5, matches: [{ playerA: 'Santi G.', playerB: 'Del Valle G.', ballsByA: true }, { playerA: 'Ferreres G.', playerB: 'Komesu F.', ballsByA: true }], libre: 'Vito C.' },
+      { fecha: 1, matches: [{ playerA: 'Vito C.', playerB: 'Santi G.', ballsByA: true }, { playerA: 'Del Valle G.', playerB: 'Ferreres G.', ballsByA: true }], libre: 'Figueroa M.' },
+      { fecha: 2, matches: [{ playerA: 'Ferreres G.', playerB: 'Vito C.', ballsByA: true }, { playerA: 'Del Valle G.', playerB: 'Figueroa M.', ballsByA: true }], libre: 'Santi G.' },
+      { fecha: 3, matches: [{ playerA: 'Vito C.', playerB: 'Del Valle G.', ballsByA: true }, { playerA: 'Figueroa M.', playerB: 'Santi G.', ballsByA: true }], libre: 'Ferreres G.' },
+      { fecha: 4, matches: [{ playerA: 'Figueroa M.', playerB: 'Vito C.', ballsByA: true }, { playerA: 'Santi G.', playerB: 'Ferreres G.', ballsByA: true }], libre: 'Del Valle G.' },
+      { fecha: 5, matches: [{ playerA: 'Santi G.', playerB: 'Del Valle G.', ballsByA: true }, { playerA: 'Ferreres G.', playerB: 'Figueroa M.', ballsByA: true }], libre: 'Vito C.' },
     ],
   },
 ];
