@@ -428,8 +428,8 @@ describe('buildImportantMatchReasonLabels', () => {
     });
     expect(mainReason).toBe('FINAL');
     expect(reasonLabels).toContain('FINAL');
-    expect(reasonLabels).toContain('TOP SEEDS');
-    expect(reasonLabels).toContain('TOP RANKING');
+    expect(reasonLabels).toContain('Cabezas de serie');
+    expect(reasonLabels).toContain('Top ranking');
     expect(reasonLabels).toContain('Torneo en curso');
   });
 
@@ -466,7 +466,7 @@ describe('buildImportantMatchReasonLabels', () => {
     expect(mainReason).toBe('FINAL');
   });
 
-  it('en fase de grupos, TOP SEEDS gana a FECHA si no es final ni semifinal', () => {
+  it('en fase de grupos, muestra GRUPOS aunque haya cabezas de serie', () => {
     const tour = baseTournament();
     const { mainReason } = buildImportantMatchReasonLabels({
       schedule: {
@@ -495,10 +495,10 @@ describe('buildImportantMatchReasonLabels', () => {
       player1Seed: 1,
       player2Seed: 2,
     });
-    expect(mainReason).toBe('TOP SEEDS');
+    expect(mainReason).toBe('GRUPOS');
   });
 
-  it('TOP RANKING no lo desplaza el sello logístico', () => {
+  it('GRUPOS no lo desplaza el sello logístico ni top ranking', () => {
     const tour = baseTournament();
     const { mainReason, reasonLabels } = buildImportantMatchReasonLabels({
       schedule: {
@@ -530,7 +530,7 @@ describe('buildImportantMatchReasonLabels', () => {
       player1RankingPosition: 2,
       player2RankingPosition: 5,
     });
-    expect(mainReason).toBe('TOP RANKING');
+    expect(mainReason).toBe('GRUPOS');
     expect(reasonLabels.join('|').includes('Sede')).toBe(false);
     expect(reasonLabels).toContain('Confirmación registrada');
   });
@@ -594,7 +594,7 @@ describe('buildImportantMatchReasonLabels', () => {
     expect(mainReason).toBe('CUARTOS');
   });
 
-  it('torneo Masters 1000 muestra etiqueta y prioriza por encima de LIGA', () => {
+  it('torneo Masters 1000 mantiene GRUPOS como fase principal', () => {
     const tour = baseTournament({ id: 't-masters', name: 'Masters Finals' });
     const { mainReason, reasonLabels } = buildImportantMatchReasonLabels({
       schedule: {
@@ -623,6 +623,6 @@ describe('buildImportantMatchReasonLabels', () => {
     });
     expect(reasonLabels).toContain('MASTERS 1000');
     expect(reasonLabels.indexOf('MASTERS 1000')).toBeLessThan(reasonLabels.indexOf('LIGA 1'));
-    expect(mainReason).toBe('MASTERS 1000');
+    expect(mainReason).toBe('GRUPOS');
   });
 });

@@ -37,6 +37,7 @@ import {
 import { AdminMatchScoreGrid } from '../AdminMatchScoreGrid';
 import { matchPresentationPrimaryBadge, resolveAdminMatchPresentation } from '@/lib/tennis/matchDisplayState';
 import { AdminConfirmDialog } from '../AdminConfirmDialog';
+import { AdminGlobalModal } from '../AdminGlobalModal';
 import { useOptionalAdminTournamentSeed } from '../AdminTournamentSeedContext';
 import {
   clearMatchDraftSessionForTournament,
@@ -55,7 +56,7 @@ import {
   isKnockoutMatchPlayableNames,
 } from '@/lib/tennis/adminPendingWorkload';
 import type { MatchScheduleEntry } from '@/lib/tennis/matchScheduleStore';
-import { useMatchSchedules } from '@/lib/tennis/matchScheduleStore';
+import { upsertMatchSchedule, useMatchSchedules } from '@/lib/tennis/matchScheduleStore';
 import {
   matchScheduleHasDateTimeForPlayedResult,
   SCHEDULE_REQUIRED_FOR_PLAYED_MESSAGE,
@@ -92,6 +93,12 @@ const SCHEDULE_REQUIRED_FOR_PLAYED_DESC = (
   <p className="text-sm leading-relaxed text-[#616f89] dark:text-gray-400">{SCHEDULE_REQUIRED_FOR_PLAYED_MESSAGE}</p>
 );
 type EditableRow = { kind: 'fixture'; entry: FixtureCatalogEntry } | { kind: 'ko'; entry: KnockoutAdminEntry };
+type InlineScheduleModalState = {
+  dedupeKey: string;
+  date: string;
+  time: string;
+  note: string;
+} | null;
 
 function rowDedupeKey(row: EditableRow): string {
   return row.kind === 'fixture' ? row.entry.dedupeKey : row.entry.dedupeKey;
@@ -111,6 +118,10 @@ function rowMeta(row: EditableRow): { groupLabel: string; fechaLabel: string; su
     fechaLabel: 'Eliminación',
     subLabel: row.entry.roundLabel,
   };
+}
+
+function normalizeScheduleText(value: string): string {
+  return value.trim();
 }
 
 function groupRankingPointsPreviewForRow(
@@ -519,7 +530,6 @@ export function AdminResultsVisualPanel({
   onRegisterBulkSave,
   focusDedupeKey,
   onConsumedFocusDedupeKey,
-  onRequestProgramarPartido,
 }: Props) {
   const results = useResults();
   const { players } = useClubData();
@@ -579,6 +589,8 @@ export function AdminResultsVisualPanel({
   const [suspendConfirmRow, setSuspendConfirmRow] = useState<EditableRow | null>(null);
   const [saveConfirmRow, setSaveConfirmRow] = useState<EditableRow | null>(null);
   const [scheduleRequiredModalKey, setScheduleRequiredModalKey] = useState<string | null>(null);
+  const [inlineScheduleModal, setInlineScheduleModal] = useState<InlineScheduleModalState>(null);
+  const [inlineScheduleError, setInlineScheduleError] = useState<string | null>(null);
   const [confirmGroupStageOpen, setConfirmGroupStageOpen] = useState(false);
   const [unlockGroupStageOpen, setUnlockGroupStageOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState<'pending' | 'played'>('pending');
@@ -683,6 +695,48 @@ export function AdminResultsVisualPanel({
     }
     return m;
   }, [matchSchedules, tournamentId]);
+
+  const openInlineScheduleModal = useCallback(
+    (dedupeKey: string) => {
+      const prev = scheduleByKeyForTournament.get(dedupeKey);
+      setInlineScheduleError(null);
+      setInlineScheduleModal({
+        dedupeKey,
+        date: prev?.date ?? '',
+        time: prev?.time ?? '',
+        note: prev?.note ?? '',
+      });
+    },
+    [scheduleByKeyForTournament],
+  );
+
+  const saveInlineSchedule = useCallback(() => {
+    if (!inlineScheduleModal) return;
+    const date = normalizeScheduleText(inlineScheduleModal.date);
+    const time = normalizeScheduleText(inlineScheduleModal.time);
+    const note = normalizeScheduleText(inlineScheduleModal.note);
+    if (!date || !time) {
+      setInlineScheduleError('Para programar, completá fecha y hora.');
+      return;
+    }
+    const prev = scheduleByKeyForTournament.get(inlineScheduleModal.dedupeKey);
+    const wasPublished = prev?.scheduleStatus === 'confirmed' || prev?.scheduleStatus === 'rescheduled';
+    upsertMatchSchedule({
+      dedupeKey: inlineScheduleModal.dedupeKey,
+      tournamentId,
+      leagueNum,
+      scheduleStatus: 'scheduled',
+      date,
+      time,
+      venue: prev?.venue,
+      note,
+      confirmedAt: wasPublished && prev?.confirmedAt != null ? prev.confirmedAt : undefined,
+    });
+    setInlineScheduleModal(null);
+    setInlineScheduleError(null);
+    setToast({ text: 'Fecha y hora guardadas. Ahora podés guardar el resultado.', variant: 'success' });
+    window.setTimeout(() => setToast(null), 4500);
+  }, [inlineScheduleModal, leagueNum, scheduleByKeyForTournament, tournamentId]);
 
   const ensureDraft = useCallback(
     (row: EditableRow) => {
@@ -1511,6 +1565,10 @@ export function AdminResultsVisualPanel({
     );
   };
 
+  const inlineScheduleRow = inlineScheduleModal ? rowsByDedupeKey.get(inlineScheduleModal.dedupeKey) : undefined;
+  const inlineSchedulePlayers = inlineScheduleRow ? rowPlayers(inlineScheduleRow) : null;
+  const inlineScheduleMeta = inlineScheduleRow ? rowMeta(inlineScheduleRow) : null;
+
   return (
     <div className="space-y-5">
       <div className="flex flex-col gap-3 border-b border-gray-200/90 pb-3 dark:border-gray-700 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between sm:gap-x-4">
@@ -1803,10 +1861,82 @@ export function AdminResultsVisualPanel({
         onConfirm={() => {
           const k = scheduleRequiredModalKey;
           setScheduleRequiredModalKey(null);
-          if (k) onRequestProgramarPartido?.(k);
+          if (k) openInlineScheduleModal(k);
           return true;
         }}
       />
+
+      {inlineScheduleModal ? (
+        <AdminGlobalModal
+          open={inlineScheduleModal != null}
+          onClose={() => {
+            setInlineScheduleModal(null);
+            setInlineScheduleError(null);
+          }}
+          labelledBy="admin-result-inline-schedule-title"
+          panelClassName="max-w-lg"
+        >
+          <h3 id="admin-result-inline-schedule-title" className="text-base font-bold text-[#111318] dark:text-white">
+            Programación
+          </h3>
+          <p className="mt-1 text-xs text-[#616f89] dark:text-gray-400">
+            Asigná fecha y hora para poder guardar este resultado. Puede ser una fecha pasada si el partido ya se jugó.
+          </p>
+          {inlineSchedulePlayers && inlineScheduleMeta ? (
+            <div className="mt-3 rounded-lg border border-gray-200/90 bg-gray-50 px-3 py-2 text-xs text-[#616f89] dark:border-gray-600/70 dark:bg-gray-900 dark:text-gray-300">
+              <p className="font-bold text-[#111318] dark:text-white">
+                {inlineSchedulePlayers.a} vs {inlineSchedulePlayers.b}
+              </p>
+              <p className="mt-0.5">{inlineScheduleMeta.subLabel}</p>
+            </div>
+          ) : null}
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <label className="space-y-1 text-xs font-semibold text-[#616f89] dark:text-gray-400">
+              Fecha
+              <input
+                type="date"
+                value={inlineScheduleModal.date}
+                onChange={(e) => setInlineScheduleModal((prev) => (prev ? { ...prev, date: e.target.value } : prev))}
+                className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-900"
+              />
+            </label>
+            <label className="space-y-1 text-xs font-semibold text-[#616f89] dark:text-gray-400">
+              Hora
+              <input
+                type="time"
+                value={inlineScheduleModal.time}
+                onChange={(e) => setInlineScheduleModal((prev) => (prev ? { ...prev, time: e.target.value } : prev))}
+                className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-900"
+              />
+            </label>
+            <label className="space-y-1 text-xs font-semibold text-[#616f89] dark:text-gray-400 sm:col-span-2">
+              Observación (opcional)
+              <textarea
+                value={inlineScheduleModal.note}
+                onChange={(e) => setInlineScheduleModal((prev) => (prev ? { ...prev, note: e.target.value } : prev))}
+                rows={3}
+                className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-900"
+              />
+            </label>
+          </div>
+          {inlineScheduleError ? <p className="mt-2 text-sm text-rose-700 dark:text-rose-300">{inlineScheduleError}</p> : null}
+          <div className="mt-4 flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setInlineScheduleModal(null);
+                setInlineScheduleError(null);
+              }}
+              className="rounded-md border border-gray-200 px-3 py-2 text-sm font-semibold dark:border-gray-600"
+            >
+              Cancelar
+            </button>
+            <button type="button" onClick={saveInlineSchedule} className="rounded-md border admin-theme-btn px-3 py-2 text-sm font-bold">
+              Guardar
+            </button>
+          </div>
+        </AdminGlobalModal>
+      ) : null}
 
       <AdminConfirmDialog
         open={saveConfirmRow != null}

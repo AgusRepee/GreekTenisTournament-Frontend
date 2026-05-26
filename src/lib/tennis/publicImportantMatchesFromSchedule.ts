@@ -140,13 +140,13 @@ const REASON_TIER = {
   CUARTOS: 3,
   OCTAVOS: 4,
   REPECHAJE: 5,
-  TOP_SEEDS: 6,
-  TOP_RANKING: 7,
+  TOP_SEEDS: 60,
+  TOP_RANKING: 70,
   MASTERS_1000: 8,
   LIGA: 9,
   /** Partido “normal” de fecha 1 sin señales fuertes (ver `buildImportantMatchReasonLabels`). */
   PROXIMO: 10,
-  FECHA_GRUPOS: 11,
+  FECHA_GRUPOS: 6,
   DESTACADO: 12,
   PROGRAMADO: 13,
   /** Solo secundario: no compite por `mainReason`. */
@@ -216,16 +216,16 @@ export function buildImportantMatchReasonLabels(ctx: ImportantMatchScoreContext)
     if (!hasSportSignal && r === 1) {
       slots.push({ tier: REASON_TIER.PROXIMO, label: 'Próximo partido' });
     } else {
-      slots.push({ tier: REASON_TIER.FECHA_GRUPOS, label: `FECHA ${r}` });
+      slots.push({ tier: REASON_TIER.FECHA_GRUPOS, label: 'GRUPOS' });
     }
   }
 
   if (topSeeds) {
-    slots.push({ tier: REASON_TIER.TOP_SEEDS, label: 'TOP SEEDS' });
+    slots.push({ tier: REASON_TIER.TOP_SEEDS, label: 'Cabezas de serie', minor: true });
   }
 
   if (topRank) {
-    slots.push({ tier: REASON_TIER.TOP_RANKING, label: 'TOP RANKING' });
+    slots.push({ tier: REASON_TIER.TOP_RANKING, label: 'Top ranking', minor: true });
   }
 
   if (masters) {
@@ -445,7 +445,7 @@ export function listImportantMatchesFromSchedules(
     const { reasonLabels, mainReason } = buildImportantMatchReasonLabels(scoreCtx);
 
     const category = leagueToCategory(league);
-    const label = `${row.fixtureRoundLabel} · ${tour.name}`;
+    const label = tour.name.replace(/\s*-\s*Liga\s*\d+$/i, '').trim();
     const dateRaw = s.date!.trim();
     const dateShort = formatScheduleDateShort(dateRaw);
     const timePart = s.time!.trim();

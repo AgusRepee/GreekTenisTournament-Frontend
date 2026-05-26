@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseMatchScore } from "../matchStatsEngine";
+import { parseMatchScore, resolvePlayerAlias } from "../matchStatsEngine";
 
 describe("parseMatchScore", () => {
   it("parsea sets corridos", () => {
@@ -56,5 +56,17 @@ describe("parseMatchScore", () => {
   it("en modo admin exige Super Tie-Break si hay tres segmentos", () => {
     expect(() => parseMatchScore("6-4 4-6 6-3", { requireThirdSetSuperTiebreak: true })).toThrow();
     expect(() => parseMatchScore("6-4 4-6 10-8", { requireThirdSetSuperTiebreak: true })).not.toThrow();
+  });
+});
+
+describe("resolvePlayerAlias", () => {
+  const registry = [{ name: "Monzon M.", id: "p-l2-monzon-m" }];
+
+  it("empareja nombre con tilde en partido contra roster sin tilde", () => {
+    expect(resolvePlayerAlias("Monzón M.", registry)).toBe("Monzon M.");
+  });
+
+  it("empareja roster sin tilde consigo mismo", () => {
+    expect(resolvePlayerAlias("Monzon M.", registry)).toBe("Monzon M.");
   });
 });

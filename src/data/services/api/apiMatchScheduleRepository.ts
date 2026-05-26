@@ -9,6 +9,7 @@ import {
   postMatchSchedule,
   putMatchSchedule,
 } from '@/lib/api/apiClient';
+import { hasAdminApiCredentials } from '@/lib/adminTokenStorage';
 
 const EMPTY_SERVER: MatchScheduleEntry[] = Object.freeze([]) as unknown as MatchScheduleEntry[];
 
@@ -63,7 +64,9 @@ export function createApiMatchScheduleRepository(): MatchSchedulePort {
     }
   }
 
-  void reloadFromServer();
+  if (hasAdminApiCredentials()) {
+    void reloadFromServer();
+  }
 
   return {
     getAllSchedules(): MatchScheduleEntry[] {

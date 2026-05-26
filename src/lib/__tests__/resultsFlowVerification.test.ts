@@ -1,8 +1,25 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import type { MatchInput } from '@/types/tennisResults';
-import type { Player, Tournament } from '@/lib/mockData';
+import type { Player, Tournament, Match } from '@/lib/mockData';
 import { validateMatchResult } from '@/lib/tournamentEngine';
 import { failedFlowChecks, runResultsFlowVerification } from '@/lib/tennis/resultsFlowVerification';
+import type { ClubCatalogPort } from '@/data/services/contracts/clubCatalogPort';
+import { setClubCatalogPort, resetDataPortsToLocalDefaults } from '@/data/services/registry';
+
+function stubClubCatalogPort(players: Player[]): ClubCatalogPort {
+  const snapshot = { players, tournaments: [] as Tournament[], matches: [] as Match[] };
+  const listeners = new Set<() => void>();
+  return {
+    getSnapshot: () => snapshot,
+    subscribe: (cb: () => void) => {
+      listeners.add(cb);
+      return () => listeners.delete(cb);
+    },
+    refresh: () => {
+      listeners.forEach((cb) => cb());
+    },
+  };
+}
 
 const p = (id: string, name: string): Player => ({
   id,
@@ -41,6 +58,14 @@ const engineRef = {
 describe('resultsFlowVerification (Alvarez vs Araujo)', () => {
   const players = [p('p-alvarez', 'Alvarez I.'), p('p-araujo', 'Araujo J.')];
   const tournaments = [tournamentFlow('t-flow')];
+
+  beforeEach(() => {
+    setClubCatalogPort(stubClubCatalogPort(players));
+  });
+
+  afterEach(() => {
+    resetDataPortsToLocalDefaults();
+  });
 
   const baseMatch = (score: string): MatchInput => ({
     matchId: 'm-alv-ar',

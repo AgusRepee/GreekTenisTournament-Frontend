@@ -276,22 +276,20 @@ export default function AdminTournamentWorkspace() {
   const handleRequestProgramarPartido = useCallback(
     (dedupeKey: string) => {
       if (workspaceReadOnly) return;
-      requestNavigate(() => {
-        flushSync(() => {
-          setFocusScheduleDedupeKey(dedupeKey);
-          setTorneoSection('fechas');
-          setSearchParams(
-            (prev) => {
-              const n = new URLSearchParams(prev);
-              n.set('tab', 'fechas');
-              return n;
-            },
-            { replace: true },
-          );
-        });
+      flushSync(() => {
+        setFocusScheduleDedupeKey(dedupeKey);
+        setTorneoSection('fechas');
+        setSearchParams(
+          (prev) => {
+            const n = new URLSearchParams(prev);
+            n.set('tab', 'fechas');
+            return n;
+          },
+          { replace: true },
+        );
       });
     },
-    [requestNavigate, workspaceReadOnly, setSearchParams],
+    [workspaceReadOnly, setSearchParams],
   );
 
   const processingProgramarRef = useRef(false);

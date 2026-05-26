@@ -10,7 +10,7 @@ export const LIGA6_ND_CLASSIFICATION_RULE =
 
 export const LIGA6_ND_GROUPS = {
   A: ['Cellilli F.', 'Amezague J.', 'De Ruyck G.', 'Fedrjanic N.', 'Bataglia F.'],
-  B: ['Ballesta F.', 'Antuña A.', 'Ferrarotti E.', 'Fratini M.', 'Oshiro E.'],
+  B: ['Ballesta F.', 'Antuña A.', 'Ferrarotti E.', 'Fratini M.'],
 } as const;
 
 export const LIGA6_ND_TEMPLATE: LigaTemplate = {
@@ -91,12 +91,8 @@ export const LIGA6_ND_FIXTURES: FixtureSeed[] = [
   fixture({ group: 'B', round: 5, date: '2026-03-24', time: '09:00', playerA: 'Antuña A.', playerB: 'Fratini M.', ballPlayer: 'Antuña A.', winner: 'Antuña A.', winnerScore: '6-1 / 6-1', note: 'Unificado desde Antuña R.' }),
   fixture({ group: 'B', round: 1, date: '2026-04-02', time: '21:00', playerA: 'Ballesta F.', playerB: 'Ferrarotti E.', ballPlayer: 'Ballesta F.', winner: 'Ballesta F.', winnerScore: '6-1 / 6-1' }),
   fixture({ group: 'B', round: 3, date: '2026-04-12', time: '16:00', playerA: 'Fratini M.', playerB: 'Ferrarotti E.', ballPlayer: 'Fratini M.', winner: 'Ferrarotti E.', winnerScore: '6-2 / 6-1' }),
-  fixture({ group: 'B', round: 1, date: '2026-04-12', time: '18:00', playerA: 'Oshiro E.', playerB: 'Antuña A.', ballPlayer: 'Oshiro E.', winner: 'Antuña A.', winnerScore: '6-2 / 6-1' }),
-  fixture({ group: 'B', round: 2, date: '2026-04-26', time: '16:00', playerA: 'Oshiro E.', playerB: 'Fratini M.', ballPlayer: 'Oshiro E.', winner: 'Fratini M.', winnerScore: '0-1 y abandono por lesión', scoreIsPlayerAPerspective: true, status: 'retired' }),
   fixture({ group: 'B', round: 4, date: '2026-04-26', time: '19:00', playerA: 'Ferrarotti E.', playerB: 'Antuña A.', ballPlayer: 'Ferrarotti E.', winner: 'Antuña A.', winnerScore: '6-1 / 6-0' }),
-  fixture({ group: 'B', round: 3, date: '2026-05-01', time: '12:45', playerA: 'Ballesta F.', playerB: 'Oshiro E.', ballPlayer: 'Ballesta F.', winner: 'Ballesta F.', winnerScore: 'W.O.', status: 'walkover', note: 'Resultado informado el 06/05/2026.' }),
   fixture({ group: 'B', round: 4, playerA: 'Ballesta F.', playerB: 'Fratini M.', winner: 'Ballesta F.', winnerScore: 'W.O.', status: 'walkover', note: 'Resultado informado el 06/05/2026.' }),
-  fixture({ group: 'B', round: 5, playerA: 'Ferrarotti E.', playerB: 'Oshiro E.', winner: 'Ferrarotti E.', winnerScore: 'W.O.', status: 'walkover', note: 'Resultado informado el 06/05/2026.' }),
 
   fixture({ group: 'Cuartos de Final', round: 0, playerA: 'Cellilli F.', playerB: 'BYE', winner: 'Cellilli F.', winnerScore: 'W.O.', status: 'walkover', note: 'Cellilli F. pasa directo a Semifinal por BYE.' }),
   fixture({ group: 'Cuartos de Final', round: 0, playerA: 'Antuña A.', playerB: 'De Ruyck G.', note: 'Pendiente / sin resultado cargado.' }),

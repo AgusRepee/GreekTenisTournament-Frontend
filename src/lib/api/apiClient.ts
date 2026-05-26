@@ -1,6 +1,8 @@
 /**
  * Cliente HTTP unificado para modo `VITE_DATA_SOURCE=api`.
  * Prefijo base: `import.meta.env.VITE_API_URL` (sin barra final).
+ * En `vite build` sin `.env.production`, en producción se usa la API pública por defecto
+ * (evita bundles rotos en Hostinger; igual conviene definir `VITE_API_URL` para staging / otra API).
  * Admin: JWT en `sessionStorage` (login) o, solo en desarrollo, `VITE_ADMIN_TOKEN`.
  */
 
@@ -12,10 +14,24 @@ import type { BulkSaveResultsBody, FinalizeTournamentBody } from './types';
 
 export { getStoredAdminToken, setStoredAdminToken };
 
+/** Origen API por defecto en producción (no es secreto; coincide con `.env.production.example`). */
+const DEFAULT_PRODUCTION_API_URL = 'https://api.greektennis.com';
+
 function baseUrl(): string {
-  const u = import.meta.env.VITE_API_URL?.trim();
-  if (!u) throw new Error('VITE_API_URL no definido (necesario para modo api)');
-  return u.replace(/\/+$/, '');
+  const fromEnv = import.meta.env.VITE_API_URL?.trim();
+  if (fromEnv) return fromEnv.replace(/\/+$/, '');
+  if (import.meta.env.PROD) {
+    if (typeof console !== 'undefined' && console.warn) {
+      console.warn(
+        `[apiClient] VITE_API_URL no estaba definido en el build; usando ${DEFAULT_PRODUCTION_API_URL}. ` +
+          'Creá `.env.production` desde `.env.production.example` antes de `npm run build:production`.',
+      );
+    }
+    return DEFAULT_PRODUCTION_API_URL;
+  }
+  throw new Error(
+    'VITE_API_URL no definido. En desarrollo copiá `.env.example` a `.env.local` o definí VITE_API_URL.',
+  );
 }
 
 function headersJson(requireAuth: boolean): HeadersInit {
@@ -51,7 +67,8 @@ async function req<T>(method: string, path: string, body?: unknown, requireAuth 
       clearAdminSession();
       if (typeof window !== 'undefined') {
         const pathname = window.location.pathname;
-        if (!pathname.startsWith('/login')) {
+        // Solo redirigir en zona admin: en rutas públicas los repos pueden intentar GET admin sin JWT y el 401 no debe expulsar al visitante.
+        if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
           window.location.assign('/login?sesion=expirada');
         }
       }

@@ -105,6 +105,60 @@ function getPublicMatchWinnerSide(result: MatchInput | undefined): 'a' | 'b' | n
   return null;
 }
 
+function isPublicWalkoverScore(score: string): boolean {
+  return /^[AB]$/i.test(score.trim()) || /\bW\.?O\.?\b/i.test(score);
+}
+
+function publicApiMatchToResult(row: Record<string, unknown>): MatchInput | null {
+  const tournamentId = typeof row.tournamentId === 'string' ? row.tournamentId.trim() : '';
+  const stage = typeof row.stage === 'string' ? row.stage.trim().toLowerCase() : '';
+  if (!tournamentId || stage !== 'group') return null;
+
+  const player1 = row.player1 && typeof row.player1 === 'object' ? (row.player1 as Record<string, unknown>) : null;
+  const player2 = row.player2 && typeof row.player2 === 'object' ? (row.player2 as Record<string, unknown>) : null;
+  const playerA = typeof player1?.name === 'string' ? cleanPlayerName(player1.name) : '';
+  const playerB = typeof player2?.name === 'string' ? cleanPlayerName(player2.name) : '';
+  if (!playerA || !playerB) return null;
+
+  const roundLabel = typeof row.roundLabel === 'string' ? row.roundLabel : '';
+  const groupFromLabel = /grupo\s+([A-Za-z0-9]+)/i.exec(roundLabel)?.[1]?.toUpperCase();
+  const roundFromLabel = /fecha\s+(\d+)/i.exec(roundLabel)?.[1];
+  const groupKey = typeof row.groupKey === 'string' && row.groupKey.trim()
+    ? row.groupKey.trim()
+    : groupFromLabel;
+  const roundNum = typeof row.roundNum === 'number' && Number.isFinite(row.roundNum)
+    ? row.roundNum
+    : roundFromLabel
+      ? Number(roundFromLabel)
+      : 0;
+  const score = typeof row.score === 'string' ? row.score.trim() : '';
+  const completed = row.completed === true || Boolean(score);
+  const status: MatchInput['status'] = !completed
+    ? 'pending'
+    : isPublicWalkoverScore(score)
+      ? 'walkover'
+      : /\bRET\.?\b|\bABANDONO\b/i.test(score)
+        ? 'retired'
+        : 'played';
+
+  const playedAt = row.playedAt ?? row.updatedAt ?? row.scheduledDate;
+  const date =
+    typeof playedAt === 'string' && playedAt.trim()
+      ? playedAt.slice(0, 10)
+      : undefined;
+
+  return {
+    tournamentId,
+    group: groupKey,
+    round: roundNum,
+    playerA,
+    playerB,
+    score,
+    status,
+    date,
+  };
+}
+
 function formatScheduleStatusLabel(status: MatchScheduleStatus | undefined): string {
   if (status === 'confirmed') return 'Confirmado';
   if (status === 'rescheduled') return 'Reprogramado';
@@ -180,6 +234,7 @@ export const TournamentDetailScreen: React.FC<TournamentDetailScreenProps> = ({ 
   const { rankingsByLeague, knockoutMerged, results } = useTennisLiveData();
   const schedules = useMatchSchedules();
   const dataSourceMode = getDataSourceMode();
+  const [publicApiResults, setPublicApiResults] = useState<MatchInput[]>([]);
   const tournament = useMemo(
     () => (tournamentId ? getTournamentById(tournamentId) : getTournamentById('t-novak')),
     [tournamentId, club],
@@ -193,12 +248,23 @@ export const TournamentDetailScreen: React.FC<TournamentDetailScreenProps> = ({ 
   }, [dataSourceMode, tournament?.id]);
 
   useEffect(() => {
-    if (dataSourceMode !== 'api' || !tournament?.id) return;
+    if (dataSourceMode !== 'api' || !tournament?.id) {
+      setPublicApiResults([]);
+      return;
+    }
     let cancelled = false;
     void (async () => {
       try {
         const data = await getPublicScheduleByTournamentId(tournament.id);
         if (cancelled || !data || typeof data !== 'object') return;
+        const rawMatches = (data as { matches?: unknown }).matches;
+        if (Array.isArray(rawMatches)) {
+          const mappedResults = rawMatches
+            .map((r) => (r && typeof r === 'object' ? publicApiMatchToResult(r as Record<string, unknown>) : null))
+            .filter((r): r is MatchInput => r != null);
+          setPublicApiResults(mappedResults);
+        }
+
         const raw = (data as { schedules?: unknown }).schedules;
         if (!Array.isArray(raw)) return;
         const rows: MatchScheduleEntry[] = [];
@@ -209,12 +275,21 @@ export const TournamentDetailScreen: React.FC<TournamentDetailScreenProps> = ({ 
         mergeMatchScheduleRows(rows);
       } catch {
         /* sin API o torneo no persistido en MySQL */
+        if (!cancelled) setPublicApiResults([]);
       }
     })();
     return () => {
       cancelled = true;
     };
   }, [dataSourceMode, tournament?.id]);
+
+  const effectiveResults = useMemo(() => {
+    if (dataSourceMode !== 'api' || publicApiResults.length === 0) return results;
+    const byKey = new Map<string, MatchInput>();
+    for (const m of results) byKey.set(matchInputDedupeKey(m), m);
+    for (const m of publicApiResults) byKey.set(matchInputDedupeKey(m), m);
+    return Array.from(byKey.values());
+  }, [dataSourceMode, results, publicApiResults]);
 
   useEffect(() => {
     if (dataSourceMode !== 'api' || !tournament?.id) return;
@@ -287,9 +362,9 @@ export const TournamentDetailScreen: React.FC<TournamentDetailScreenProps> = ({ 
     const template = getTemplateForTournament(tournament);
     if (!meta || !template) return null;
     const torneo = { grupos: getEffectiveGrupos(tournament, template) };
-    const filtered = collectResultsForTournament(tournament.id, template, results);
+    const filtered = collectResultsForTournament(tournament.id, template, effectiveResults);
     return computeTournamentSnapshot(meta, torneo, filtered);
-  }, [tournament, results, club]);
+  }, [tournament, effectiveResults, club]);
 
   const groupTables = useMemo(() => {
     if (!tournament) return [];
@@ -309,8 +384,8 @@ export const TournamentDetailScreen: React.FC<TournamentDetailScreenProps> = ({ 
   }, [tournament, rankingsByLeague, groupTables]);
 
   const groupFixtures = useMemo(
-    () => (tournament && !isPlaceholderTournament ? buildPublicGroupStageFixtures(tournament.id, results) : []),
-    [tournament, results, isPlaceholderTournament],
+    () => (tournament && !isPlaceholderTournament ? buildPublicGroupStageFixtures(tournament.id, effectiveResults) : []),
+    [tournament, effectiveResults, isPlaceholderTournament],
   );
   const ballCarrierByMatchKey = useMemo(() => {
     if (!tournament) return new Map<string, string>();
@@ -340,26 +415,26 @@ export const TournamentDetailScreen: React.FC<TournamentDetailScreenProps> = ({ 
     const tid = tournament.id;
     if (tid === LIGA3_TOURNAMENT_ID) {
       const raw = getUpcomingMatchesForTournament(tid);
-      return filterUpcomingStillPending(raw, results, tid);
+      return filterUpcomingStillPending(raw, effectiveResults, tid);
     }
     if (isPlaceholderTournament) {
       const raw = getUpcomingMatchesForTournament(tid);
-      return filterUpcomingStillPending(raw, results, tid);
+      return filterUpcomingStillPending(raw, effectiveResults, tid);
     }
     const fromSchedule = buildUpcomingFromConfirmedSchedules(tid, schedules, club.players);
     const legacy = getUpcomingMatchesForTournament(tid);
     const merged = mergeUpcomingPreferSchedule(fromSchedule, legacy);
-    return filterUpcomingStillPending(merged, results, tid);
-  }, [tournament, isPlaceholderTournament, schedules, club.players, results]);
+    return filterUpcomingStillPending(merged, effectiveResults, tid);
+  }, [tournament, isPlaceholderTournament, schedules, club.players, effectiveResults]);
 
   const liga3GroupResultRows = useMemo(
-    () => (tournament?.id === LIGA3_TOURNAMENT_ID ? mergeLiga3GroupResultsWithStore(results) : []),
-    [tournament?.id, results],
+    () => (tournament?.id === LIGA3_TOURNAMENT_ID ? mergeLiga3GroupResultsWithStore(effectiveResults) : []),
+    [tournament?.id, effectiveResults],
   );
   const liga3ElimFromStore = useMemo(
     () =>
-      tournament?.id === LIGA3_TOURNAMENT_ID ? listPublicTournamentResultRows(tournament.id, results).filter((r) => r.phase === 'Eliminación') : [],
-    [tournament?.id, results],
+      tournament?.id === LIGA3_TOURNAMENT_ID ? listPublicTournamentResultRows(tournament.id, effectiveResults).filter((r) => r.phase === 'Eliminación') : [],
+    [tournament?.id, effectiveResults],
   );
   const coverUrl = tournament?.coverImage ? getCoverImageUrl(tournament.coverImage) : '';
 
@@ -368,19 +443,19 @@ export const TournamentDetailScreen: React.FC<TournamentDetailScreenProps> = ({ 
     if (snapshot && snapshot.globalStats.length > 0) {
       return snapshotToTournamentTopRanking(snapshot, tournament, 5);
     }
-    return getTournamentTopRankingFromResults(tournament.id, club.players, club.tournaments, results, knockoutMerged, 5);
-  }, [tournament, snapshot, club, results, knockoutMerged]);
+    return getTournamentTopRankingFromResults(tournament.id, club.players, club.tournaments, effectiveResults, knockoutMerged, 5);
+  }, [tournament, snapshot, club, effectiveResults, knockoutMerged]);
   const bracketSourceId = isPlaceholderTournament ? EMPTY_BRACKET_TOURNAMENT_ID : tournament?.id ?? EMPTY_BRACKET_TOURNAMENT_ID;
   const bracketRounds = useMemo(
     () => (tournament ? getBracketRoundsForUI(bracketSourceId, tournamentSeedMap) : []),
-    [tournament?.id, isPlaceholderTournament, club, results, tournamentSeedMap],
+    [tournament?.id, isPlaceholderTournament, club, effectiveResults, tournamentSeedMap],
   );
 
   const calendarStructureRows = useMemo(() => buildTournamentCalendarRowsFromLigaDoc(tournament ?? null), [tournament]);
 
   const publicResultRows = useMemo(
-    () => (tournament ? listPublicTournamentResultRows(tournament.id, results) : []),
-    [tournament, results],
+    () => (tournament ? listPublicTournamentResultRows(tournament.id, effectiveResults) : []),
+    [tournament, effectiveResults],
   );
 
   const publicMatchRows = useMemo(() => {
@@ -389,7 +464,7 @@ export const TournamentDetailScreen: React.FC<TournamentDetailScreenProps> = ({ 
       schedules.filter((s) => s.tournamentId === tournament.id).map((s) => [s.dedupeKey, s] as const),
     );
     const resultByKey = new Map(
-      results
+      effectiveResults
         .filter((m) => m.tournamentId === tournament.id)
         .map((m) => [matchInputDedupeKey(m), m] as const),
     );
@@ -465,7 +540,7 @@ export const TournamentDetailScreen: React.FC<TournamentDetailScreenProps> = ({ 
         };
       })
       .sort((a, b) => a.order - b.order);
-  }, [tournament, isPlaceholderTournament, schedules, results, club.players]);
+  }, [tournament, isPlaceholderTournament, schedules, effectiveResults, club.players]);
 
   const publicMatchFilters = useMemo(() => {
     const map = new Map<string, { key: string; label: string; order: number }>();

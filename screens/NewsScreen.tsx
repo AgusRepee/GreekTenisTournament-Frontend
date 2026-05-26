@@ -10,7 +10,7 @@ import { resolveNewsImageUrl } from '../src/lib/newsImageResolve';
 import { useNewsFeedSorted } from '../src/lib/useNewsFeed';
 
 const categoryBadge: Record<NewsItem['category'], string> = {
-  Torneo: 'bg-primary/15 text-primary border border-primary/30',
+  Torneo: 'bg-primary text-white border border-primary',
   Club: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30',
   Ranking: 'bg-amber-500/15 text-amber-800 dark:text-amber-200 border border-amber-500/35',
   General: 'bg-gray-200/80 text-gray-800 dark:bg-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600',
@@ -30,7 +30,7 @@ export const NewsScreen: React.FC = () => {
     <div className="px-4 md:px-10 lg:px-20 flex justify-center py-10 md:py-12 flex-grow">
       <div className="w-full max-w-[960px] flex flex-col gap-10 md:gap-12">
         <section className="text-center md:text-left">
-          <div className="inline-flex items-center gap-2 rounded-md bg-primary/10 text-primary px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] mb-4">
+          <div className="inline-flex items-center gap-2 text-primary text-[11px] font-bold uppercase tracking-[0.14em] mb-4">
             <Newspaper className="w-4 h-4" aria-hidden />
             Novedades
           </div>

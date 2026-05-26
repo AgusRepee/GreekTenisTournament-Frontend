@@ -42,10 +42,10 @@ describe('Novak Djokovic Liga 5 data', () => {
     const quarterfinals = matches.filter((m) => m.tournamentRoundText === '1');
 
     expect(quarterfinals.map((m) => m.participants.map((p) => p.name))).toEqual([
-      ['Chantada S.', 'González Días F.'],
-      ['Ríos J.', 'Oviedo M.'],
-      ['González Días C.', 'Peralta G.'],
       ['Córdoba G.', 'Sola M.'],
+      ['González Días C.', 'Peralta G.'],
+      ['González Días F.', 'Chantada S.'],
+      ['Oviedo M.', 'Ríos J.'],
     ]);
     expect(quarterfinals.some((m) => m.participants.some((p) => p.name === 'TBD'))).toBe(false);
   });

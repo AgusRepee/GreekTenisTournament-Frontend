@@ -31,6 +31,32 @@ function getTournamentCardHeaderImageUrl(coverImage?: string): string {
   }
 }
 
+const DATE_LABEL_OVERRIDES: Record<string, { start?: string; end?: string }> = {
+  't-nadal': { start: '22 mayo 2026', end: '9 agosto 2026' },
+  't-federer': { start: 'A confirmar', end: 'A confirmar' },
+  't-masters': { start: 'A confirmar', end: 'A confirmar' },
+};
+
+const ANNOUNCED_UPCOMING_TOURNAMENT_ORDER = ['t-nadal', 't-federer', 't-masters'];
+
+function formatTournamentDateLabel(tournament: Tournament, kind: 'start' | 'end'): string {
+  const override = DATE_LABEL_OVERRIDES[tournament.id]?.[kind];
+  if (override) return override;
+  const value = kind === 'start' ? tournament.startDate : tournament.endDate;
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return 'A confirmar';
+  return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function upcomingBadgeLabel(tournament: Tournament): string {
+  const start = new Date(`${tournament.startDate}T00:00:00`);
+  if (Number.isNaN(start.getTime())) return 'Próximamente';
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const daysUntilStart = Math.ceil((start.getTime() - today.getTime()) / 86_400_000);
+  return daysUntilStart >= 0 && daysUntilStart <= 7 ? 'Por iniciar' : 'Próximamente';
+}
+
 interface DirectoryScreenProps {
   setScreen: (screen: string) => void;
   setSelectedTournamentId?: (id: string | null) => void;
@@ -65,7 +91,7 @@ function TournamentCard({ tournament, onVerTorneo, onInscribirse }: TournamentCa
                 className="absolute inset-0 bg-cover bg-top"
                 style={{ backgroundImage: `url("${headerImg}")` }}
               />
-              <div className="absolute inset-0 bg-slate-950/88" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/35 to-slate-950/10" />
             </>
           ) : (
             <div className="absolute inset-0 bg-gradient-to-br from-primary/80 to-slate-900" />
@@ -75,18 +101,18 @@ function TournamentCard({ tournament, onVerTorneo, onInscribirse }: TournamentCa
               {tournament.name}
             </h3>
             <span className="inline-flex w-fit items-center px-3 py-1 rounded-full text-xs font-semibold bg-white/18 text-white border border-white/25 backdrop-blur-sm shadow-sm">
-              Todas las categorías
+              {upcomingBadgeLabel(tournament)}
             </span>
           </div>
         </div>
         <div className="p-6 flex flex-col gap-4 flex-1 border-t border-gray-200 dark:border-gray-700">
           <p className="text-sm text-[#616f89] dark:text-gray-400 flex items-center gap-1">
             <Calendar className="w-4 h-4 shrink-0" />
-            Inicio: {new Date(tournament.startDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}
+            Inicio: {formatTournamentDateLabel(tournament, 'start')}
           </p>
           <p className="text-sm text-[#616f89] dark:text-gray-400 flex items-center gap-1">
             <CalendarCheck className="w-4 h-4 shrink-0" />
-            Fin: {new Date(tournament.endDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}
+            Fin: {formatTournamentDateLabel(tournament, 'end')}
           </p>
           <div>
             <p className="text-xs font-semibold text-[#616f89] dark:text-gray-400 uppercase tracking-wider mb-1.5">Categorías</p>
@@ -137,7 +163,7 @@ function TournamentCard({ tournament, onVerTorneo, onInscribirse }: TournamentCa
               className="absolute inset-0 bg-slate-800 bg-cover bg-top"
               style={{ backgroundImage: `url("${headerImg}")` }}
             />
-            <div className="absolute inset-0 bg-slate-950/88" aria-hidden />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/40 to-slate-950/15" aria-hidden />
           </>
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-primary/80 to-slate-900" aria-hidden />
@@ -163,11 +189,11 @@ function TournamentCard({ tournament, onVerTorneo, onInscribirse }: TournamentCa
       <div className="p-6 flex flex-col flex-1 gap-4 border-t border-gray-200 dark:border-gray-700">
         <p className="text-sm text-[#616f89] dark:text-gray-400 flex items-center gap-1">
           <Calendar className="w-4 h-4 shrink-0" />
-          Inicio: {new Date(tournament.startDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}
+          Inicio: {formatTournamentDateLabel(tournament, 'start')}
         </p>
         <p className="text-sm text-[#616f89] dark:text-gray-400 flex items-center gap-1">
           <CalendarCheck className="w-4 h-4 shrink-0" />
-          Fin: {new Date(tournament.endDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}
+          Fin: {formatTournamentDateLabel(tournament, 'end')}
         </p>
         <div className="mt-auto pt-2">
           <button
@@ -202,7 +228,14 @@ export const DirectoryScreen: React.FC<DirectoryScreenProps> = ({ setScreen, set
 
   /** Upcoming tournaments are general (all leagues); always show all. */
   const upcomingTournaments = useMemo(
-    () => getTournamentsByStatus('upcoming').filter((t) => !isTournamentCurrent(t)),
+    () => {
+      const announced = ANNOUNCED_UPCOMING_TOURNAMENT_ORDER
+        .map((id) => club.tournaments.find((t) => t.id === id))
+        .filter((t): t is Tournament => Boolean(t));
+      if (announced.length > 0) return announced;
+
+      return getTournamentsByStatus('upcoming').filter((t) => !isTournamentCurrent(t));
+    },
     [club],
   );
 

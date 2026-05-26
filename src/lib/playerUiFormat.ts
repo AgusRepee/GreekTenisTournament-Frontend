@@ -16,10 +16,14 @@ export function isSeasonStatsPending(player: PlayerLikeForSeasonUi): boolean {
 export type RankingRowLikeForUi = {
   matchesPlayed: number;
   points: number;
+  /** Torneos con participación (p. ej. desde `statsJson` del API). */
+  tournamentsPlayed?: number;
 };
 
 export function isRankingRowPending(row: RankingRowLikeForUi): boolean {
-  return (row.matchesPlayed ?? 0) === 0 && (row.points ?? 0) === 0;
+  if ((row.points ?? 0) > 0) return false;
+  if ((row.tournamentsPlayed ?? 0) > 0) return false;
+  return (row.matchesPlayed ?? 0) === 0;
 }
 
 export function uiPlayerPoints(player: PlayerLikeForSeasonUi): number {

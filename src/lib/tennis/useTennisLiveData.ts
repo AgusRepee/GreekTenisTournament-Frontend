@@ -3,14 +3,27 @@
  * No conoce localStorage: los datos vienen de `@/data`.
  */
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useSyncExternalStore } from 'react';
 import { useClubData, useResults } from '@/data';
-import { fetchApiRankingsByLeague } from '@/data/services/api/apiRankingRepository';
+import {
+  INITIAL_PUBLIC_RANKINGS_STATE,
+  ensurePublicRankingsLoaded,
+  getPublicRankingsState,
+  subscribePublicRankings,
+} from '@/data/services/api/publicRankingsStore';
 import { getDataSourceMode } from '@/lib/data/tournamentRepository';
 import { mergeKnockoutMatchesForRanking } from './tournamentRanking';
 import { computeRankingsByLeague } from './derivedTennisData';
 import type { LeagueNum, Match } from '../mockData';
 import type { CalculatedRankingRow } from './tournamentRanking';
+
+function subscribeApiRankings(onStoreChange: () => void): () => void {
+  return subscribePublicRankings(onStoreChange);
+}
+
+function getApiRankingsSnapshot(): ReturnType<typeof getPublicRankingsState> {
+  return getPublicRankingsState();
+}
 
 export function useTennisLiveData(): {
   results: ReturnType<typeof useResults>;
@@ -18,6 +31,8 @@ export function useTennisLiveData(): {
   knockoutMerged: Match[];
   rankingsByLeague: Map<LeagueNum, CalculatedRankingRow[]>;
   rankingsLoadedFromApi: boolean;
+  /** En modo API: true cuando terminó el intento de fetch (éxito o error). */
+  rankingsPublicFetchDone: boolean;
 } {
   const results = useResults();
   const club = useClubData();
@@ -27,33 +42,23 @@ export function useTennisLiveData(): {
   const knockoutMerged = useMemo(() => mergeKnockoutMatchesForRanking(matches), [matches]);
 
   const apiMode = getDataSourceMode() === 'api';
-  const [apiRankings, setApiRankings] = useState<Map<LeagueNum, CalculatedRankingRow[]> | null>(null);
 
   useEffect(() => {
-    if (!apiMode) {
-      setApiRankings(null);
-      return;
-    }
-    let cancelled = false;
-    void (async () => {
-      try {
-        const m = await fetchApiRankingsByLeague();
-        if (!cancelled) setApiRankings(m);
-      } catch (e) {
-        console.warn('[useTennisLiveData] no se pudo cargar ranking público', e);
-        if (!cancelled) setApiRankings(null);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [apiMode, results]);
+    if (apiMode) ensurePublicRankingsLoaded();
+  }, [apiMode]);
+
+  const apiRankingsState = useSyncExternalStore(
+    apiMode ? subscribeApiRankings : () => () => {},
+    apiMode ? getApiRankingsSnapshot : () => INITIAL_PUBLIC_RANKINGS_STATE,
+    () => INITIAL_PUBLIC_RANKINGS_STATE,
+  );
 
   const localRankings = useMemo(
     () => computeRankingsByLeague(players, tournaments, results, knockoutMerged),
     [players, tournaments, results, knockoutMerged],
   );
 
+  const apiRankings = apiMode ? apiRankingsState.map : null;
   const rankingsByLeague = apiMode && apiRankings ? apiRankings : localRankings;
 
   const clubSafe = useMemo(
@@ -66,6 +71,7 @@ export function useTennisLiveData(): {
     club: clubSafe,
     knockoutMerged,
     rankingsByLeague,
-    rankingsLoadedFromApi: Boolean(apiMode && apiRankings),
+    rankingsLoadedFromApi: Boolean(apiMode && apiRankingsState.loadedFromApi),
+    rankingsPublicFetchDone: apiMode ? apiRankingsState.fetchDone : true,
   };
 }

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
+import React, { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type ChangeEvent } from 'react';
 import { calculatePlayerStats } from '../src/lib/tennis/calculatePlayerStats';
 import { getDataSourceMode } from '../src/lib/data/tournamentRepository';
 import {
@@ -15,7 +15,17 @@ import {
   recentMatchesForProfile,
 } from '../src/lib/tennis/derivedTennisData';
 import { useTennisLiveData } from '../src/lib/tennis/useTennisLiveData';
-import { fetchPublicPlayerProfile } from '../src/data/services/api/apiPlayerProfileRepository';
+import {
+  EMPTY_PUBLIC_PLAYER_PROFILE,
+  ensurePublicPlayerProfileLoaded,
+  getPublicPlayerProfileState,
+  subscribePublicPlayerProfiles,
+} from '../src/data/services/api/publicPlayerProfileStore';
+import {
+  buildStubPlayerForProfileId,
+  resolvePlayerForPublicRanking,
+  withCanonicalPlayerId,
+} from '../src/lib/tennis/rankingPlayerResolve';
 import { calculateTournamentPoints } from '../src/lib/tennis/tournamentRanking';
 import {
   Trophy,
@@ -296,12 +306,12 @@ function StatSpotlight({
   value: string;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-black/[0.07] bg-gradient-to-br from-white to-black/[0.02] px-4 py-5 shadow-sm dark:border-white/[0.12] dark:from-white/[0.09] dark:to-white/[0.02] dark:shadow-none">
+    <div className="relative overflow-hidden rounded-2xl border border-black/[0.06] bg-black/[0.02] px-4 py-5 shadow-sm backdrop-blur-[2px] dark:border-white/10 dark:bg-white/[0.03] dark:shadow-none">
       <div
-        className="pointer-events-none absolute -right-6 -top-6 size-24 rounded-full bg-primary/10 blur-2xl dark:bg-primary/20"
+        className="pointer-events-none absolute -right-6 -top-6 size-24 rounded-full bg-sky-500/[0.035] blur-2xl dark:bg-sky-400/[0.05]"
         aria-hidden
       />
-      <Icon className="relative mb-3 size-5 text-primary" aria-hidden />
+      <Icon className="relative mb-3 size-5 text-sky-500 dark:text-sky-300" aria-hidden />
       <p className="relative text-[10px] font-bold uppercase tracking-[0.14em] text-[#616f89] dark:text-gray-400">
         {label}
       </p>
@@ -416,6 +426,8 @@ type DisplayPlayer = Player & { position: number; initial: string };
 
 interface ProfileScreenInnerProps {
   displayPlayer: DisplayPlayer;
+  /** Id de la URL / API (`p-l2-…`); no el alias local `p-doc-*` del catálogo seed. */
+  canonicalPlayerId: string;
   setSelectedPlayerId?: (id: string | null) => void;
   setScreen?: (screen: string) => void;
   profileNavGateRef?: ProfileNavGateRef;
@@ -430,6 +442,7 @@ interface ProfileScreenInnerProps {
 
 function ProfileScreenInner({
   displayPlayer,
+  canonicalPlayerId,
   setSelectedPlayerId,
   setScreen,
   profileNavGateRef,
@@ -445,7 +458,18 @@ function ProfileScreenInner({
   const defaultAvatarUrl = resolvePlayerAvatarFallback(site.branding);
   const alvarezDemo = isAlvarezDemoProfile(displayPlayer.name);
   const apiMode = getDataSourceMode() === 'api';
-  const [apiProfile, setApiProfile] = useState<Record<string, unknown> | null>(null);
+  const profilePlayerId = canonicalPlayerId.trim() || displayPlayer.id;
+
+  useEffect(() => {
+    if (apiMode && !alvarezDemo) ensurePublicPlayerProfileLoaded(profilePlayerId);
+  }, [apiMode, alvarezDemo, profilePlayerId]);
+
+  const apiProfileEntry = useSyncExternalStore(
+    subscribePublicPlayerProfiles,
+    () => getPublicPlayerProfileState(profilePlayerId),
+    () => EMPTY_PUBLIC_PLAYER_PROFILE,
+  );
+  const apiProfile = apiMode && !alvarezDemo ? apiProfileEntry.data : null;
 
   const apiCareerStats = useMemo((): Record<string, unknown> | null => {
     if (!apiMode || alvarezDemo || !apiProfile || typeof apiProfile.careerStats !== 'object' || apiProfile.careerStats === null) {
@@ -453,26 +477,6 @@ function ProfileScreenInner({
     }
     return apiProfile.careerStats as Record<string, unknown>;
   }, [apiMode, alvarezDemo, apiProfile]);
-
-  useEffect(() => {
-    if (!apiMode || alvarezDemo) {
-      setApiProfile(null);
-      return;
-    }
-    let cancelled = false;
-    void fetchPublicPlayerProfile(displayPlayer.id)
-      .then((payload) => {
-        if (!cancelled && payload && typeof payload === 'object') {
-          setApiProfile(payload as Record<string, unknown>);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) setApiProfile(null);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [apiMode, alvarezDemo, displayPlayer.id]);
 
   const basePlayer = useMemo((): Player => {
     const raw = players.find((p) => p.id === displayPlayer.id);
@@ -669,15 +673,33 @@ function ProfileScreenInner({
   ]);
 
   const statsPending = !alvarezDemo && derivedStats.totalMatchesPlayed === 0;
-  const leaguePointsDisplay = alvarezDemo
-    ? ALVAREZ_DEMO_POINTS_CAREER
-    : apiMode &&
-        !alvarezDemo &&
-        apiProfile &&
-        typeof apiProfile.aggregate === 'object' &&
-        apiProfile.aggregate !== null
-      ? Number((apiProfile.aggregate as Record<string, unknown>).primaryLeaguePoints ?? 0)
-      : (globalRankingRows.find((r) => r.playerId === displayPlayer.id)?.points ?? 0);
+
+  const rankingRowFromApi = useMemo(() => {
+    for (const rows of rankingsByLeague.values()) {
+      const cr = rows.find((r) => r.playerId === profilePlayerId);
+      if (cr) return cr;
+    }
+    return undefined;
+  }, [rankingsByLeague, profilePlayerId]);
+
+  const leaguePointsDisplay = useMemo(() => {
+    if (alvarezDemo) return ALVAREZ_DEMO_POINTS_CAREER;
+    if (apiMode && !alvarezDemo && apiProfile) {
+      const agg = apiProfile.aggregate;
+      if (agg && typeof agg === 'object' && agg !== null) {
+        const fromAgg = Number((agg as Record<string, unknown>).primaryLeaguePoints);
+        if (Number.isFinite(fromAgg) && fromAgg > 0) return fromAgg;
+      }
+      const pr = apiProfile.primaryRanking;
+      if (pr && typeof pr === 'object' && pr !== null) {
+        const fromPrimary = Number((pr as Record<string, unknown>).points);
+        if (Number.isFinite(fromPrimary) && fromPrimary > 0) return fromPrimary;
+      }
+    }
+    if (rankingRowFromApi && rankingRowFromApi.points > 0) return rankingRowFromApi.points;
+    return globalRankingRows.find((r) => r.playerId === profilePlayerId)?.points ?? 0;
+  }, [alvarezDemo, apiMode, apiProfile, rankingRowFromApi, globalRankingRows, profilePlayerId]);
+
   const age = displayPlayer.birthDate
     ? new Date().getFullYear() - new Date(displayPlayer.birthDate).getFullYear()
     : null;
@@ -745,8 +767,34 @@ function ProfileScreenInner({
         leagueTotal: typeof pr.leagueTotal === 'number' ? pr.leagueTotal : 1,
       };
     }
+    if (apiMode && !alvarezDemo && apiProfile?.primaryRanking && typeof apiProfile.primaryRanking === 'object') {
+      const pr = apiProfile.primaryRanking as Record<string, unknown>;
+      const leagueNum =
+        typeof pr.league === 'number' && pr.league >= 1 && pr.league <= 6
+          ? (pr.league as LeagueNum)
+          : categoryToLeague(displayPlayer.category);
+      const rank = Number(pr.rank);
+      return {
+        globalPosition: null,
+        globalTotal: players.length,
+        league: leagueNum,
+        leaguePosition: Number.isFinite(rank) && rank > 0 ? rank : null,
+        leagueTotal: (rankingsByLeague.get(leagueNum) ?? []).length || 1,
+      };
+    }
     if (apiMode) {
-      return derivePlayerProfileRankingsFromLeagueMap(displayPlayer.id, players, rankingsByLeague);
+      const fromMap = derivePlayerProfileRankingsFromLeagueMap(profilePlayerId, players, rankingsByLeague);
+      if (fromMap) return fromMap;
+      if (rankingRowFromApi) {
+        const L = rankingRowFromApi.league;
+        return {
+          globalPosition: null,
+          globalTotal: players.length,
+          league: L,
+          leaguePosition: rankingRowFromApi.position > 0 ? rankingRowFromApi.position : null,
+          leagueTotal: (rankingsByLeague.get(L) ?? []).length || 1,
+        };
+      }
     }
     return derivePlayerProfileRankings(displayPlayer.id, players, club.tournaments, results, knockoutMerged);
   }, [
@@ -757,10 +805,23 @@ function ProfileScreenInner({
     displayPlayer.category,
     players,
     rankingsByLeague,
+    rankingRowFromApi,
+    profilePlayerId,
     club.tournaments,
     results,
     knockoutMerged,
   ]);
+
+  /** Ranking/puntos desde API: no usar `statsPending` para ocultar puntos ya materializados en MySQL. */
+  const rankingUiPending = useMemo(() => {
+    if (alvarezDemo) return false;
+    if (!statsPending) return false;
+    if (leaguePointsDisplay > 0) return false;
+    if (rankingRowFromApi) return false;
+    const lp = profileRankings?.leaguePosition;
+    const gp = profileRankings?.globalPosition;
+    return !((lp != null && lp > 0) || (gp != null && gp > 0));
+  }, [alvarezDemo, statsPending, leaguePointsDisplay, rankingRowFromApi, profileRankings]);
 
   const leagueColor = getLeagueColor(leagueNum);
 
@@ -955,9 +1016,9 @@ function ProfileScreenInner({
     apiCareerStats,
   ]);
 
-  const leagueRankLabel = uiFormatRankHash(profileRankings?.leaguePosition ?? null, statsPending);
-  const globalRankLabel = uiFormatRankHash(profileRankings?.globalPosition ?? null, statsPending);
-  const pointsLabel = uiFormatPointsCell(leaguePointsDisplay, statsPending);
+  const leagueRankLabel = uiFormatRankHash(profileRankings?.leaguePosition ?? null, rankingUiPending);
+  const globalRankLabel = uiFormatRankHash(profileRankings?.globalPosition ?? null, rankingUiPending);
+  const pointsLabel = uiFormatPointsCell(leaguePointsDisplay, rankingUiPending);
   const pointsSeasonLabel = alvarezDemo ? uiFormatPointsCell(ALVAREZ_DEMO_POINTS_SEASON, false) : pointsLabel;
   const wlCareer =
     statsPending ? '—' : `${derivedStats.totalWins}–${derivedStats.totalLosses}`;
@@ -1088,7 +1149,7 @@ function ProfileScreenInner({
           ) : null}
         </div>
         {editBanner ? (
-          <p className="mb-3 rounded-lg border border-amber-500/35 bg-amber-500/10 px-3 py-2 text-sm font-medium text-amber-950 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-100" role="status">
+          <p className="mb-3 rounded-lg border border-slate-400/20 bg-black/[0.02] px-3 py-2 text-sm font-medium text-[#616f89] dark:border-white/10 dark:bg-white/[0.03] dark:text-gray-300" role="status">
             {editBanner}
           </p>
         ) : null}
@@ -1140,7 +1201,7 @@ function ProfileScreenInner({
 
             <div className="grid w-full max-w-lg grid-cols-2 gap-4 pt-2 sm:max-w-xl sm:gap-5 lg:flex lg:max-w-2xl lg:flex-wrap lg:gap-5">
               <span
-                className="inline-flex min-h-[5.75rem] min-w-0 flex-col justify-center gap-1 rounded-2xl border border-black/[0.08] bg-black/[0.03] px-5 py-4 text-[#111318] shadow-sm dark:border-white/[0.14] dark:bg-white/[0.07] dark:text-white dark:shadow-none sm:min-h-[6.25rem] sm:px-6 sm:py-5"
+                className="inline-flex min-h-[5.75rem] min-w-0 flex-col justify-center gap-1 rounded-2xl border border-black/[0.06] bg-black/[0.02] px-5 py-4 text-[#111318] shadow-sm dark:border-white/10 dark:bg-white/[0.03] dark:text-white dark:shadow-none sm:min-h-[6.25rem] sm:px-6 sm:py-5"
                 title="Ranking en la liga del jugador"
               >
                 <span className="text-3xl font-black tabular-nums leading-none tracking-tight sm:text-4xl lg:text-5xl">
@@ -1151,7 +1212,7 @@ function ProfileScreenInner({
                 </span>
               </span>
               <span
-                className="inline-flex min-h-[5.75rem] min-w-0 flex-col justify-center gap-1 rounded-2xl border border-black/[0.08] bg-black/[0.03] px-5 py-4 text-[#111318] shadow-sm dark:border-white/[0.14] dark:bg-white/[0.07] dark:text-white dark:shadow-none sm:min-h-[6.25rem] sm:px-6 sm:py-5"
+                className="inline-flex min-h-[5.75rem] min-w-0 flex-col justify-center gap-1 rounded-2xl border border-black/[0.06] bg-black/[0.02] px-5 py-4 text-[#111318] shadow-sm dark:border-white/10 dark:bg-white/[0.03] dark:text-white dark:shadow-none sm:min-h-[6.25rem] sm:px-6 sm:py-5"
                 title="Ranking global entre todas las ligas"
               >
                 <span className="text-3xl font-black tabular-nums leading-none tracking-tight sm:text-4xl lg:text-5xl">
@@ -1212,7 +1273,7 @@ function ProfileScreenInner({
       </section>
 
       {alvarezDemo ? (
-        <div className="rounded-xl border border-amber-500/35 bg-amber-500/10 px-4 py-2.5 text-center text-xs font-semibold text-amber-950 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-100">
+        <div className="rounded-xl border border-slate-400/20 bg-black/[0.02] px-4 py-2.5 text-center text-xs font-semibold text-[#616f89] dark:border-white/10 dark:bg-white/[0.03] dark:text-gray-300">
           {ALVAREZ_DEMO_TAG}
         </div>
       ) : null}
@@ -1229,7 +1290,7 @@ function ProfileScreenInner({
               ) : null}
             </p>
           </div>
-          <span className="rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-primary dark:bg-primary/15 dark:text-primary">
+          <span className="rounded-full border border-sky-400/25 bg-sky-400/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-sky-700 dark:bg-sky-400/10 dark:text-sky-300">
             Greek Tennis
           </span>
         </div>
@@ -1360,7 +1421,7 @@ function ProfileScreenInner({
                     pct={finalsGauge.pct}
                     label="% Finales ganadas"
                     sub={`${finalsGauge.won}/${finalsGauge.reached}`}
-                    accentClass="text-amber-500 dark:text-amber-400"
+                    accentClass="text-sky-500 dark:text-sky-300"
                   />
                 ) : null}
               </div>
@@ -1643,7 +1704,7 @@ function ProfileScreenInner({
         {/* Logros */}
         <section className="app-glass-panel rounded-2xl border border-black/[0.06] p-6 shadow-sm dark:border-white/10 dark:shadow-none md:p-8">
           <h2 className="mb-2 flex items-center gap-2 text-lg font-bold text-[#111318] dark:text-white">
-            <Trophy className="size-5 shrink-0 text-amber-500" aria-hidden />
+            <Trophy className="size-5 shrink-0 text-sky-500 dark:text-sky-300" aria-hidden />
             Logros del jugador
           </h2>
           <p className="mb-6 text-sm text-[#616f89] dark:text-gray-400">
@@ -1664,7 +1725,7 @@ function ProfileScreenInner({
                   className="flex gap-3 rounded-xl border border-black/[0.06] bg-black/[0.02] p-4 dark:border-white/10 dark:bg-white/[0.03]"
                 >
                   <span
-                    className="w-1 shrink-0 rounded-full bg-amber-400/90 dark:bg-amber-400/80"
+                    className="w-1 shrink-0 rounded-full bg-sky-400/70 dark:bg-sky-300/65"
                     aria-hidden
                   />
                   <div className="min-w-0">
@@ -1694,7 +1755,7 @@ function ProfileScreenInner({
                   : m.outcome === 'Derrota'
                     ? 'bg-red-500/12 text-red-800 dark:text-red-300'
                     : m.outcome === 'W.O.'
-                      ? 'bg-amber-500/15 text-amber-900 dark:text-amber-200'
+                      ? 'bg-slate-500/15 text-slate-800 dark:text-slate-300'
                       : m.outcome === 'Suspendido'
                         ? 'bg-violet-500/15 text-violet-900 dark:text-violet-200'
                         : 'bg-slate-500/15 text-slate-800 dark:text-slate-300';
@@ -1863,13 +1924,8 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   }, [rankingsByLeague, players, tournaments, results, knockoutMerged]);
 
   const displayPlayer = useMemo((): DisplayPlayer | null => {
-    const resolve = (id: string | undefined): DisplayPlayer | null => {
-      if (!id) return null;
-      const p = getPlayerById(id);
-      if (!p) return null;
+    const toDisplay = (p: Player, position: number): DisplayPlayer => {
       const safeName = String(p.name ?? 'Jugador').trim() || 'Jugador';
-      const idx = globalRankingRows.findIndex((r) => r.playerId === id);
-      const position = idx >= 0 ? idx + 1 : 0;
       const initial = safeName
         .split(/\s+/)
         .map((n) => n[0])
@@ -1878,19 +1934,40 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
         .slice(0, 2);
       return mergeAlvarezDemoPlayerFields({ ...p, name: safeName, position, initial });
     };
+
+    const resolve = (id: string | undefined): DisplayPlayer | null => {
+      if (!id?.trim()) return null;
+      const pid = id.trim();
+      const fromRoster = players.find((x) => x.id === pid) ?? getPlayerById(pid);
+      if (fromRoster) {
+        const idx = globalRankingRows.findIndex((r) => r.playerId === pid);
+        return toDisplay(withCanonicalPlayerId(pid, fromRoster), idx >= 0 ? idx + 1 : 0);
+      }
+      for (const rows of rankingsByLeague.values()) {
+        const cr = rows.find((r) => r.playerId === pid);
+        if (cr) {
+          const fromRanking = resolvePlayerForPublicRanking(cr, players);
+          return toDisplay(fromRanking, cr.position);
+        }
+      }
+      if (getDataSourceMode() === 'api') {
+        return toDisplay(buildStubPlayerForProfileId(pid), 0);
+      }
+      return null;
+    };
+
     if (selectedPlayerId) {
-      const p = resolve(selectedPlayerId);
-      if (p) return p;
+      return resolve(selectedPlayerId);
     }
-    const a = resolve(getDefaultProfilePlayerId());
-    if (a) return a;
+    const defId = getDefaultProfilePlayerId();
+    if (defId) {
+      const a = resolve(defId);
+      if (a) return a;
+    }
     const fid = players[0]?.id;
-    if (fid) {
-      const b = resolve(fid);
-      if (b) return b;
-    }
+    if (fid) return resolve(fid);
     return null;
-  }, [selectedPlayerId, players, globalRankingRows]);
+  }, [selectedPlayerId, players, globalRankingRows, rankingsByLeague]);
 
   if (!displayPlayer) {
     return (
@@ -1931,9 +2008,12 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
     );
   }
 
+  const canonicalPlayerId = (selectedPlayerId?.trim() || displayPlayer.id).trim();
+
   return (
     <ProfileScreenInner
       displayPlayer={displayPlayer}
+      canonicalPlayerId={canonicalPlayerId}
       setSelectedPlayerId={setSelectedPlayerId}
       setScreen={setScreen}
       profileNavGateRef={profileNavGateRef}

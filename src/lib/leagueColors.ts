@@ -182,17 +182,17 @@ const LEAGUE_PUBLIC_THEME: Record<LeagueNum, LeaguePublicTournamentTheme> = {
       winnerRow:
         'border-l-2 border-red-500 bg-emerald-50 text-[#111318] dark:border-red-400 dark:bg-emerald-950/55 dark:text-white',
       loserRow:
-        'border border-red-100 bg-red-50/80 text-[#111318] dark:border-red-500/10 dark:bg-[#151f35]/90 dark:text-red-100/90',
+        'border border-red-100 bg-white/85 text-[#111318] dark:border-red-500/20 dark:bg-black/25 dark:text-gray-100/90',
       avatarRing: 'bg-red-100 ring-1 ring-red-200 dark:bg-[#0f172a] dark:ring-red-500/30',
       avatarInitials: 'text-red-700/80 dark:text-red-400/80',
       avatarNoPhotoShell:
         'flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-red-100 text-xs font-semibold text-red-700 ring-1 ring-red-200 dark:bg-[#0f172a] dark:text-white dark:ring-red-500/30',
-      loserName: 'text-[#374151] dark:text-red-100/85',
-      rankingMuted: 'text-[#616f89] dark:text-red-300/70',
+      loserName: 'text-[#374151] dark:text-gray-100/85',
+      rankingMuted: 'text-[#616f89] dark:text-gray-400/75',
       checkWinner: 'text-red-600 dark:text-red-400',
-      scorePlaceholder: 'text-[#616f89] dark:text-red-400/50',
+      scorePlaceholder: 'text-[#616f89] dark:text-gray-500/70',
       outerCard:
-        'min-w-0 w-full overflow-hidden rounded-2xl border border-red-200 bg-white shadow-md dark:border-red-400/35 dark:bg-[#0c1428]/95 dark:shadow-[0_4px_24px_-8px_rgba(248,113,113,0.18)]',
+        'min-w-0 w-full overflow-hidden rounded-2xl border border-red-200 bg-white shadow-md dark:border-red-400/35 dark:bg-black/35 dark:shadow-[0_4px_24px_-8px_rgba(248,113,113,0.18)]',
     },
   },
   2: {
@@ -225,17 +225,17 @@ const LEAGUE_PUBLIC_THEME: Record<LeagueNum, LeaguePublicTournamentTheme> = {
       winnerRow:
         'border-l-2 border-orange-500 bg-emerald-50 text-[#111318] dark:border-orange-400 dark:bg-emerald-950/55 dark:text-white',
       loserRow:
-        'border border-orange-100 bg-orange-50/80 text-[#111318] dark:border-orange-500/10 dark:bg-[#151f35]/90 dark:text-orange-100/90',
+        'border border-orange-100 bg-white/85 text-[#111318] dark:border-orange-500/20 dark:bg-black/25 dark:text-gray-100/90',
       avatarRing: 'bg-orange-100 ring-1 ring-orange-200 dark:bg-[#0f172a] dark:ring-orange-500/30',
       avatarInitials: 'text-orange-700/80 dark:text-orange-400/80',
       avatarNoPhotoShell:
         'flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-orange-100 text-xs font-semibold text-orange-700 ring-1 ring-orange-200 dark:bg-[#0f172a] dark:text-white dark:ring-orange-500/30',
-      loserName: 'text-[#374151] dark:text-orange-100/85',
-      rankingMuted: 'text-[#616f89] dark:text-orange-300/70',
+      loserName: 'text-[#374151] dark:text-gray-100/85',
+      rankingMuted: 'text-[#616f89] dark:text-gray-400/75',
       checkWinner: 'text-orange-600 dark:text-orange-400',
-      scorePlaceholder: 'text-[#616f89] dark:text-orange-400/50',
+      scorePlaceholder: 'text-[#616f89] dark:text-gray-500/70',
       outerCard:
-        'min-w-0 w-full overflow-hidden rounded-2xl border border-orange-200 bg-white shadow-md dark:border-orange-400/35 dark:bg-[#0c1428]/95 dark:shadow-[0_4px_24px_-8px_rgba(251,146,60,0.18)]',
+        'min-w-0 w-full overflow-hidden rounded-2xl border border-orange-200 bg-white shadow-md dark:border-orange-400/35 dark:bg-black/35 dark:shadow-[0_4px_24px_-8px_rgba(251,146,60,0.18)]',
     },
   },
   3: {
@@ -268,17 +268,17 @@ const LEAGUE_PUBLIC_THEME: Record<LeagueNum, LeaguePublicTournamentTheme> = {
       winnerRow:
         'border-l-2 border-sky-500 bg-emerald-50 text-[#111318] dark:border-sky-400 dark:bg-emerald-950/55 dark:text-white',
       loserRow:
-        'border border-sky-100 bg-sky-50/80 text-[#111318] dark:border-sky-500/10 dark:bg-[#151f35]/90 dark:text-sky-100/90',
+        'border border-sky-100 bg-white/85 text-[#111318] dark:border-sky-500/20 dark:bg-black/25 dark:text-gray-100/90',
       avatarRing: 'bg-sky-100 ring-1 ring-sky-200 dark:bg-[#0f172a] dark:ring-sky-500/30',
       avatarInitials: 'text-blue-700/80 dark:text-sky-400/80',
       avatarNoPhotoShell:
         'flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-sky-100 text-xs font-semibold text-blue-700 ring-1 ring-sky-200 dark:bg-[#0f172a] dark:text-white dark:ring-sky-500/30',
-      loserName: 'text-[#374151] dark:text-sky-100/85',
-      rankingMuted: 'text-[#616f89] dark:text-sky-300/70',
+      loserName: 'text-[#374151] dark:text-gray-100/85',
+      rankingMuted: 'text-[#616f89] dark:text-gray-400/75',
       checkWinner: 'text-blue-600 dark:text-sky-400',
-      scorePlaceholder: 'text-[#616f89] dark:text-sky-400/50',
+      scorePlaceholder: 'text-[#616f89] dark:text-gray-500/70',
       outerCard:
-        'min-w-0 w-full overflow-hidden rounded-2xl border border-sky-200 bg-white shadow-md dark:border-sky-400/35 dark:bg-[#0c1428]/95 dark:shadow-[0_4px_24px_-8px_rgba(56,189,248,0.2)]',
+        'min-w-0 w-full overflow-hidden rounded-2xl border border-sky-200 bg-white shadow-md dark:border-sky-400/35 dark:bg-black/35 dark:shadow-[0_4px_24px_-8px_rgba(56,189,248,0.2)]',
     },
   },
   4: {
@@ -311,17 +311,17 @@ const LEAGUE_PUBLIC_THEME: Record<LeagueNum, LeaguePublicTournamentTheme> = {
       winnerRow:
         'border-l-2 border-green-500 bg-emerald-50 text-[#111318] dark:border-green-400 dark:bg-emerald-950/55 dark:text-white',
       loserRow:
-        'border border-green-100 bg-green-50/80 text-[#111318] dark:border-green-500/10 dark:bg-[#151f35]/90 dark:text-green-100/90',
+        'border border-green-100 bg-white/85 text-[#111318] dark:border-green-500/20 dark:bg-black/25 dark:text-gray-100/90',
       avatarRing: 'bg-green-100 ring-1 ring-green-200 dark:bg-[#0f172a] dark:ring-green-500/30',
       avatarInitials: 'text-green-700/80 dark:text-green-400/80',
       avatarNoPhotoShell:
         'flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-green-100 text-xs font-semibold text-green-700 ring-1 ring-green-200 dark:bg-[#0f172a] dark:text-white dark:ring-green-500/30',
-      loserName: 'text-[#374151] dark:text-green-100/85',
-      rankingMuted: 'text-[#616f89] dark:text-green-300/70',
+      loserName: 'text-[#374151] dark:text-gray-100/85',
+      rankingMuted: 'text-[#616f89] dark:text-gray-400/75',
       checkWinner: 'text-green-600 dark:text-green-400',
-      scorePlaceholder: 'text-[#616f89] dark:text-green-400/50',
+      scorePlaceholder: 'text-[#616f89] dark:text-gray-500/70',
       outerCard:
-        'min-w-0 w-full overflow-hidden rounded-2xl border border-green-200 bg-white shadow-md dark:border-green-400/35 dark:bg-[#0c1428]/95 dark:shadow-[0_4px_24px_-8px_rgba(74,222,128,0.18)]',
+        'min-w-0 w-full overflow-hidden rounded-2xl border border-green-200 bg-white shadow-md dark:border-green-400/35 dark:bg-black/35 dark:shadow-[0_4px_24px_-8px_rgba(74,222,128,0.18)]',
     },
   },
   5: {
@@ -354,17 +354,17 @@ const LEAGUE_PUBLIC_THEME: Record<LeagueNum, LeaguePublicTournamentTheme> = {
       winnerRow:
         'border-l-2 border-neutral-700 bg-emerald-50 text-[#111318] dark:border-neutral-500 dark:bg-emerald-950/55 dark:text-white',
       loserRow:
-        'border border-neutral-200 bg-neutral-50/90 text-[#111318] dark:border-neutral-600/40 dark:bg-[#151f35]/90 dark:text-neutral-100/90',
+        'border border-neutral-200 bg-white/85 text-[#111318] dark:border-neutral-600/45 dark:bg-black/25 dark:text-gray-100/90',
       avatarRing: 'bg-neutral-200 ring-1 ring-neutral-300 dark:bg-[#0f172a] dark:ring-neutral-500/35',
       avatarInitials: 'text-neutral-700/80 dark:text-neutral-300/80',
       avatarNoPhotoShell:
         'flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-neutral-200 text-xs font-semibold text-neutral-800 ring-1 ring-neutral-300 dark:bg-[#0f172a] dark:text-white dark:ring-neutral-500/35',
-      loserName: 'text-[#374151] dark:text-neutral-100/85',
+      loserName: 'text-[#374151] dark:text-gray-100/85',
       rankingMuted: 'text-[#616f89] dark:text-neutral-400/75',
       checkWinner: 'text-neutral-800 dark:text-neutral-200',
-      scorePlaceholder: 'text-[#616f89] dark:text-neutral-400/55',
+      scorePlaceholder: 'text-[#616f89] dark:text-gray-500/70',
       outerCard:
-        'min-w-0 w-full overflow-hidden rounded-2xl border border-neutral-300 bg-white shadow-md dark:border-neutral-600/45 dark:bg-[#0c1428]/95 dark:shadow-[0_4px_24px_-8px_rgba(163,163,163,0.14)]',
+        'min-w-0 w-full overflow-hidden rounded-2xl border border-neutral-300 bg-white shadow-md dark:border-neutral-600/45 dark:bg-black/35 dark:shadow-[0_4px_24px_-8px_rgba(163,163,163,0.14)]',
     },
   },
   6: {
@@ -397,7 +397,7 @@ const LEAGUE_PUBLIC_THEME: Record<LeagueNum, LeaguePublicTournamentTheme> = {
       winnerRow:
         'border-l-2 border-gray-500 bg-emerald-50 text-[#111318] dark:border-gray-400 dark:bg-emerald-950/55 dark:text-white',
       loserRow:
-        'border border-gray-200 bg-gray-50/85 text-[#111318] dark:border-gray-600/35 dark:bg-[#151f35]/90 dark:text-gray-100/90',
+        'border border-gray-200 bg-white/85 text-[#111318] dark:border-gray-600/40 dark:bg-black/25 dark:text-gray-100/90',
       avatarRing: 'bg-gray-200 ring-1 ring-gray-300 dark:bg-[#0f172a] dark:ring-gray-500/35',
       avatarInitials: 'text-gray-700/80 dark:text-gray-400/80',
       avatarNoPhotoShell:
@@ -405,9 +405,9 @@ const LEAGUE_PUBLIC_THEME: Record<LeagueNum, LeaguePublicTournamentTheme> = {
       loserName: 'text-[#374151] dark:text-gray-100/85',
       rankingMuted: 'text-[#616f89] dark:text-gray-400/75',
       checkWinner: 'text-gray-700 dark:text-gray-300',
-      scorePlaceholder: 'text-[#616f89] dark:text-gray-400/55',
+      scorePlaceholder: 'text-[#616f89] dark:text-gray-500/70',
       outerCard:
-        'min-w-0 w-full overflow-hidden rounded-2xl border border-gray-300 bg-white shadow-md dark:border-gray-500/38 dark:bg-[#0c1428]/95 dark:shadow-[0_4px_24px_-8px_rgba(156,163,175,0.16)]',
+        'min-w-0 w-full overflow-hidden rounded-2xl border border-gray-300 bg-white shadow-md dark:border-gray-500/38 dark:bg-black/35 dark:shadow-[0_4px_24px_-8px_rgba(156,163,175,0.16)]',
     },
   },
 };

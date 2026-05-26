@@ -6,6 +6,7 @@ import {
   getAdminMatchResults,
   postMatchResult,
 } from '@/lib/api/apiClient';
+import { hasAdminApiCredentials } from '@/lib/adminTokenStorage';
 
 const EMPTY_SERVER: MatchInput[] = Object.freeze([]) as unknown as MatchInput[];
 
@@ -96,7 +97,9 @@ export function createApiMatchResultsRepository(): MatchResultsPort {
     }
   }
 
-  void reloadFromServer();
+  if (hasAdminApiCredentials()) {
+    void reloadFromServer();
+  }
 
   return {
     getAll(): MatchInput[] {

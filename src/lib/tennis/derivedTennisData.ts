@@ -22,6 +22,7 @@ import {
   searchPlayersByName,
 } from '../mockData';
 import { cleanPlayerName, matchInputDedupeKey } from './matchDedupe';
+import { findRankingRowForRosterPlayer, resolvePlayerForPublicRanking } from './rankingPlayerResolve';
 import type { Liga3GroupMatchResult } from '../liga3Data';
 import { LIGA3_TOURNAMENT_ID, getLiga3GroupStageResults } from '../liga3Data';
 import {
@@ -797,15 +798,8 @@ export function calculatedRankingRowsToGlobalRankingRows(
   mergedSorted: CalculatedRankingRow[],
   players: Player[],
 ): RankingRow[] {
-  const mergedWithRoster = mergedSorted.filter((cr) => players.some((p) => p.id === cr.playerId));
-  if (mergedWithRoster.length < mergedSorted.length) {
-    console.warn(
-      '[calculatedRankingRowsToGlobalRankingRows] Se omitieron filas de ranking sin jugador en el roster actual.',
-    );
-  }
-
-  return mergedWithRoster.map((cr, index) => {
-    const player = players.find((p) => p.id === cr.playerId)!;
+  return mergedSorted.map((cr, index) => {
+    const player = resolvePlayerForPublicRanking(cr, players);
     const age = player.birthDate
       ? new Date().getFullYear() - new Date(player.birthDate).getFullYear()
       : undefined;
@@ -896,50 +890,65 @@ export function searchPlayersWithPositionFromLeagueMap(
   const globalRows = buildGlobalRankingRowsFromLeagueMap(rankingsByLeague, players);
   const byId = new Map<string, PlayerSearchRow>();
 
-  const rowForPlayer = (playerId: string) => globalRows.findIndex((r) => r.playerId === playerId);
-
-  const nameMatches = players
-    .filter((p) => String(p.name ?? '').toLowerCase().includes(q))
-    .slice(0, 20);
-
-  for (const p of nameMatches) {
-    const idx = rowForPlayer(p.id);
-    const pos = idx >= 0 ? idx + 1 : globalRows.length + 1;
-    const rd = idx >= 0 ? globalRows[idx] : undefined;
-    byId.set(p.id, {
-      ...p,
-      points: rd?.points ?? 0,
-      stats: {
-        matchesPlayed: rd?.matchesPlayed ?? 0,
-        wins: rd?.wins ?? 0,
-        losses: rd?.losses ?? 0,
-      },
-      position: pos,
-      displayName: rd?.rankingDisplay?.name ?? p.name,
-      displayAvatar: rd?.rankingDisplay?.avatarUrl?.trim() ? rd.rankingDisplay?.avatarUrl ?? null : null,
-    });
-  }
-
-  for (let i = 0; i < globalRows.length; i++) {
-    const row = globalRows[i];
-    const rd = row.rankingDisplay;
-    const nameLower = rd?.name?.toLowerCase();
-    if (!nameLower || !nameLower.includes(q)) continue;
+  const upsertFromGlobalRow = (row: RankingRow, globalIndex: number) => {
     const pid = row.playerId;
-    if (byId.has(pid)) continue;
-    const p = players.find((pl) => pl.id === pid);
-    if (!p) continue;
+    let cr: CalculatedRankingRow | undefined;
+    for (const rows of rankingsByLeague.values()) {
+      cr = rows.find((r) => r.playerId === pid);
+      if (cr) break;
+    }
+    const base = cr ? resolvePlayerForPublicRanking(cr, players) : row.player;
+    const rd = row.rankingDisplay;
     byId.set(pid, {
-      ...p,
+      ...base,
+      id: pid,
       points: row.points,
       stats: {
         matchesPlayed: row.matchesPlayed,
         wins: row.wins,
         losses: row.losses,
       },
-      position: i + 1,
-      displayName: rd.name ?? p.name,
-      displayAvatar: rd.avatarUrl?.trim() ? rd.avatarUrl : null,
+      position: globalIndex + 1,
+      displayName: rd?.name ?? base.name,
+      displayAvatar: rd?.avatarUrl?.trim() ? rd.avatarUrl : null,
+    });
+  };
+
+  for (let i = 0; i < globalRows.length; i++) {
+    const row = globalRows[i];
+    const label = (row.rankingDisplay?.name ?? row.player.name ?? '').trim().toLowerCase();
+    if (!label.includes(q)) continue;
+    if (byId.has(row.playerId)) continue;
+    upsertFromGlobalRow(row, i);
+  }
+
+  const nameMatches = players
+    .filter((p) => String(p.name ?? '').toLowerCase().includes(q))
+    .slice(0, 20);
+
+  for (const p of nameMatches) {
+    const cr = findRankingRowForRosterPlayer(p, rankingsByLeague);
+    const pid = cr?.playerId ?? p.id;
+    if (byId.has(pid)) continue;
+    const idx = globalRows.findIndex((r) => r.playerId === pid);
+    if (idx >= 0) {
+      upsertFromGlobalRow(globalRows[idx]!, idx);
+      continue;
+    }
+    const pos = globalRows.length + 1;
+    const resolved = cr ? resolvePlayerForPublicRanking(cr, players) : p;
+    byId.set(pid, {
+      ...resolved,
+      id: pid,
+      points: cr?.points ?? 0,
+      stats: {
+        matchesPlayed: cr?.matchesPlayedResults ?? 0,
+        wins: cr?.wins ?? 0,
+        losses: cr?.losses ?? 0,
+      },
+      position: cr?.position && cr.position > 0 ? cr.position : pos,
+      displayName: cr?.sourcePlayerName?.trim() ?? resolved.name,
+      displayAvatar: cr?.sourceProfileImage?.trim() ? cr.sourceProfileImage : null,
     });
   }
 

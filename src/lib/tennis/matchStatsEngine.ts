@@ -1,5 +1,6 @@
 // src/lib/tennis/matchStatsEngine.ts
 
+import { cleanPlayerName } from './matchDedupe';
 import type {
   MatchInput,
   ParsedMatch,
@@ -155,6 +156,16 @@ import type {
     const trimmed = value.trim().replace(/\s+/g, " ");
     return options?.casefold ? trimmed.toLocaleLowerCase("es-AR") : trimmed;
   }
+
+  /**
+   * Clave estable para emparejar nombres entre roster, API y resultados:
+   * trim, espacios colapsados, sin marcas diacríticas, minúsculas (es-AR).
+   */
+  export function normalizePlayerAliasKey(value: string): string {
+    const base = cleanPlayerName(value).replace(/\s+/g, " ");
+    const folded = base.normalize("NFD").replace(/\p{M}+/gu, "");
+    return folded.toLocaleLowerCase("es-AR");
+  }
   
   /**
    * Resuelve un alias contra un registry de jugadores.
@@ -164,16 +175,19 @@ import type {
     input: string,
     registry: PlayerRegistry
   ): string {
-    const target = normalizePlayerName(input, { casefold: true });
+    const target = normalizePlayerAliasKey(input);
+    if (!target) {
+      throw new UnknownPlayerError(input, []);
+    }
   
     for (const entry of registry) {
-      const canonical = normalizePlayerName(entry.name, { casefold: true });
+      const canonical = normalizePlayerAliasKey(entry.name);
       if (canonical === target) {
         return entry.name;
       }
   
       const aliases = (entry.aliases ?? []).map((alias) =>
-        normalizePlayerName(alias, { casefold: true })
+        normalizePlayerAliasKey(alias)
       );
   
       if (aliases.includes(target)) {
@@ -184,7 +198,7 @@ import type {
     const suggestions = registry
       .map((entry) => entry.name)
       .filter((name) => {
-        const normalized = normalizePlayerName(name, { casefold: true });
+        const normalized = normalizePlayerAliasKey(name);
         return normalized.includes(target) || target.includes(normalized);
       })
       .slice(0, 5);

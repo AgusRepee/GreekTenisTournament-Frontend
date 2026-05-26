@@ -1,10 +1,12 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import { LEAGUES_RANKING, type LeagueNum, type RankingRow } from '../src/lib/mockData';
 import { useTennisLiveData } from '../src/lib/tennis/useTennisLiveData';
 import { LeagueBadge } from '../components/LeagueBadge';
 import { resolvePlayerAvatarFallback, useSiteSettings } from '../src/lib/siteSettings';
 import { isRankingRowPending, uiFormatPointsCell, uiFormatTournamentsPlayed } from '../src/lib/playerUiFormat';
+import { resolvePlayerForPublicRanking } from '../src/lib/tennis/rankingPlayerResolve';
+import { getDataSourceMode } from '../src/lib/data/tournamentRepository';
 
 /** Bandera de nacionalidad: imagen (Argentina = arg.webp) o emoji. */
 function getFlagImageUrl(filename: string): string {
@@ -76,52 +78,70 @@ interface RankingsScreenProps {
 
 export const RankingsScreen: React.FC<RankingsScreenProps> = ({ setScreen, setSelectedPlayerId, openPlayerProfile }) => {
   const [leagueFilter, setLeagueFilter] = useState<LeagueNum>(1);
+  const autoSelectedInitialLeague = useRef(false);
   const site = useSiteSettings();
   const fallbackAvatar = resolvePlayerAvatarFallback(site.branding);
-  const { club, rankingsByLeague } = useTennisLiveData();
+  const { club, rankingsByLeague, rankingsPublicFetchDone } = useTennisLiveData();
+  const apiRankingLoading = getDataSourceMode() === 'api' && !rankingsPublicFetchDone;
 
   const calculated = useMemo(
     () => rankingsByLeague.get(leagueFilter) ?? [],
     [rankingsByLeague, leagueFilter],
   );
 
+  useEffect(() => {
+    if (autoSelectedInitialLeague.current) return;
+    if (apiRankingLoading) return;
+    if ((rankingsByLeague.get(leagueFilter) ?? []).length > 0) {
+      autoSelectedInitialLeague.current = true;
+      return;
+    }
+    const firstWithRows = LEAGUES_RANKING.find((league) => (rankingsByLeague.get(league) ?? []).length > 0);
+    if (firstWithRows != null) {
+      autoSelectedInitialLeague.current = true;
+      setLeagueFilter(firstWithRows);
+    }
+  }, [apiRankingLoading, rankingsByLeague, leagueFilter]);
+
   const rows = useMemo((): RankingRow[] => {
-    return calculated
-      .map((cr) => {
-        const player = club.players.find((p) => p.id === cr.playerId);
-        if (!player) return null;
-        const age = player.birthDate
-          ? new Date().getFullYear() - new Date(player.birthDate).getFullYear()
-          : undefined;
-        let avatarUrl = '';
-        if (player.profileImage) {
+    return calculated.map((cr) => {
+      const player = resolvePlayerForPublicRanking(cr, club.players);
+      const age = player.birthDate
+        ? new Date().getFullYear() - new Date(player.birthDate).getFullYear()
+        : undefined;
+      let avatarUrl = '';
+      if (player.profileImage) {
+        const rawImg = player.profileImage.trim();
+        if (rawImg.startsWith('data:') || /^https?:\/\//i.test(rawImg)) {
+          avatarUrl = rawImg;
+        } else {
           try {
-            avatarUrl = new URL(`../img/${player.profileImage}`, import.meta.url).href;
+            avatarUrl = new URL(`../img/${rawImg}`, import.meta.url).href;
           } catch {
             avatarUrl = '';
           }
         }
-        return {
-          position: cr.position,
-          playerId: cr.playerId,
-          player,
-          points: cr.points,
-          matchesPlayed: cr.matchesPlayedResults,
-          wins: cr.wins,
-          losses: cr.losses,
-          rankingChange: cr.rankingPositionChange ?? 0,
-          pointsChange: cr.pointsChange ?? 0,
-          tournamentsPlayed: cr.tournamentsPlayed,
-          leagueNum: cr.league,
-          age,
-          rankingDisplay: {
-            name: player.name,
-            avatarUrl,
-            nationality: player.nationality,
-          },
-        };
-      })
-      .filter((r): r is RankingRow => r != null);
+      }
+      return {
+        position: cr.position,
+        playerId: cr.playerId,
+        player,
+        points: cr.points,
+        matchesPlayed: cr.matchesPlayedResults,
+        wins: cr.wins,
+        losses: cr.losses,
+        rankingChange: cr.rankingPositionChange ?? 0,
+        pointsChange: cr.pointsChange ?? 0,
+        tournamentsPlayed: cr.tournamentsPlayed,
+        leagueNum: cr.league,
+        age,
+        rankingDisplay: {
+          name: player.name,
+          avatarUrl,
+          nationality: player.nationality,
+        },
+      };
+    });
   }, [calculated, club.players]);
 
   const handleRowClick = (row: RankingRow) => {
@@ -170,9 +190,13 @@ export const RankingsScreen: React.FC<RankingsScreenProps> = ({ setScreen, setSe
           </div>
 
           <div className="app-glass-panel mt-2 flex min-w-0 w-full flex-col overflow-hidden shadow-sport-card dark:shadow-sport-card-dark md:mt-0">
-            {rows.length === 0 ? (
+            {apiRankingLoading && rows.length === 0 ? (
+              <div className="px-4 py-12 text-center text-[#616f89] dark:text-[#9ca3af] text-sm" role="status">
+                Cargando ranking…
+              </div>
+            ) : rows.length === 0 ? (
               <div className="px-4 py-12 text-center text-[#616f89] dark:text-[#9ca3af] text-sm">
-                Todavía no hay jugadores cargados en este ranking.
+                Temporada aún no iniciada: todavía no hay resultados cargados para esta liga.
               </div>
             ) : null}
             {/* Mobile: position, photo, name, points only — no horizontal scroll */}

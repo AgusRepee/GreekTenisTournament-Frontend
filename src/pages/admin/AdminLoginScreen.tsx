@@ -43,7 +43,8 @@ export default function AdminLoginScreen() {
           setError('El servidor no devolvió un token. Revisá la configuración.');
           return;
         }
-        navigate('/admin/dashboard', { replace: true });
+        // Recarga completa: los repos API se crean al arranque; sin esto quedarían vacíos tras el primer login en la misma sesión SPA.
+        window.location.assign('/admin/dashboard');
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'No se pudo iniciar sesión.';
         setError(msg);

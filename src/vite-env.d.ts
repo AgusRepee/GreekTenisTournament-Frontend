@@ -7,6 +7,8 @@ interface ImportMetaEnv {
   readonly VITE_ADMIN_TOKEN?: string;
   /** `true`: muestra/habilita creación y eliminación avanzada en admin. Omitido = desactivado. */
   readonly VITE_ENABLE_ADVANCED_ADMIN_CREATION?: string;
+  /** Inyectado por Vitest durante tests. */
+  readonly VITEST?: string | boolean;
 }
 
 interface ImportMeta {

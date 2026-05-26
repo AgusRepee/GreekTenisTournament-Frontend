@@ -23,7 +23,7 @@ export const LIGA3_PLAYERS: { id: string; name: string }[] = [
   { id: 'l3-delvalle', name: 'Del Valle G.' },
   { id: 'l3-ferreres', name: 'Ferreres G.' },
   { id: 'l3-figueroa', name: 'Figueroa M.' },
-  ];
+];
 
 const nameToId: Record<string, string> = Object.fromEntries(LIGA3_PLAYERS.map((p) => [p.name, p.id]));
 export function getLiga3Id(name: string): string {
@@ -32,21 +32,21 @@ export function getLiga3Id(name: string): string {
 
 /** Preclasificación del torneo (1-15). Cabezas de grupo: 1, 2, 3 (Grupo A, B, C). */
 export const LIGA3_PRECLASIFICACION: Record<string, number> = {
-    'l3-repecka': 1, // cabeza Grupo A
-    'l3-marin': 2, // cabeza Grupo B
-    'l3-vito': 3, // cabeza Grupo C
-    'l3-delvalle': 4,
-    'l3-aguirre': 5,
-    'l3-pusterla': 6,
-    'l3-casadio': 7,
-    'l3-rusel': 8,
-    'l3-bianco': 9,
-    'l3-bocchicchio': 10,
-    'l3-santi-m': 11,
-    'l3-ferreres': 12,
-    'l3-santi-g': 13,
-    'l3-fernandez': 14,
-    'l3-figueroa': 15,
+  'l3-santi-m': 1,
+  'l3-rusel': 2,
+  'l3-repecka': 3,
+  'l3-pusterla': 4,
+  'l3-bocchicchio': 5,
+  'l3-fernandez': 6,
+  'l3-marin': 7,
+  'l3-casadio': 8,
+  'l3-bianco': 9,
+  'l3-aguirre': 10,
+  'l3-santi-g': 11,
+  'l3-figueroa': 12,
+  'l3-delvalle': 13,
+  'l3-ferreres': 14,
+  'l3-vito': 15,
 };
 export function getLiga3Preclasificacion(playerId: string): number | undefined {
     return LIGA3_PRECLASIFICACION[playerId];
@@ -75,9 +75,9 @@ export const LIGA3_GROUP_RESULTS: Liga3GroupMatchResult[] = [];
 
 /** Plantilla por grupo (mismo orden que `LIGA3_GROUP_FIXTURES` en mockData) para tablas 0-0 sin partidos. */
 const LIGA3_GROUP_ROSTERS: Record<string, string[]> = {
-    'Grupo A': ['Pusterla P.', 'Santi M.', 'Rusel S.', 'Bocchicchio F.', 'Repecka A.'],
-    'Grupo B': ['Marin G.', 'Fernandez B.', 'Casadio M.', 'Aguirre W.', 'Bianco D.'],
-    'Grupo C': ['Vito C.', 'Santi G.', 'Del Valle G.', 'Ferreres G.', 'Figueroa M.'],
+  'Grupo A': ['Santi M.', 'Rusel S.', 'Repecka A.', 'Pusterla P.', 'Bocchicchio F.'],
+  'Grupo B': ['Fernandez B.', 'Marin G.', 'Casadio M.', 'Bianco D.', 'Aguirre W.'],
+  'Grupo C': ['Santi G.', 'Figueroa M.', 'Del Valle G.', 'Ferreres G.', 'Vito C.'],
 };
 
 /** Partidos de fase de grupos con resultado (para "Partidos por fase de grupos") */

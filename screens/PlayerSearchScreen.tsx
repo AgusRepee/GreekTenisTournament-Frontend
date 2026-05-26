@@ -52,14 +52,6 @@ export const PlayerSearchScreen: React.FC<PlayerSearchScreenProps> = ({
     setQuery(initialQuery ?? '');
   }, [initialQuery]);
 
-  useEffect(() => {
-    // Focus para que se sienta como la búsqueda interna de la solapa.
-    if (query.trim().length > 0) {
-      inputRef.current?.focus();
-      inputRef.current?.select();
-    }
-  }, [query]);
-
   const searchResults = useMemo(() => {
     if (roster.length === 0) return [];
     try {

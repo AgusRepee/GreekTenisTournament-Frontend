@@ -20,9 +20,12 @@ import { useMatchSchedules, mergeMatchScheduleRows } from '../src/lib/tennis/mat
 import { scheduleEntryFromApiRow } from '../src/data/services/contracts/matchSchedulePort';
 import { getDataSourceMode } from '../src/lib/data/tournamentRepository';
 import { getPublicScheduleByTournamentId } from '../src/lib/api/apiClient';
+import type { MatchInput } from '../src/types/tennisResults';
+import { matchInputDedupeKey } from '../src/lib/tennis/matchDedupe';
 import { uiFormatPointsCell } from '../src/lib/playerUiFormat';
 import { TOURNAMENT_CARD_SHADOW_NEUTRAL } from '../src/lib/leagueColors';
 import { whatsAppUrl, whatsAppMessages } from '../src/lib/whatsapp';
+import { resolvePlayerForPublicRanking } from '../src/lib/tennis/rankingPlayerResolve';
 import { UpcomingTournamentModal } from '../components/UpcomingTournamentModal';
 import { useNewsFeedSorted } from '../src/lib/useNewsFeed';
 import { formatNewsPublishedDate } from '../src/lib/newsData';
@@ -136,6 +139,66 @@ function getTournamentCardHeaderImageUrl(coverImage?: string | null, dataUrlFall
   }
 }
 
+const HOME_UPCOMING_TOURNAMENT_ORDER = ['t-nadal', 't-federer', 't-masters'];
+
+const DATE_LABEL_OVERRIDES: Record<string, { start?: string; end?: string }> = {
+  't-nadal': { start: '22 mayo 2026', end: '9 agosto 2026' },
+  't-federer': { start: 'A confirmar', end: 'A confirmar' },
+  't-masters': { start: 'A confirmar', end: 'A confirmar' },
+};
+
+function formatTournamentDateLabel(tournament: Tournament, kind: 'start' | 'end'): string {
+  const override = DATE_LABEL_OVERRIDES[tournament.id]?.[kind];
+  if (override) return override;
+  const value = kind === 'start' ? tournament.startDate : tournament.endDate;
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return 'A confirmar';
+  return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function upcomingBadgeLabel(tournament: Tournament): string {
+  const start = new Date(`${tournament.startDate}T00:00:00`);
+  if (Number.isNaN(start.getTime())) return 'Próximamente';
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const daysUntilStart = Math.ceil((start.getTime() - today.getTime()) / 86_400_000);
+  return daysUntilStart >= 0 && daysUntilStart <= 7 ? 'Por iniciar' : 'Próximamente';
+}
+
+function isPublicWalkoverScore(score: string): boolean {
+  return /^[AB]$/i.test(score.trim()) || /\bW\.?O\.?\b/i.test(score);
+}
+
+function publicApiMatchToResult(row: Record<string, unknown>): MatchInput | null {
+  const tournamentId = typeof row.tournamentId === 'string' ? row.tournamentId.trim() : '';
+  const stage = typeof row.stage === 'string' ? row.stage.trim().toLowerCase() : '';
+  if (!tournamentId || stage !== 'group') return null;
+  const player1 = row.player1 && typeof row.player1 === 'object' ? (row.player1 as Record<string, unknown>) : null;
+  const player2 = row.player2 && typeof row.player2 === 'object' ? (row.player2 as Record<string, unknown>) : null;
+  const playerA = typeof player1?.name === 'string' ? player1.name.trim() : '';
+  const playerB = typeof player2?.name === 'string' ? player2.name.trim() : '';
+  if (!playerA || !playerB) return null;
+  const roundLabel = typeof row.roundLabel === 'string' ? row.roundLabel : '';
+  const group = /grupo\s+([A-Za-z0-9]+)/i.exec(roundLabel)?.[1]?.toUpperCase();
+  const roundText = /fecha\s+(\d+)/i.exec(roundLabel)?.[1];
+  const score = typeof row.score === 'string' ? row.score.trim() : '';
+  const completed = row.completed === true || Boolean(score);
+  if (!completed) return null;
+  return {
+    tournamentId,
+    group,
+    round: roundText ? Number(roundText) : 0,
+    playerA,
+    playerB,
+    score,
+    status: isPublicWalkoverScore(score)
+      ? 'walkover'
+      : /\bRET\.?\b|\bABANDONO\b/i.test(score)
+        ? 'retired'
+        : 'played',
+  };
+}
+
 interface HomeScreenProps {
   setScreen: (screen: string) => void;
   setSelectedTournamentId?: (id: string | null) => void;
@@ -143,6 +206,7 @@ interface HomeScreenProps {
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({ setScreen, setSelectedTournamentId }) => {
   const [inscriptionModalTournament, setInscriptionModalTournament] = useState<Tournament | null>(null);
+  const [publicApiResults, setPublicApiResults] = useState<MatchInput[]>([]);
   const club = useClubData();
   const site = useSiteSettings();
   const schedules = useMatchSchedules();
@@ -158,6 +222,19 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ setScreen, setSelectedTo
           try {
             const data = await getPublicScheduleByTournamentId(t.id);
             if (cancelled || !data || typeof data !== 'object') return;
+            const rawMatches = (data as { matches?: unknown }).matches;
+            if (Array.isArray(rawMatches)) {
+              setPublicApiResults((prev) => {
+                const byKey = new Map(prev.map((m) => [matchInputDedupeKey(m), m] as const));
+                for (const item of rawMatches) {
+                  if (!item || typeof item !== 'object') continue;
+                  const mapped = publicApiMatchToResult(item as Record<string, unknown>);
+                  if (mapped) byKey.set(matchInputDedupeKey(mapped), mapped);
+                }
+                return Array.from(byKey.values());
+              });
+            }
+
             const raw = (data as { schedules?: unknown }).schedules;
             if (!Array.isArray(raw)) return;
             const rows = raw
@@ -188,10 +265,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ setScreen, setSelectedTo
       return {
         cat,
         rows: rows.slice(0, 2).map((cr) => {
-          const player = club.players.find((p) => p.id === cr.playerId);
+          const player = resolvePlayerForPublicRanking(cr, club.players);
           return {
             playerId: cr.playerId,
-            name: player?.name ?? cr.playerId,
+            name: player.name,
             points: cr.points,
           };
         }),
@@ -199,12 +276,19 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ setScreen, setSelectedTo
     });
   }, [rankingsByLeague, club.players, publicLeagues]);
 
+  const effectiveResults = useMemo(() => {
+    if (publicApiResults.length === 0) return results;
+    const byKey = new Map(results.map((m) => [matchInputDedupeKey(m), m] as const));
+    for (const m of publicApiResults) byKey.set(matchInputDedupeKey(m), m);
+    return Array.from(byKey.values());
+  }, [results, publicApiResults]);
+
   const allUpcomingMatchesForHome = useMemo(
     () =>
-      listImportantMatchesFromSchedules(schedules, club.tournaments, club.players, results, {
+      listImportantMatchesFromSchedules(schedules, club.tournaments, club.players, effectiveResults, {
         rankingsByLeague,
       }),
-    [schedules, club.tournaments, club.players, results, rankingsByLeague],
+    [schedules, club.tournaments, club.players, effectiveResults, rankingsByLeague],
   );
 
   const importantMatchesSidebar = useMemo(
@@ -219,6 +303,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ setScreen, setSelectedTo
   }, [club.tournaments]);
 
   const upcomingTournamentsCards = useMemo(() => {
+    const announced = HOME_UPCOMING_TOURNAMENT_ORDER
+      .map((id) => club.tournaments.find((t) => t.id === id))
+      .filter((t): t is Tournament => Boolean(t));
+    if (announced.length > 0) return announced;
+
     const fromHome = getUpcomingTournamentsForHome();
     if (fromHome.length > 0) return fromHome.slice(0, 3);
     return club.tournaments
@@ -365,7 +454,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ setScreen, setSelectedTo
                             className="absolute inset-0 bg-cover bg-top"
                             style={{ backgroundImage: `url("${headerImg}")` }}
                           />
-                          <div className="absolute inset-0 bg-slate-950/88" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/35 to-slate-950/10" />
                         </>
                       ) : (
                         <div className="absolute inset-0 bg-gradient-to-br from-primary/80 to-slate-900" />
@@ -375,18 +464,18 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ setScreen, setSelectedTo
                           {t.name}
                         </h3>
                         <span className="inline-flex w-fit items-center px-3 py-1 rounded-full text-xs font-semibold bg-white/18 text-white border border-white/25 backdrop-blur-sm shadow-sm">
-                          {t.league != null ? `Liga ${t.league}` : 'Todas las categorías'}
+                          {upcomingBadgeLabel(t)}
                         </span>
                       </div>
                     </div>
                     <div className="p-6 flex flex-col gap-4 flex-1 border-t border-gray-200 dark:border-gray-700">
                     <p className="text-sm text-[#616f89] dark:text-gray-400 flex items-center gap-1">
                       <Calendar className="w-4 h-4 shrink-0" />
-                      Inicio: {new Date(t.startDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      Inicio: {formatTournamentDateLabel(t, 'start')}
                     </p>
                     <p className="text-sm text-[#616f89] dark:text-gray-400 flex items-center gap-1">
                       <CalendarCheck className="w-4 h-4 shrink-0" />
-                      Fin: {new Date(t.endDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      Fin: {formatTournamentDateLabel(t, 'end')}
                     </p>
                     <div>
                       <p className="text-xs font-semibold text-[#616f89] dark:text-gray-400 uppercase tracking-wider mb-1.5">Categorías</p>

@@ -21,3 +21,10 @@ export function setStoredAdminToken(token: string | null): void {
     /* quota */
   }
 }
+
+/** True si hay credenciales para llamar endpoints `/api/admin/*` (JWT en sesión o token de dev en Vite). */
+export function hasAdminApiCredentials(): boolean {
+  if (getStoredAdminToken()) return true;
+  if (import.meta.env.DEV && import.meta.env.VITE_ADMIN_TOKEN?.trim()) return true;
+  return false;
+}

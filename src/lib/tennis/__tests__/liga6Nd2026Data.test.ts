@@ -14,9 +14,9 @@ import {
 describe('Novak Djokovic Liga 6 data', () => {
   it('loads the existing Novak Liga 6 tournament without creating a separate tournament id', () => {
     expect(LIGA6_ND_TOURNAMENT_ID).toBe('t-novak-l6');
-    expect(LIGA6_ND_FIXTURES).toHaveLength(27);
-    expect(DEFAULT_LIGA6_ND_RESULTS).toHaveLength(20);
-    expect(DEFAULT_LIGA6_ND_SCHEDULES).toHaveLength(27);
+    expect(LIGA6_ND_FIXTURES).toHaveLength(23);
+    expect(DEFAULT_LIGA6_ND_RESULTS).toHaveLength(16);
+    expect(DEFAULT_LIGA6_ND_SCHEDULES).toHaveLength(23);
     expect(DEFAULT_LIGA6_ND_RESULTS.every((m) => m.tournamentId === LIGA6_ND_TOURNAMENT_ID)).toBe(true);
   });
 
@@ -31,8 +31,8 @@ describe('Novak Djokovic Liga 6 data', () => {
   });
 
   it('parses scores, walkovers and the injury retirement', () => {
-    expect(DEFAULT_LIGA6_ND_RESULTS.filter((m) => m.status === 'walkover')).toHaveLength(4);
-    expect(DEFAULT_LIGA6_ND_RESULTS.filter((m) => m.status === 'retired')).toHaveLength(1);
+    expect(DEFAULT_LIGA6_ND_RESULTS.filter((m) => m.status === 'walkover')).toHaveLength(2);
+    expect(DEFAULT_LIGA6_ND_RESULTS.filter((m) => m.status === 'retired')).toHaveLength(0);
     for (const match of DEFAULT_LIGA6_ND_RESULTS) {
       expect(() => parseMatch(match)).not.toThrow();
     }
@@ -43,16 +43,17 @@ describe('Novak Djokovic Liga 6 data', () => {
     const groupB = calculateGroupStandings(DEFAULT_LIGA6_ND_RESULTS.filter((m) => m.group === 'B'), LIGA6_ND_GROUPS.B);
 
     expect(groupA.map((r) => r.player)).toEqual(['Cellilli F.', 'Amezague J.', 'De Ruyck G.', 'Fedrjanic N.', 'Bataglia F.']);
-    expect(groupB.map((r) => r.player)).toEqual(['Ballesta F.', 'Antuña A.', 'Ferrarotti E.', 'Fratini M.', 'Oshiro E.']);
+    expect(groupB.map((r) => r.player)).toEqual(['Ballesta F.', 'Antuña A.', 'Ferrarotti E.', 'Fratini M.']);
     expect(groupA.map((r) => [r.played, r.won, r.lost])).toEqual([[4, 4, 0], [4, 3, 1], [4, 2, 2], [4, 1, 3], [4, 0, 4]]);
-    expect(groupB.map((r) => [r.played, r.won, r.lost])).toEqual([[4, 4, 0], [4, 3, 1], [4, 2, 2], [4, 1, 3], [4, 0, 4]]);
+    expect(groupB.map((r) => [r.played, r.won, r.lost])).toEqual([[3, 3, 0], [3, 2, 1], [3, 1, 2], [3, 0, 3]]);
   });
 
   it('adds normalized Liga 6 names to the player registry', () => {
     const names = new Set(generatePlayersFromLigas().filter((p) => p.liga === 6).map((p) => p.name));
-    for (const name of ['De Ruyck G.', 'Amezague J.', 'Cellilli F.', 'Bataglia F.', 'Fedrjanic N.', 'Antuña A.', 'Ballesta F.', 'Fratini M.', 'Ferrarotti E.', 'Oshiro E.']) {
+    for (const name of ['De Ruyck G.', 'Amezague J.', 'Cellilli F.', 'Bataglia F.', 'Fedrjanic N.', 'Antuña A.', 'Ballesta F.', 'Fratini M.', 'Ferrarotti E.']) {
       expect(names.has(name)).toBe(true);
     }
+    expect(names.has('Oshiro E.')).toBe(false);
     expect(names.has('Antuña R.')).toBe(false);
   });
 

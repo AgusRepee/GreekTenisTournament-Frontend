@@ -4,11 +4,12 @@
  */
 
 import type { MatchInput, PlayerRegistry } from '../../types/tennisResults';
-import type { LeagueNum, Match, Player, Tournament } from '../mockData';
+import type { LeagueNum, Match, Player, Tournament, CategoryKey } from '../mockData';
 import { categoryToLeague, getMatchesByTournament } from '../mockData';
 import { cleanPlayerName } from './matchDedupe';
 import {
   aggregatePlayerStats,
+  normalizePlayerAliasKey,
   normalizePlayerName,
   parseMatch,
   resolvePlayerAlias,
@@ -142,15 +143,20 @@ export interface CalculatedRankingRow {
   gamesLost: number;
   rankingPositionChange: number | null;
   pointsChange: number | null;
+  /** Desde GET /api/public/rankings (include player) cuando el roster local no tiene la ficha. */
+  sourcePlayerName?: string;
+  sourcePlayerCategory?: CategoryKey;
+  sourceProfileImage?: string | null;
+  sourcePlayerNationality?: string;
 }
 
 function playersToRegistry(players: Player[], matches: MatchInput[] = []): PlayerRegistry {
   const out: PlayerRegistry = players.map((p) => ({ name: p.name, id: p.id }));
-  const seen = new Set(out.map((entry) => normalizePlayerName(entry.name, { casefold: true })));
+  const seen = new Set(out.map((entry) => normalizePlayerAliasKey(entry.name)));
   for (const match of matches) {
     for (const raw of [match.playerA, match.playerB]) {
       const name = normalizePlayerName(raw);
-      const key = normalizePlayerName(name, { casefold: true });
+      const key = normalizePlayerAliasKey(name);
       if (!name || seen.has(key)) continue;
       out.push({ name });
       seen.add(key);

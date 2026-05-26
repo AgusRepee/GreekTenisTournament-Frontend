@@ -3,6 +3,7 @@ import { MATCH_RESULTS_STORAGE_KEY } from '@/data/types/persistenceKeys';
 import type { MatchResultsPort } from '../contracts/matchResultsPort';
 import { matchInputDedupeKey } from '@/lib/tennis/matchDedupe';
 import { DEFAULT_LIGA2_RESULTS } from '@/lib/tennis/liga2DefaultResults';
+import { DEFAULT_LIGA4_ND_RESULTS } from '@/lib/tennis/liga4Nd2026Data';
 import { DEFAULT_LIGA5_ND_RESULTS } from '@/lib/tennis/liga5Nd2026Data';
 import { DEFAULT_LIGA6_ND_RESULTS } from '@/lib/tennis/liga6Nd2026Data';
 import { DEFAULT_NOVAK_LIGA1_RESULTS } from '@/lib/tennis/novakLiga1DefaultResults';
@@ -11,11 +12,13 @@ import { DEFAULT_NOVAK_LIGA1_RESULTS } from '@/lib/tennis/novakLiga1DefaultResul
 const EMPTY_MATCH_RESULTS: MatchInput[] = Object.freeze([]) as unknown as MatchInput[];
 const NOVAK_LIGA1_RESULTS_SEED_KEY = 'greek-tennis-results-seed-novak-l1-2026-v1';
 const LIGA2_RESULTS_SEED_KEY = 'greek-tennis-results-seed-liga2-2026-v1';
+const LIGA4_ND_RESULTS_SEED_KEY = 'greek-tennis-results-seed-liga4-nd-2026-v1';
 const LIGA5_ND_RESULTS_SEED_KEY = 'greek-tennis-results-seed-liga5-nd-2026-v1';
 const LIGA6_ND_RESULTS_SEED_KEY = 'greek-tennis-results-seed-liga6-nd-2026-v1';
 const DEFAULT_RESULT_SEEDS: MatchInput[] = [
   ...DEFAULT_NOVAK_LIGA1_RESULTS,
   ...DEFAULT_LIGA2_RESULTS,
+  ...DEFAULT_LIGA4_ND_RESULTS,
   ...DEFAULT_LIGA5_ND_RESULTS,
   ...DEFAULT_LIGA6_ND_RESULTS,
 ];
@@ -98,6 +101,17 @@ export function createLocalMatchResultsRepository(): MatchResultsPort {
         }
         rebuildList();
         localStorage.setItem(LIGA2_RESULTS_SEED_KEY, '1');
+        persist();
+      }
+      if (localStorage.getItem(LIGA4_ND_RESULTS_SEED_KEY) !== '1') {
+        const existingSemantic = new Set(Object.values(resultsByMatchId).map(semanticResultKey));
+        for (const m of DEFAULT_LIGA4_ND_RESULTS) {
+          if (existingSemantic.has(semanticResultKey(m))) continue;
+          const id = matchInputDedupeKey(m);
+          resultsByMatchId[id] = { ...m, matchId: id };
+        }
+        rebuildList();
+        localStorage.setItem(LIGA4_ND_RESULTS_SEED_KEY, '1');
         persist();
       }
       if (localStorage.getItem(LIGA5_ND_RESULTS_SEED_KEY) !== '1') {

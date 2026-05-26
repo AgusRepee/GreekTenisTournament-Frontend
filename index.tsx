@@ -2,9 +2,14 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { initializeTournamentDataFromSeedIfEmpty } from '@/services/dataService';
+import { getDataSourceMode } from '@/lib/data/tournamentRepository';
+import { ensurePublicRankingsLoaded } from '@/data/services/api/publicRankingsStore';
 import App from './App';
 
 initializeTournamentDataFromSeedIfEmpty();
+if (getDataSourceMode() === 'api') {
+  ensurePublicRankingsLoaded();
+}
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {

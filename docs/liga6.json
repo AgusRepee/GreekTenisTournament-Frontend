@@ -4,16 +4,15 @@
     "grupos": {
       "A": [
         "Cellilli F.",
-        "Bataglia F.",
+        "Amezague J.",
         "De Ruyck G.",
         "Fedrjanic N.",
-        "Amezague J."
+        "Bataglia F."
       ],
       "B": [
         "Ballesta F.",
-        "Ferrarotti E.",
-        "Oshiro E.",
         "Antuña A.",
+        "Ferrarotti E.",
         "Fratini M."
       ]
     },
@@ -27,9 +26,8 @@
             "Libre: Amezague J."
           ],
           "B": [
-            "Ballesta F. (P) vs Ferrarotti E.",
-            "Oshiro E. (P) vs Antuña A.",
-            "Libre: Fratini M."
+            "Ballesta F. (P) vs Antuña A.",
+            "Ferrarotti E. (P) vs Fratini M."
           ]
         }
       },
@@ -42,9 +40,8 @@
             "Libre: Bataglia F."
           ],
           "B": [
-            "Antuña A. (P) vs Ballesta F.",
-            "Oshiro E. (P) vs Fratini M.",
-            "Libre: Ferrarotti E."
+            "Ballesta F. (P) vs Ferrarotti E.",
+            "Antuña A. (P) vs Fratini M."
           ]
         }
       },
@@ -57,9 +54,8 @@
             "Libre: Fedrjanic N."
           ],
           "B": [
-            "Ballesta F. (P) vs Oshiro E.",
-            "Fratini M. (P) vs Ferrarotti E.",
-            "Libre: Antuña A."
+            "Ballesta F. (P) vs Fratini M.",
+            "Antuña A. (P) vs Ferrarotti E."
           ]
         }
       },
@@ -71,11 +67,7 @@
             "Bataglia F. (P) vs Fedrjanic N.",
             "Libre: De Ruyck G."
           ],
-          "B": [
-            "Fratini M. (P) vs Ballesta F.",
-            "Ferrarotti E. (P) vs Antuña A.",
-            "Libre: Oshiro E."
-          ]
+          "B": []
         }
       },
       {
@@ -86,11 +78,7 @@
             "Fedrjanic N. (P) vs Amezague J.",
             "Libre: Cellilli F."
           ],
-          "B": [
-            "Ferrarotti E. (P) vs Oshiro E.",
-            "Antuña A. (P) vs Fratini M.",
-            "Libre: Ballesta F."
-          ]
+          "B": []
         }
       }
     ],

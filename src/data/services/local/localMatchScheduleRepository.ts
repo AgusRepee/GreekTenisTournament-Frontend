@@ -1,16 +1,19 @@
 import { MATCH_SCHEDULE_STORAGE_KEY } from '@/data/types/persistenceKeys';
 import type { MatchScheduleEntry, MatchSchedulePort } from '../contracts/matchSchedulePort';
 import { sanitizeMatchScheduleEntry } from '../contracts/matchSchedulePort';
+import { DEFAULT_LIGA4_ND_SCHEDULES } from '@/lib/tennis/liga4Nd2026Data';
 import { DEFAULT_LIGA5_ND_SCHEDULES } from '@/lib/tennis/liga5Nd2026Data';
 import { DEFAULT_LIGA6_ND_SCHEDULES } from '@/lib/tennis/liga6Nd2026Data';
 import { DEFAULT_NOVAK_LIGA1_SCHEDULES } from '@/lib/tennis/novakLiga1DefaultResults';
 
 const EMPTY: MatchScheduleEntry[] = Object.freeze([]) as unknown as MatchScheduleEntry[];
 const NOVAK_LIGA1_SCHEDULE_SEED_KEY = 'greek-tennis-schedule-seed-novak-l1-2026-v1';
+const LIGA4_ND_SCHEDULE_SEED_KEY = 'greek-tennis-schedule-seed-liga4-nd-2026-v1';
 const LIGA5_ND_SCHEDULE_SEED_KEY = 'greek-tennis-schedule-seed-liga5-nd-2026-v1';
 const LIGA6_ND_SCHEDULE_SEED_KEY = 'greek-tennis-schedule-seed-liga6-nd-2026-v1';
 const DEFAULT_SCHEDULE_SEEDS = [
   ...DEFAULT_NOVAK_LIGA1_SCHEDULES,
+  ...DEFAULT_LIGA4_ND_SCHEDULES,
   ...DEFAULT_LIGA5_ND_SCHEDULES,
   ...DEFAULT_LIGA6_ND_SCHEDULES,
 ];
@@ -62,6 +65,15 @@ export function createLocalMatchScheduleRepository(): MatchSchedulePort {
         }
         rebuild();
         localStorage.setItem(NOVAK_LIGA1_SCHEDULE_SEED_KEY, '1');
+        persist();
+      }
+      if (localStorage.getItem(LIGA4_ND_SCHEDULE_SEED_KEY) !== '1') {
+        for (const schedule of DEFAULT_LIGA4_ND_SCHEDULES) {
+          if (byKey[schedule.dedupeKey]) continue;
+          byKey[schedule.dedupeKey] = schedule;
+        }
+        rebuild();
+        localStorage.setItem(LIGA4_ND_SCHEDULE_SEED_KEY, '1');
         persist();
       }
       if (localStorage.getItem(LIGA5_ND_SCHEDULE_SEED_KEY) !== '1') {
