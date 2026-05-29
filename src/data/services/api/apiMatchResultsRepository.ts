@@ -3,10 +3,9 @@ import type { MatchResultsPort } from '../contracts/matchResultsPort';
 import { matchInputDedupeKey } from '@/lib/tennis/matchDedupe';
 import {
   deleteAdminMatchResultByDedupeKey,
-  getAdminMatchResults,
+  getPublicMatchResults,
   postMatchResult,
 } from '@/lib/api/apiClient';
-import { hasAdminApiCredentials } from '@/lib/adminTokenStorage';
 
 const EMPTY_SERVER: MatchInput[] = Object.freeze([]) as unknown as MatchInput[];
 
@@ -86,7 +85,7 @@ export function createApiMatchResultsRepository(): MatchResultsPort {
 
   async function reloadFromServer(): Promise<void> {
     try {
-      const rows = await getAdminMatchResults();
+      const rows = await getPublicMatchResults();
       if (!Array.isArray(rows)) {
         console.warn('[apiMatchResults] respuesta inesperada, se esperaba array');
         return;
@@ -97,9 +96,7 @@ export function createApiMatchResultsRepository(): MatchResultsPort {
     }
   }
 
-  if (hasAdminApiCredentials()) {
-    void reloadFromServer();
-  }
+  void reloadFromServer();
 
   return {
     getAll(): MatchInput[] {

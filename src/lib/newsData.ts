@@ -21,6 +21,20 @@ export interface NewsItem {
 
 export const NEWS_ITEMS: NewsItem[] = [
   {
+    id: 'n-rafa-2026-inicio',
+    title: '¡Comenzó el torneo Rafael Nadal!',
+    excerpt:
+      'Inscripciones cerradas. Las ligas 1, 2, 5 y 6 ya están en marcha. ¡Mucha suerte a todos los jugadores!',
+    body:
+      'El torneo Rafael Nadal ya comenzó en el club.\n\n' +
+      'Las inscripciones están cerradas. Las ligas 1, 2, 5 y 6 ya están disputando su fase de grupos e interzonal según el fixture publicado.\n\n' +
+      'Las ligas 3 y 4 del torneo Rafael Nadal se anunciarán cuando se confirmen grupos y fechas.\n\n' +
+      'Desde Greek Tennis les deseamos mucha suerte a todos los jugadores. Consultá tu liga en Torneos para ver partidos, horarios y resultados.',
+    publishedAt: '2026-05-26',
+    category: 'Torneo',
+    image: 'rafa-hero.webp',
+  },
+  {
     id: 'n-1',
     title: 'Abierta la inscripción al torneo Novak Djokovic en todas las ligas',
     excerpt: 'Ya podés anotarte en las ligas 1 a 5. Cupos limitados por categoría.',

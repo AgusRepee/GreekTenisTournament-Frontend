@@ -7,6 +7,22 @@ import { getTournamentById, LIGA3_GROUP_FIXTURES, LIGA4_GROUP_FIXTURES } from '@
 import type { FixtureCatalogEntry } from '@/lib/tennis/buildFixtureCatalog';
 import { buildFixtureCatalog, buildFixtureCatalogEntriesForTournament } from '@/lib/tennis/buildFixtureCatalog';
 import { ligaNumFromNovakTournamentId } from '@/lib/tennis/generateTournamentsFromLigas';
+import {
+  RAFA_LIGA2_TOURNAMENT_ID,
+  buildRafaLiga2GroupStageFixtures,
+} from '@/lib/tennis/rafaNadalLiga2Nd2026Data';
+import {
+  RAFA_LIGA5_TOURNAMENT_ID,
+  buildRafaLiga5GroupStageFixtures,
+} from '@/lib/tennis/rafaNadalLiga5Nd2026Data';
+import {
+  RAFA_LIGA6_TOURNAMENT_ID,
+  buildRafaLiga6GroupStageFixtures,
+} from '@/lib/tennis/rafaNadalLiga6Nd2026Data';
+import {
+  RAFAEL_LIGA1_TOURNAMENT_ID,
+  buildRafaelLiga1GroupStageFixtures,
+} from '@/lib/tennis/rafaelNadalLiga1Nd2026Data';
 import { cleanPlayerName, matchInputDedupeKey } from '@/lib/tennis/matchDedupe';
 import { effectiveTournamentCatalogType } from '@/lib/tennis/rankingPointsGreek500';
 import type { MatchInput } from '@/types/tennisResults';
@@ -127,6 +143,19 @@ export function buildPublicGroupStageFixtures(tournamentId: string | undefined |
   const resultsByKey = new Map<string, MatchInput>();
   for (const r of resultsForTournament) {
     resultsByKey.set(matchInputDedupeKey(r), r);
+  }
+
+  if (tid === RAFAEL_LIGA1_TOURNAMENT_ID) {
+    return hydrateStaticFixtures(tid, buildRafaelLiga1GroupStageFixtures(), resultsByKey);
+  }
+  if (tid === RAFA_LIGA2_TOURNAMENT_ID) {
+    return hydrateStaticFixtures(tid, buildRafaLiga2GroupStageFixtures(), resultsByKey);
+  }
+  if (tid === RAFA_LIGA5_TOURNAMENT_ID) {
+    return hydrateStaticFixtures(tid, buildRafaLiga5GroupStageFixtures(), resultsByKey);
+  }
+  if (tid === RAFA_LIGA6_TOURNAMENT_ID) {
+    return hydrateStaticFixtures(tid, buildRafaLiga6GroupStageFixtures(), resultsByKey);
   }
 
   const ln = ligaNumFromNovakTournamentId(tid);

@@ -4,6 +4,10 @@ import { categoryToLeague } from '../mockData';
 import { LIGA_NUMBERS, type LigaNumKey } from './loadLigasFromDocs';
 import { ligasData } from './loadLigasFromDocs';
 import { novakTournamentId } from './generateTournamentsFromLigas';
+import { RAFA_LIGA2_TEMPLATE, RAFA_LIGA2_TOURNAMENT_ID } from './rafaNadalLiga2Nd2026Data';
+import { RAFA_LIGA5_TEMPLATE, RAFA_LIGA5_TOURNAMENT_ID } from './rafaNadalLiga5Nd2026Data';
+import { RAFA_LIGA6_TEMPLATE, RAFA_LIGA6_TOURNAMENT_ID } from './rafaNadalLiga6Nd2026Data';
+import { RAFAEL_LIGA1_TEMPLATE, RAFAEL_LIGA1_TOURNAMENT_ID } from './rafaelNadalLiga1Nd2026Data';
 import { cleanPlayerName, matchInputDedupeKey } from './matchDedupe';
 import { parseLibre, parseVsLine } from './fixtureLineParse';
 import { getTemplateFechas } from './ligaFechas';
@@ -157,7 +161,7 @@ function pushFromFechas(
   }
 }
 
-/** Todos los partidos del fixture Novak (ligas 1–6) para gestión de pendientes. */
+/** Todos los partidos del fixture Novak (ligas 1–6) y Rafael Nadal (L1, L2, L5, L6) para gestión de pendientes. */
 export function buildFixtureCatalog(): FixtureCatalogEntry[] {
   const out: FixtureCatalogEntry[] = [];
   for (const ligaNum of LIGA_NUMBERS) {
@@ -166,6 +170,10 @@ export function buildFixtureCatalog(): FixtureCatalogEntry[] {
     const tournamentId = novakTournamentId(ligaNum);
     pushFromFechas(ligaNum, fechas, tournamentId, out);
   }
+  pushFromFechas(RAFAEL_LIGA1_TEMPLATE.liga as LigaNumKey, RAFAEL_LIGA1_TEMPLATE.fechas, RAFAEL_LIGA1_TOURNAMENT_ID, out);
+  pushFromFechas(RAFA_LIGA2_TEMPLATE.liga as LigaNumKey, RAFA_LIGA2_TEMPLATE.fechas, RAFA_LIGA2_TOURNAMENT_ID, out);
+  pushFromFechas(RAFA_LIGA5_TEMPLATE.liga as LigaNumKey, RAFA_LIGA5_TEMPLATE.fechas, RAFA_LIGA5_TOURNAMENT_ID, out);
+  pushFromFechas(RAFA_LIGA6_TEMPLATE.liga as LigaNumKey, RAFA_LIGA6_TEMPLATE.fechas, RAFA_LIGA6_TOURNAMENT_ID, out);
   return out;
 }
 

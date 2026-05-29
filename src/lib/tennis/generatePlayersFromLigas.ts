@@ -6,6 +6,10 @@ import { ligasData, LIGA_NUMBERS } from './loadLigasFromDocs';
 import { DEFAULT_LIGA2_RESULTS } from './liga2DefaultResults';
 import { DEFAULT_LIGA5_ND_RESULTS, LIGA5_ND_GROUPS } from './liga5Nd2026Data';
 import { DEFAULT_LIGA6_ND_RESULTS, LIGA6_ND_GROUPS } from './liga6Nd2026Data';
+import { RAFA_LIGA2_GROUPS, RAFA_LIGA2_LEAGUE_NUM } from './rafaNadalLiga2Nd2026Data';
+import { RAFA_LIGA5_GROUPS, RAFA_LIGA5_LEAGUE_NUM } from './rafaNadalLiga5Nd2026Data';
+import { RAFA_LIGA6_GROUPS, RAFA_LIGA6_LEAGUE_NUM } from './rafaNadalLiga6Nd2026Data';
+import { RAFAEL_LIGA1_GROUPS, RAFAEL_LIGA1_LEAGUE_NUM } from './rafaelNadalLiga1Nd2026Data';
 import { DEFAULT_NOVAK_LIGA1_RESULTS } from './novakLiga1DefaultResults';
 
 export interface DocPlayerSeed {
@@ -63,6 +67,18 @@ export function generatePlayersFromLigas(): DocPlayerSeed[] {
   for (const result of DEFAULT_LIGA6_ND_RESULTS) {
     addPlayer(6, result.playerA);
     addPlayer(6, result.playerB);
+  }
+  for (const names of Object.values(RAFAEL_LIGA1_GROUPS)) {
+    for (const name of names) addPlayer(RAFAEL_LIGA1_LEAGUE_NUM, name);
+  }
+  for (const names of Object.values(RAFA_LIGA2_GROUPS)) {
+    for (const name of names) addPlayer(RAFA_LIGA2_LEAGUE_NUM, name);
+  }
+  for (const names of Object.values(RAFA_LIGA5_GROUPS)) {
+    for (const name of names) addPlayer(RAFA_LIGA5_LEAGUE_NUM, name);
+  }
+  for (const names of Object.values(RAFA_LIGA6_GROUPS)) {
+    for (const name of names) addPlayer(RAFA_LIGA6_LEAGUE_NUM, name);
   }
   return Array.from(map.values());
 }

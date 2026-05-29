@@ -58,6 +58,8 @@ import {
 import { scheduleEntryFromApiRow, type MatchScheduleEntry } from '@/data/services/contracts/matchSchedulePort';
 import { getDataSourceMode } from '@/lib/data/tournamentRepository';
 import { getPublicScheduleByTournamentId, getPublicEliminationByTournamentId } from '@/lib/api/apiClient';
+import { fetchPublicGroupStandingsTables } from '@/lib/api/publicGroupStandingsApi';
+import type { GroupTableWithSets } from '@/lib/mockData';
 import { hydrateTournamentPreclasificacionFromPublicApi } from '@/lib/api/tournamentPreclasificacionApi';
 import { mapPrismaMatchRowToClubMatch } from '@/lib/api/syncTournamentMatchesFromAdmin';
 import { mergePersistedMatches } from '@/lib/tennis/bracketPersist';
@@ -123,9 +125,12 @@ function publicApiMatchToResult(row: Record<string, unknown>): MatchInput | null
   const roundLabel = typeof row.roundLabel === 'string' ? row.roundLabel : '';
   const groupFromLabel = /grupo\s+([A-Za-z0-9]+)/i.exec(roundLabel)?.[1]?.toUpperCase();
   const roundFromLabel = /fecha\s+(\d+)/i.exec(roundLabel)?.[1];
+  const groupRel = row.group && typeof row.group === 'object' ? (row.group as Record<string, unknown>) : null;
+  const groupFromRel =
+    typeof groupRel?.key === 'string' && groupRel.key.trim() ? groupRel.key.trim().toUpperCase() : undefined;
   const groupKey = typeof row.groupKey === 'string' && row.groupKey.trim()
     ? row.groupKey.trim()
-    : groupFromLabel;
+    : groupFromRel ?? groupFromLabel;
   const roundNum = typeof row.roundNum === 'number' && Number.isFinite(row.roundNum)
     ? row.roundNum
     : roundFromLabel
@@ -235,6 +240,7 @@ export const TournamentDetailScreen: React.FC<TournamentDetailScreenProps> = ({ 
   const schedules = useMatchSchedules();
   const dataSourceMode = getDataSourceMode();
   const [publicApiResults, setPublicApiResults] = useState<MatchInput[]>([]);
+  const [apiGroupTables, setApiGroupTables] = useState<GroupTableWithSets[] | null>(null);
   const tournament = useMemo(
     () => (tournamentId ? getTournamentById(tournamentId) : getTournamentById('t-novak')),
     [tournamentId, club],
@@ -282,6 +288,25 @@ export const TournamentDetailScreen: React.FC<TournamentDetailScreenProps> = ({ 
       cancelled = true;
     };
   }, [dataSourceMode, tournament?.id]);
+
+  useEffect(() => {
+    if (dataSourceMode !== 'api' || !tournament?.id) {
+      setApiGroupTables(null);
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      try {
+        const tables = await fetchPublicGroupStandingsTables(tournament);
+        if (!cancelled) setApiGroupTables(tables);
+      } catch {
+        if (!cancelled) setApiGroupTables(null);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [dataSourceMode, tournament?.id, tournament?.category, club]);
 
   const effectiveResults = useMemo(() => {
     if (dataSourceMode !== 'api' || publicApiResults.length === 0) return results;
@@ -368,9 +393,10 @@ export const TournamentDetailScreen: React.FC<TournamentDetailScreenProps> = ({ 
 
   const groupTables = useMemo(() => {
     if (!tournament) return [];
+    if (dataSourceMode === 'api' && apiGroupTables && apiGroupTables.length > 0) return apiGroupTables;
     if (snapshot) return snapshotToGroupTables(snapshot, tournament);
     return getGroupTablesWithSetStats(tournament.id);
-  }, [tournament, snapshot, club]);
+  }, [tournament, snapshot, club, dataSourceMode, apiGroupTables]);
 
   const tournamentSeedMap = useMemo(() => {
     if (!tournament) return new Map<string, number>();

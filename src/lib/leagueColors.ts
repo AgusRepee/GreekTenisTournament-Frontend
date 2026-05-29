@@ -1,6 +1,6 @@
 /**
- * League color system — alineado con portadas Novak en /img (rojo…gris).
- * Liga 1 rojo, 2 naranja, 3 azul, 4 verde, 5 negro, 6 gris.
+ * League color system — alineado con portadas en /img.
+ * Liga 1 violeta, 2 naranja, 3 azul, 4 verde, 5 negro, 6 gris.
  */
 
 import type { LeagueNum } from './mockData';
@@ -22,12 +22,12 @@ export interface LeagueColorClasses {
 
 const leagueMap: Record<LeagueNum, LeagueColorClasses> = {
   1: {
-    borderTop: 'border-t-4 border-t-red-500',
-    topBar: 'bg-red-500',
-    bg: 'bg-red-50 dark:bg-red-900/20',
-    border: 'border-l-4 border-l-red-500',
-    badge: 'rounded-full px-3 py-1 text-xs font-semibold bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-300 border border-red-500',
-    categoryBg: 'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-200',
+    borderTop: 'border-t-4 border-t-violet-500',
+    topBar: 'bg-violet-500',
+    bg: 'bg-violet-50 dark:bg-violet-900/20',
+    border: 'border-l-4 border-l-violet-500',
+    badge: 'rounded-full px-3 py-1 text-xs font-semibold bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300 border border-violet-500',
+    categoryBg: 'bg-violet-50 text-violet-700 dark:bg-violet-900/20 dark:text-violet-200',
   },
   2: {
     borderTop: 'border-t-4 border-t-orange-400',
@@ -54,12 +54,12 @@ const leagueMap: Record<LeagueNum, LeagueColorClasses> = {
     categoryBg: 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-200',
   },
   5: {
-    borderTop: 'border-t-4 border-t-neutral-900',
-    topBar: 'bg-neutral-900',
-    bg: 'bg-neutral-100 dark:bg-neutral-900/35',
-    border: 'border-l-4 border-l-neutral-900',
-    badge: 'rounded-full px-3 py-1 text-xs font-semibold bg-neutral-100 text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100 border border-neutral-900',
-    categoryBg: 'bg-neutral-100 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200',
+    borderTop: 'border-t-4 border-t-black',
+    topBar: 'bg-black',
+    bg: 'bg-neutral-100 dark:bg-black/35',
+    border: 'border-l-4 border-l-black',
+    badge: 'rounded-full px-3 py-1 text-xs font-semibold bg-neutral-100 text-black dark:bg-black dark:text-white border border-black',
+    categoryBg: 'bg-neutral-100 text-black dark:bg-black dark:text-neutral-200',
   },
   6: {
     borderTop: 'border-t-4 border-t-gray-400',
@@ -86,18 +86,67 @@ export function getLeagueColor(league: LeagueNum | number | string | undefined |
   return leagueMap[normalizeLeagueNum(league)];
 }
 
+/** Chip «Liga N» (ranking, directorio, perfil). Una sola fuente que `leagueMap.badge`. */
+export function getLeagueBadgeClasses(
+  league: LeagueNum | number | string | undefined | null,
+  shape: 'pill' | 'lg' | 'md' = 'pill',
+): string {
+  const rounded =
+    shape === 'pill' ? 'rounded-full' : shape === 'lg' ? 'rounded-lg' : 'rounded-md';
+  return getLeagueColor(league).badge.replace('rounded-full', rounded);
+}
+
+/** Borde de tarjeta de partido importante en home (por liga). */
+export function getLeagueMatchCardBorderClasses(league: LeagueNum | number | string | undefined | null): string {
+  const map: Record<LeagueNum, string> = {
+    1: 'border-2 border-violet-300 dark:border-violet-500/55',
+    2: 'border-2 border-orange-300 dark:border-orange-400/60',
+    3: 'border-2 border-blue-300 dark:border-blue-400/60',
+    4: 'border-2 border-green-300 dark:border-green-400/60',
+    5: 'border-2 border-black/50 dark:border-black/70',
+    6: 'border-2 border-gray-300 dark:border-gray-500/55',
+  };
+  return map[normalizeLeagueNum(league)];
+}
+
+/** Pestaña activa en ranking (subrayado + texto). */
+export function getLeagueTabActiveClasses(league: LeagueNum | number | string | undefined | null): string {
+  const map: Record<LeagueNum, string> = {
+    1: 'border-b-violet-500 text-violet-700 dark:border-b-violet-400 dark:text-violet-300',
+    2: 'border-b-orange-400 text-orange-700 dark:border-b-orange-400 dark:text-orange-300',
+    3: 'border-b-blue-500 text-blue-700 dark:border-b-blue-400 dark:text-blue-300',
+    4: 'border-b-green-500 text-green-700 dark:border-b-green-400 dark:text-green-300',
+    5: 'border-b-black text-black dark:border-b-neutral-200 dark:text-neutral-100',
+    6: 'border-b-gray-500 text-gray-700 dark:border-b-gray-400 dark:text-gray-300',
+  };
+  return map[normalizeLeagueNum(league)];
+}
+
+/** Botón de filtro de liga activo en directorio. */
+export function getLeagueFilterButtonActiveClasses(league: LeagueNum | number | string | undefined | null): string {
+  const map: Record<LeagueNum, string> = {
+    1: 'bg-violet-600 text-white border-violet-600 shadow-sport-card dark:shadow-sport-card-dark',
+    2: 'bg-orange-500 text-white border-orange-500 shadow-sport-card dark:shadow-sport-card-dark',
+    3: 'bg-blue-600 text-white border-blue-600 shadow-sport-card dark:shadow-sport-card-dark',
+    4: 'bg-green-600 text-white border-green-600 shadow-sport-card dark:shadow-sport-card-dark',
+    5: 'bg-black text-white border-black shadow-sport-card dark:shadow-sport-card-dark',
+    6: 'bg-gray-600 text-white border-gray-600 shadow-sport-card dark:shadow-sport-card-dark',
+  };
+  return map[normalizeLeagueNum(league)];
+}
+
 /**
  * Sombra estática muy sutil en cards de torneo en curso (tinte acorde a la liga / franja superior).
  * Sin hover: solo profundidad ligera.
  */
 export function getLeagueSubtleCardShadowClasses(league: LeagueNum): string {
   const map: Record<LeagueNum, string> = {
-    1: 'shadow-[0_10px_26px_-10px_rgba(220,38,38,0.14)] dark:shadow-[0_12px_30px_-10px_rgba(248,113,113,0.12)]',
+    1: 'shadow-[0_10px_26px_-10px_rgba(139,92,246,0.14)] dark:shadow-[0_12px_30px_-10px_rgba(167,139,250,0.12)]',
     2: 'shadow-[0_10px_26px_-10px_rgba(249,115,22,0.14)] dark:shadow-[0_12px_30px_-10px_rgba(253,186,116,0.1)]',
     3: 'shadow-[0_10px_26px_-10px_rgba(59,130,246,0.14)] dark:shadow-[0_12px_30px_-10px_rgba(96,165,250,0.1)]',
     4: 'shadow-[0_10px_26px_-10px_rgba(34,197,94,0.14)] dark:shadow-[0_12px_30px_-10px_rgba(74,222,128,0.1)]',
     5: 'shadow-[0_10px_26px_-10px_rgba(38,38,38,0.12)] dark:shadow-[0_12px_30px_-10px_rgba(163,163,163,0.1)]',
-    6: 'shadow-[0_10px_26px_-10px_rgba(139,92,246,0.12)] dark:shadow-[0_12px_30px_-10px_rgba(196,181,253,0.1)]',
+    6: 'shadow-[0_10px_26px_-10px_rgba(107,114,128,0.14)] dark:shadow-[0_12px_30px_-10px_rgba(156,163,175,0.12)]',
   };
   return map[league];
 }
@@ -153,46 +202,46 @@ export interface LeaguePublicTournamentTheme {
 
 const LEAGUE_PUBLIC_THEME: Record<LeagueNum, LeaguePublicTournamentTheme> = {
   1: {
-    accentText: 'text-red-600 dark:text-red-400',
-    accentTextWinner: 'text-red-600 dark:text-red-300',
-    accentSolid: 'bg-red-600',
-    accentSolidHover: 'hover:bg-red-700',
-    accentBorderSoft: 'border-red-500/35',
-    accentBgSoft: 'bg-red-50 dark:bg-red-950/30',
-    heroCategoryPill: 'rounded-full bg-red-600/90 text-xs uppercase tracking-wider px-3 py-1',
-    heroGradientNoCover: 'linear-gradient(135deg, #7f1d1d 0%, #dc2626 100%)',
-    heroCoverTintMidRgba: 'rgba(185,28,28,0.48)',
+    accentText: 'text-violet-600 dark:text-violet-400',
+    accentTextWinner: 'text-violet-600 dark:text-violet-300',
+    accentSolid: 'bg-violet-600',
+    accentSolidHover: 'hover:bg-violet-700',
+    accentBorderSoft: 'border-violet-500/35',
+    accentBgSoft: 'bg-violet-50 dark:bg-violet-950/30',
+    heroCategoryPill: 'rounded-full bg-violet-600/90 text-xs uppercase tracking-wider px-3 py-1',
+    heroGradientNoCover: 'linear-gradient(135deg, #4c1d95 0%, #7c3aed 100%)',
+    heroCoverTintMidRgba: 'rgba(124,58,237,0.48)',
     bracketShell:
-      'border border-red-200 bg-gradient-to-b from-red-50/95 to-white shadow-md dark:border-red-400/35 dark:bg-gradient-to-b dark:from-[#1c0a0c] dark:to-[#0c0608] dark:shadow-[0_0_40px_-14px_rgba(248,113,113,0.22)]',
+      'border border-violet-200 bg-gradient-to-b from-violet-50/95 to-white shadow-md dark:border-violet-400/35 dark:bg-gradient-to-b dark:from-[#1a0f2e] dark:to-[#0c0614] dark:shadow-[0_0_40px_-14px_rgba(167,139,250,0.22)]',
     bracketEmpty:
-      'border border-red-200 bg-gradient-to-b from-red-50 to-white dark:border-red-400/30 dark:bg-gradient-to-b dark:from-[#1c0a0c] dark:to-[#0c0608]',
-    connectorStroke: 'text-red-500/55 dark:text-red-400/45',
-    elimTabActive: 'border-white/90 bg-red-950 text-white shadow-md dark:bg-red-950',
+      'border border-violet-200 bg-gradient-to-b from-violet-50 to-white dark:border-violet-400/30 dark:bg-gradient-to-b dark:from-[#1a0f2e] dark:to-[#0c0614]',
+    connectorStroke: 'text-violet-500/55 dark:text-violet-400/45',
+    elimTabActive: 'border-white/90 bg-violet-950 text-white shadow-md dark:bg-violet-950',
     elimMobileShell:
-      'flex flex-col gap-4 overflow-visible rounded-2xl border border-red-200 bg-gradient-to-b from-red-50/95 to-white p-4 shadow-md dark:border-red-400/35 dark:bg-gradient-to-b dark:from-[#1c0a0c] dark:to-[#0c0608] dark:shadow-[0_0_32px_-12px_rgba(248,113,113,0.22)]',
+      'flex flex-col gap-4 overflow-visible rounded-2xl border border-violet-200 bg-gradient-to-b from-violet-50/95 to-white p-4 shadow-md dark:border-violet-400/35 dark:bg-gradient-to-b dark:from-[#1a0f2e] dark:to-[#0c0614] dark:shadow-[0_0_32px_-12px_rgba(167,139,250,0.22)]',
     elimMobileCard:
-      'rounded-xl border border-red-200/90 bg-white p-4 shadow-sm dark:border-red-400/25 dark:bg-[#1a1012]/95',
-    elimWinnerName: 'text-red-600 dark:text-red-300',
-    elimVsMuted: 'text-[#616f89] dark:text-red-200/45',
+      'rounded-xl border border-violet-200/90 bg-white p-4 shadow-sm dark:border-violet-400/25 dark:bg-[#16101f]/95',
+    elimWinnerName: 'text-violet-600 dark:text-violet-300',
+    elimVsMuted: 'text-[#616f89] dark:text-violet-200/45',
     elimResult:
-      'mt-2 border-t border-red-200/80 pt-2 text-sm font-bold text-red-600 dark:border-red-500/25 dark:text-red-400',
+      'mt-2 border-t border-violet-200/80 pt-2 text-sm font-bold text-violet-600 dark:border-violet-500/25 dark:text-violet-400',
     posMidTier:
-      'bg-red-500/20 dark:bg-red-500/30 text-red-700 dark:text-red-300 ring-2 ring-red-500/60 dark:ring-red-400/50',
+      'bg-violet-500/20 dark:bg-violet-500/30 text-violet-700 dark:text-violet-300 ring-2 ring-violet-500/60 dark:ring-violet-400/50',
     matchCard: {
       winnerRow:
-        'border-l-2 border-red-500 bg-emerald-50 text-[#111318] dark:border-red-400 dark:bg-emerald-950/55 dark:text-white',
+        'border-l-2 border-violet-500 bg-emerald-50 text-[#111318] dark:border-violet-400 dark:bg-emerald-950/55 dark:text-white',
       loserRow:
-        'border border-red-100 bg-white/85 text-[#111318] dark:border-red-500/20 dark:bg-black/25 dark:text-gray-100/90',
-      avatarRing: 'bg-red-100 ring-1 ring-red-200 dark:bg-[#0f172a] dark:ring-red-500/30',
-      avatarInitials: 'text-red-700/80 dark:text-red-400/80',
+        'border border-violet-100 bg-white/85 text-[#111318] dark:border-violet-500/20 dark:bg-black/25 dark:text-gray-100/90',
+      avatarRing: 'bg-violet-100 ring-1 ring-violet-200 dark:bg-[#0f172a] dark:ring-violet-500/30',
+      avatarInitials: 'text-violet-700/80 dark:text-violet-400/80',
       avatarNoPhotoShell:
-        'flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-red-100 text-xs font-semibold text-red-700 ring-1 ring-red-200 dark:bg-[#0f172a] dark:text-white dark:ring-red-500/30',
+        'flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-violet-100 text-xs font-semibold text-violet-700 ring-1 ring-violet-200 dark:bg-[#0f172a] dark:text-white dark:ring-violet-500/30',
       loserName: 'text-[#374151] dark:text-gray-100/85',
       rankingMuted: 'text-[#616f89] dark:text-gray-400/75',
-      checkWinner: 'text-red-600 dark:text-red-400',
+      checkWinner: 'text-violet-600 dark:text-violet-400',
       scorePlaceholder: 'text-[#616f89] dark:text-gray-500/70',
       outerCard:
-        'min-w-0 w-full overflow-hidden rounded-2xl border border-red-200 bg-white shadow-md dark:border-red-400/35 dark:bg-black/35 dark:shadow-[0_4px_24px_-8px_rgba(248,113,113,0.18)]',
+        'min-w-0 w-full overflow-hidden rounded-2xl border border-violet-200 bg-white shadow-md dark:border-violet-400/35 dark:bg-black/35 dark:shadow-[0_4px_24px_-8px_rgba(167,139,250,0.18)]',
     },
   },
   2: {
@@ -325,15 +374,15 @@ const LEAGUE_PUBLIC_THEME: Record<LeagueNum, LeaguePublicTournamentTheme> = {
     },
   },
   5: {
-    accentText: 'text-neutral-800 dark:text-neutral-200',
-    accentTextWinner: 'text-neutral-800 dark:text-neutral-100',
-    accentSolid: 'bg-neutral-800',
-    accentSolidHover: 'hover:bg-neutral-900',
-    accentBorderSoft: 'border-neutral-700/35',
-    accentBgSoft: 'bg-neutral-100 dark:bg-neutral-900/40',
-    heroCategoryPill: 'rounded-full bg-neutral-900/90 text-xs uppercase tracking-wider px-3 py-1',
-    heroGradientNoCover: 'linear-gradient(135deg, #171717 0%, #404040 100%)',
-    heroCoverTintMidRgba: 'rgba(38,38,38,0.58)',
+    accentText: 'text-black dark:text-neutral-200',
+    accentTextWinner: 'text-black dark:text-neutral-100',
+    accentSolid: 'bg-black',
+    accentSolidHover: 'hover:bg-black',
+    accentBorderSoft: 'border-black/35',
+    accentBgSoft: 'bg-neutral-100 dark:bg-black/40',
+    heroCategoryPill: 'rounded-full bg-black/90 text-xs uppercase tracking-wider px-3 py-1',
+    heroGradientNoCover: 'linear-gradient(135deg, #000000 0%, #262626 100%)',
+    heroCoverTintMidRgba: 'rgba(0,0,0,0.58)',
     bracketShell:
       'border border-neutral-300 bg-gradient-to-b from-neutral-50/95 to-white shadow-md dark:border-neutral-600/50 dark:bg-gradient-to-b dark:from-[#141414] dark:to-[#0a0a0a] dark:shadow-[0_0_40px_-14px_rgba(163,163,163,0.18)]',
     bracketEmpty:

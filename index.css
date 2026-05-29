@@ -61,7 +61,7 @@ html.light .app-page-canvas {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background: url("./img/pagefondo.png") center / cover no-repeat;
+  background: url("./img/pagefondo.webp") center / cover no-repeat;
 }
 
 html.dark .app-page-canvas::after {

@@ -4,12 +4,11 @@ import {
   cancelMatchSchedule,
   confirmTournamentSchedules,
   deleteAdminMatchSchedule,
-  getAdminSchedules,
+  getPublicSchedules,
   postponeMatchSchedule,
   postMatchSchedule,
   putMatchSchedule,
 } from '@/lib/api/apiClient';
-import { hasAdminApiCredentials } from '@/lib/adminTokenStorage';
 
 const EMPTY_SERVER: MatchScheduleEntry[] = Object.freeze([]) as unknown as MatchScheduleEntry[];
 
@@ -53,20 +52,18 @@ export function createApiMatchScheduleRepository(): MatchSchedulePort {
 
   async function reloadFromServer(): Promise<void> {
     try {
-      const rows = await getAdminSchedules();
+      const rows = await getPublicSchedules();
       if (!Array.isArray(rows)) {
         console.warn('[apiMatchSchedule] respuesta inesperada, se esperaba array');
         return;
       }
       applyRows(rows as Record<string, unknown>[]);
     } catch (e) {
-      console.warn('[apiMatchSchedule] no se pudo cargar desde API (¿JWT admin?)', e);
+      console.warn('[apiMatchSchedule] no se pudo cargar agenda publica desde API', e);
     }
   }
 
-  if (hasAdminApiCredentials()) {
-    void reloadFromServer();
-  }
+  void reloadFromServer();
 
   return {
     getAllSchedules(): MatchScheduleEntry[] {

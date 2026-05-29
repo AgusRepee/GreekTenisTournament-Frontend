@@ -12,6 +12,7 @@ import { createApiMatchResultsRepository } from './api/apiMatchResultsRepository
 import { createApiMatchScheduleRepository } from './api/apiMatchScheduleRepository';
 import { createApiTournamentLeagueRepository } from './api/apiTournamentLeagueRepository';
 import { createApiEliminationRepository } from './api/apiEliminationRepository';
+import { createApiClubCatalogRepository } from './api/apiClubCatalogRepository';
 import { getDataSourceMode } from '@/lib/data/tournamentRepository';
 
 /**
@@ -53,7 +54,8 @@ let matchResultsPort: MatchResultsPort = createInitialMatchResultsPort();
 let matchSchedulePort: MatchSchedulePort = createInitialMatchSchedulePort();
 let tournamentLeaguePort: TournamentLeaguePort = createInitialTournamentLeaguePort();
 let eliminationBracketPort: EliminationBracketPort = createInitialEliminationBracketPort();
-let clubCatalogPort: ClubCatalogPort = createLocalClubCatalogRepository();
+let clubCatalogPort: ClubCatalogPort =
+  getDataSourceMode() === 'api' ? createApiClubCatalogRepository() : createLocalClubCatalogRepository();
 
 export function getMatchResultsPort(): MatchResultsPort {
   return matchResultsPort;

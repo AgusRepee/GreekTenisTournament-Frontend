@@ -6,11 +6,18 @@ import {
   LEAGUES,
   categoryToLeague,
   isTournamentCurrent,
+  isRafaNadalTournament,
   type LeagueNum,
   type Tournament,
 } from '../src/lib/mockData';
 import { useClubData } from '../src/lib/clubDataStore';
-import { getLeagueColor, getLeagueSubtleCardShadowClasses, TOURNAMENT_CARD_SHADOW_NEUTRAL } from '../src/lib/leagueColors';
+import {
+  getLeagueBadgeClasses,
+  getLeagueColor,
+  getLeagueFilterButtonActiveClasses,
+  getLeagueSubtleCardShadowClasses,
+  TOURNAMENT_CARD_SHADOW_NEUTRAL,
+} from '../src/lib/leagueColors';
 import { LeagueBadge } from '../components/LeagueBadge';
 import { UpcomingTournamentModal } from '../components/UpcomingTournamentModal';
 
@@ -23,7 +30,8 @@ const pelotaImg = (() => {
 })();
 
 function getTournamentCardHeaderImageUrl(coverImage?: string): string {
-  const file = coverImage || 'nadal.webp';
+  const file = coverImage?.trim();
+  if (!file) return '';
   try {
     return new URL(`../img/${file}`, import.meta.url).href;
   } catch {
@@ -32,12 +40,12 @@ function getTournamentCardHeaderImageUrl(coverImage?: string): string {
 }
 
 const DATE_LABEL_OVERRIDES: Record<string, { start?: string; end?: string }> = {
-  't-nadal': { start: '22 mayo 2026', end: '9 agosto 2026' },
   't-federer': { start: 'A confirmar', end: 'A confirmar' },
   't-masters': { start: 'A confirmar', end: 'A confirmar' },
 };
 
-const ANNOUNCED_UPCOMING_TOURNAMENT_ORDER = ['t-nadal', 't-federer', 't-masters'];
+/** Vacío: el directorio lista los próximos torneos reales del club. */
+const ANNOUNCED_UPCOMING_TOURNAMENT_ORDER: string[] = [];
 
 function formatTournamentDateLabel(tournament: Tournament, kind: 'start' | 'end'): string {
   const override = DATE_LABEL_OVERRIDES[tournament.id]?.[kind];
@@ -234,7 +242,9 @@ export const DirectoryScreen: React.FC<DirectoryScreenProps> = ({ setScreen, set
         .filter((t): t is Tournament => Boolean(t));
       if (announced.length > 0) return announced;
 
-      return getTournamentsByStatus('upcoming').filter((t) => !isTournamentCurrent(t));
+      return getTournamentsByStatus('upcoming').filter(
+        (t) => !isTournamentCurrent(t) && !isRafaNadalTournament(t),
+      );
     },
     [club],
   );
@@ -278,7 +288,7 @@ export const DirectoryScreen: React.FC<DirectoryScreenProps> = ({ setScreen, set
             onClick={() => setSelectedLeague(num)}
             className={`px-5 py-2.5 rounded-md text-sm font-bold min-h-[2.75rem] transition-all border ${
               selectedLeague === num
-                ? 'bg-primary text-white border-primary shadow-sport-card dark:shadow-sport-card-dark'
+                ? getLeagueFilterButtonActiveClasses(num)
                 : 'bg-white dark:bg-gray-800 border-gray-200/90 dark:border-gray-600 text-[#111318] dark:text-white hover:border-primary/40 shadow-sm'
             }`}
           >

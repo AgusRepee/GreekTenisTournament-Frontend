@@ -1,0 +1,47 @@
+{
+  "torneo": "Rafael Nadal",
+  "liga": 1,
+  "grupos": {
+    "A": ["Gaudina A.", "Filosa M.", "Guidobono A.", "Duarte D."],
+    "B": ["Garassi A.", "Tacain R.", "Rothkel M.", "Lacave L."],
+    "C": ["Pfening G.", "Zanella H.", "Alvarez I.", "Naddeo M."]
+  },
+  "fechas": [
+    {
+      "numero": 1,
+      "grupos": {
+        "A": ["Gaudina A. (P) vs Guidobono A.", "Filosa M. (P) vs Duarte D."],
+        "B": ["Lacave L. (P) vs Tacain R.", "Rothkel M. (P) vs Garassi A."],
+        "C": ["Pfening G. (P) vs Alvarez I.", "Naddeo M. (P) vs Zanella H."]
+      }
+    },
+    {
+      "numero": 2,
+      "grupos": {
+        "A": ["Gaudina A. (P) vs Filosa M.", "Duarte D. (P) vs Guidobono A."],
+        "B": ["Rothkel M. (P) vs Lacave L.", "Tacain R. (P) vs Garassi A."],
+        "C": ["Pfening G. (P) vs Naddeo M.", "Alvarez I. (P) vs Zanella H."]
+      }
+    },
+    {
+      "numero": 3,
+      "grupos": {
+        "A": ["Duarte D. (P) vs Gaudina A.", "Guidobono A. (P) vs Filosa M."],
+        "B": ["Garassi A. (P) vs Lacave L.", "Rothkel M. (P) vs Tacain R."],
+        "C": ["Zanella H. (P) vs Pfening G.", "Alvarez I. (P) vs Naddeo M."]
+      }
+    },
+    {
+      "numero": 4,
+      "tipo": "interzonal",
+      "partidos": [
+        "Zanella H. (P) vs Gaudina A.",
+        "Guidobono A. (P) vs Pfening G.",
+        "Filosa M. (P) vs Rothkel M.",
+        "Garassi A. (P) vs Duarte D.",
+        "Lacave L. (P) vs Alvarez I.",
+        "Naddeo M. (P) vs Tacain R."
+      ]
+    }
+  ]
+}

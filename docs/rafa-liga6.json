@@ -1,0 +1,47 @@
+{
+  "torneo": "Rafael Nadal",
+  "liga": 6,
+  "grupos": {
+    "A": ["Ballesta F.", "De Ruyck G.", "Cerene B.", "Oshiro E."],
+    "B": ["Ferrarotti E.", "Fedrjanic N.", "Fratini M.", "Jaureguiberry C."],
+    "C": ["Oswald J.", "Avalos G.", "Romay J.", "Cellilli F."]
+  },
+  "fechas": [
+    {
+      "numero": 1,
+      "grupos": {
+        "A": ["Ballesta F. (P) vs De Ruyck G.", "Cerene B. (P) vs Oshiro E."],
+        "B": ["Ferrarotti E. (P) vs Fedrjanic N.", "Fratini M. (P) vs Jaureguiberry C."],
+        "C": ["Oswald J. (P) vs Avalos G.", "Romay J. (P) vs Cellilli F."]
+      }
+    },
+    {
+      "numero": 2,
+      "grupos": {
+        "A": ["Ballesta F. (P) vs Cerene B.", "Oshiro E. (P) vs De Ruyck G."],
+        "B": ["Fratini M. (P) vs Ferrarotti E.", "Fedrjanic N. (P) vs Jaureguiberry C."],
+        "C": ["Oswald J. (P) vs Romay J.", "Avalos G. (P) vs Cellilli F."]
+      }
+    },
+    {
+      "numero": 3,
+      "grupos": {
+        "A": ["Oshiro E. (P) vs Ballesta F.", "De Ruyck G. (P) vs Cerene B."],
+        "B": ["Jaureguiberry C. (P) vs Ferrarotti E.", "Fedrjanic N. (P) vs Fratini M."],
+        "C": ["Cellilli F. (P) vs Oswald J.", "Avalos G. (P) vs Romay J."]
+      }
+    },
+    {
+      "numero": 4,
+      "tipo": "interzonal",
+      "partidos": [
+        "Cellilli F. (P) vs Ballesta F.",
+        "De Ruyck G. (P) vs Oswald J.",
+        "Cerene B. (P) vs Fratini M.",
+        "Jaureguiberry C. (P) vs Oshiro E.",
+        "Ferrarotti E. (P) vs Avalos G.",
+        "Romay J. (P) vs Fedrjanic N."
+      ]
+    }
+  ]
+}

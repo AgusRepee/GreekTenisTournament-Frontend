@@ -1,0 +1,47 @@
+{
+  "torneo": "Rafael Nadal",
+  "liga": 5,
+  "grupos": {
+    "A": ["Cirigliano D.", "Antuña A.", "Chantada S.", "Vidigt F."],
+    "B": ["Oviedo M.", "Peralta G.", "Sola M.", "Vila E."],
+    "C": ["Tellechea L.", "Gimenez F.", "Vito A.", "Amezague J."]
+  },
+  "fechas": [
+    {
+      "numero": 1,
+      "grupos": {
+        "A": ["Cirigliano D. (P) vs Antuña A.", "Chantada S. (P) vs Vidigt F."],
+        "B": ["Oviedo M. (P) vs Peralta G.", "Sola M. (P) vs Vila E."],
+        "C": ["Tellechea L. (P) vs Gimenez F.", "Vito A. (P) vs Amezague J."]
+      }
+    },
+    {
+      "numero": 2,
+      "grupos": {
+        "A": ["Cirigliano D. (P) vs Chantada S.", "Vidigt F. (P) vs Antuña A."],
+        "B": ["Sola M. (P) vs Oviedo M.", "Peralta G. (P) vs Vila E."],
+        "C": ["Tellechea L. (P) vs Vito A.", "Gimenez F. (P) vs Amezague J."]
+      }
+    },
+    {
+      "numero": 3,
+      "grupos": {
+        "A": ["Vidigt F. (P) vs Cirigliano D.", "Antuña A. (P) vs Chantada S."],
+        "B": ["Vila E. (P) vs Oviedo M.", "Sola M. (P) vs Peralta G."],
+        "C": ["Amezague J. (P) vs Tellechea L.", "Gimenez F. (P) vs Vito A."]
+      }
+    },
+    {
+      "numero": 4,
+      "tipo": "interzonal",
+      "partidos": [
+        "Amezague J. (P) vs Cirigliano D.",
+        "Antuña A. (P) vs Tellechea L.",
+        "Chantada S. (P) vs Sola M.",
+        "Vila E. (P) vs Vidigt F.",
+        "Oviedo M. (P) vs Gimenez F.",
+        "Vito A. (P) vs Peralta G."
+      ]
+    }
+  ]
+}

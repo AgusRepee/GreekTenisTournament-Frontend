@@ -1,9 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { MessageCircle, Calendar, CalendarCheck, Trophy, Star, Flame, Circle, Newspaper, ChevronRight } from 'lucide-react';
 import {
+  getHomeHeroTournament,
   getUpcomingTournamentsForHome,
   CATEGORIES,
-  isTournamentCurrent,
+  RAFA_NADAL_SERIES_LABEL,
+  RAFA_NADAL_HERO_IMAGE,
+  isRafaNadalTournament,
   getTournamentIdForImportantMatchCategory,
   categoryToLeague,
   type Tournament,
@@ -23,7 +26,11 @@ import { getPublicScheduleByTournamentId } from '../src/lib/api/apiClient';
 import type { MatchInput } from '../src/types/tennisResults';
 import { matchInputDedupeKey } from '../src/lib/tennis/matchDedupe';
 import { uiFormatPointsCell } from '../src/lib/playerUiFormat';
-import { TOURNAMENT_CARD_SHADOW_NEUTRAL } from '../src/lib/leagueColors';
+import {
+  TOURNAMENT_CARD_SHADOW_NEUTRAL,
+  getLeagueBadgeClasses,
+  getLeagueMatchCardBorderClasses,
+} from '../src/lib/leagueColors';
 import { whatsAppUrl, whatsAppMessages } from '../src/lib/whatsapp';
 import { resolvePlayerForPublicRanking } from '../src/lib/tennis/rankingPlayerResolve';
 import { UpcomingTournamentModal } from '../components/UpcomingTournamentModal';
@@ -69,34 +76,15 @@ function categoryToLeagueNum(category: string): LeagueNum {
   return map[category] ?? 1;
 }
 
-/** Compact league badge: rounded-md px-2 py-1 text-xs font-semibold + league colors */
-const LEAGUE_BADGE_CLASSES: Record<LeagueNum, string> = {
-  1: 'rounded-md px-2 py-1 text-xs font-semibold bg-red-50 text-red-600 border border-red-500 dark:bg-red-900/30 dark:text-red-300 dark:border-red-500',
-  2: 'rounded-md px-2 py-1 text-xs font-semibold bg-orange-50 text-orange-600 border border-orange-400 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-400',
-  3: 'rounded-md px-2 py-1 text-xs font-semibold bg-blue-50 text-blue-600 border border-blue-400 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-400',
-  4: 'rounded-md px-2 py-1 text-xs font-semibold bg-green-50 text-green-600 border border-green-400 dark:bg-green-900/30 dark:text-green-300 dark:border-green-400',
-  5: 'rounded-md px-2 py-1 text-xs font-semibold bg-gray-100 text-gray-700 border border-gray-400 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500',
-  6: 'rounded-md px-2 py-1 text-xs font-semibold bg-violet-100 text-violet-700 border border-violet-400 dark:bg-violet-900/35 dark:text-violet-200 dark:border-violet-600',
-};
-
 /** Próximos partidos: solo borde de color; el fondo es liso (blanco) abajo. */
 const CARD_BORDER_FINAL = 'border-2 border-yellow-400 dark:border-yellow-500';
 
 const CARD_BORDER_DESTACADO = 'border-2 border-orange-400 dark:border-orange-500';
 
-const LEAGUE_CARD_BORDER: Record<LeagueNum, string> = {
-  1: 'border-2 border-red-300 dark:border-red-500/55',
-  2: 'border-2 border-orange-300 dark:border-orange-400/60',
-  3: 'border-2 border-blue-300 dark:border-blue-400/60',
-  4: 'border-2 border-green-300 dark:border-green-400/60',
-  5: 'border-2 border-gray-300 dark:border-gray-500/55',
-  6: 'border-2 border-violet-300 dark:border-violet-500/55',
-};
-
 function importantMatchCardClass(isDestacado: boolean, isFinal: boolean, leagueNum: LeagueNum): string {
   if (isDestacado) return CARD_BORDER_DESTACADO;
   if (isFinal) return CARD_BORDER_FINAL;
-  return LEAGUE_CARD_BORDER[leagueNum];
+  return getLeagueMatchCardBorderClasses(leagueNum);
 }
 
 /** Base tournament name for display (e.g. "Novak Djokovic - Liga 1" → "Novak Djokovic") */
@@ -107,7 +95,7 @@ function getCurrentTournamentDisplayName(name: string): string {
 
 const heroBgUrl = (() => {
   try {
-    return new URL('../img/fondo.webp', import.meta.url).href;
+    return new URL(`../img/${RAFA_NADAL_HERO_IMAGE}`, import.meta.url).href;
   } catch {
     return '';
   }
@@ -132,17 +120,13 @@ function getTournamentCardHeaderImageUrl(coverImage?: string | null, dataUrlFall
   }
   const fb = dataUrlFallback?.trim();
   if (fb) return fb;
-  try {
-    return new URL(`../img/nadal.webp`, import.meta.url).href;
-  } catch {
-    return '';
-  }
+  return '';
 }
 
-const HOME_UPCOMING_TOURNAMENT_ORDER = ['t-nadal', 't-federer', 't-masters'];
+/** Vacío: la home muestra los próximos torneos reales (p. ej. Rafael Nadal L1/L2/L6). */
+const HOME_UPCOMING_TOURNAMENT_ORDER: string[] = [];
 
 const DATE_LABEL_OVERRIDES: Record<string, { start?: string; end?: string }> = {
-  't-nadal': { start: '22 mayo 2026', end: '9 agosto 2026' },
   't-federer': { start: 'A confirmar', end: 'A confirmar' },
   't-masters': { start: 'A confirmar', end: 'A confirmar' },
 };
@@ -297,10 +281,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ setScreen, setSelectedTo
   );
   const hasMoreImportantMatches = allUpcomingMatchesForHome.length > MAX_IMPORTANT_MATCHES;
 
-  const currentTournament = useMemo(() => {
-    const upcoming = club.tournaments.filter((t) => t.status === 'upcoming');
-    return upcoming.find(isTournamentCurrent) ?? null;
-  }, [club.tournaments]);
+  const heroTournament = useMemo(() => getHomeHeroTournament(), [club.tournaments]);
+  const heroIsRafaSeries = heroTournament != null && isRafaNadalTournament(heroTournament);
 
   const upcomingTournamentsCards = useMemo(() => {
     const announced = HOME_UPCOMING_TOURNAMENT_ORDER
@@ -311,7 +293,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ setScreen, setSelectedTo
     const fromHome = getUpcomingTournamentsForHome();
     if (fromHome.length > 0) return fromHome.slice(0, 3);
     return club.tournaments
-      .filter((t) => t.status === 'upcoming')
+      .filter((t) => t.status === 'upcoming' && !isRafaNadalTournament(t))
       .sort((a, b) => a.startDate.localeCompare(b.startDate))
       .slice(0, 3);
   }, [club.tournaments]);
@@ -337,20 +319,27 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ setScreen, setSelectedTo
                 }}
               >
                 <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-12 pb-12 md:pb-14">
-                  <div className="relative z-10 flex flex-col gap-4 max-w-2xl">
-                    {currentTournament ? (
+                  <div className="relative z-10 flex flex-col gap-3 max-w-2xl">
+                    {heroTournament ? (
                       <>
                         <span className="inline-flex w-fit items-center gap-1.5 px-3 py-1.5 rounded-md bg-orange-500 text-white text-xs font-bold uppercase tracking-wider shadow-sm">
                           En curso
                         </span>
                         <h1 className="font-display text-white text-3xl md:text-5xl lg:text-6xl font-bold leading-[1.05] tracking-tight drop-shadow-md">
-                          Torneo {getCurrentTournamentDisplayName(currentTournament.name)}
+                          {heroIsRafaSeries
+                            ? `Torneo ${RAFA_NADAL_SERIES_LABEL}`
+                            : `Torneo ${getCurrentTournamentDisplayName(heroTournament.name)}`}
                         </h1>
-                        <p className="text-gray-200/95 text-sm md:text-base font-normal leading-relaxed max-w-xl">
-                          El torneo se está disputando en distintas ligas.
-                          <br />
-                          Consultá tu liga para ver partidos y resultados.
-                        </p>
+                        {heroIsRafaSeries ? (
+                          <p className="text-white/90 text-base md:text-lg font-medium leading-snug max-w-lg">
+                            Ya comenzó el nuevo torneo en las diferentes ligas.
+                          </p>
+                        ) : (
+                          <p className="text-gray-200/95 text-sm md:text-base font-normal leading-relaxed max-w-xl">
+                            El torneo se está disputando en distintas ligas. Consultá tu liga para ver partidos y
+                            resultados.
+                          </p>
+                        )}
                         <button
                           onClick={() => setScreen('directory')}
                           className="mt-1 w-fit flex items-center justify-center rounded-md h-11 px-7 bg-white text-primary hover:bg-gray-100 font-bold text-sm uppercase tracking-wide transition-colors shadow-sport-card dark:shadow-sport-card-dark"
@@ -626,7 +615,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ setScreen, setSelectedTo
                             <span className="min-w-0 flex-1 text-xs font-bold leading-snug text-[#111318] dark:text-white sm:text-sm">
                               {m.label}
                             </span>
-                            <span className={`shrink-0 scale-90 origin-right ${LEAGUE_BADGE_CLASSES[leagueNum]}`}>
+                            <span className={`shrink-0 scale-90 origin-right ${getLeagueBadgeClasses(leagueNum, 'md')}`}>
                               Liga {leagueNum}
                             </span>
                             {isDestacado ? (

@@ -89,6 +89,15 @@ export async function getPublicTournamentBySlug(slug: string) {
   return req<unknown>('GET', `/api/public/tournaments/${encodeURIComponent(slug)}`);
 }
 
+export async function getPublicPlayers() {
+  return req<unknown[]>('GET', '/api/public/players');
+}
+
+export async function getPublicMatchResults(tournamentId?: string) {
+  const q = tournamentId?.trim() ? `?tournamentId=${encodeURIComponent(tournamentId.trim())}` : '';
+  return req<Record<string, unknown>[]>('GET', `/api/public/match-results${q}`, undefined, false);
+}
+
 /** Metadatos mínimos por id (preclasificación para bracket público). */
 export async function getPublicTournamentMetaById(tournamentId: string) {
   return req<{ id: string; slug?: string | null; name?: string; preclasificacionJson?: unknown }>(
@@ -103,10 +112,29 @@ export async function getPublicTournamentSchedule(slug: string) {
   return req<unknown>('GET', `/api/public/tournaments/${encodeURIComponent(slug)}/schedule`);
 }
 
+export async function getPublicGroupStandingsByTournamentId(tournamentId: string) {
+  const q = `?tournamentId=${encodeURIComponent(tournamentId.trim())}`;
+  return req<unknown>('GET', `/api/public/group-standings${q}`, undefined, false);
+}
+
+export async function getPublicGroupStandingsBySlug(slug: string) {
+  return req<unknown>(
+    'GET',
+    `/api/public/tournaments/${encodeURIComponent(slug)}/group-standings`,
+    undefined,
+    false,
+  );
+}
+
 /** Misma carga que la agenda por slug, usando `tournamentId` (útil cuando el front solo conoce el id). */
 export async function getPublicScheduleByTournamentId(tournamentId: string) {
   const q = `?tournamentId=${encodeURIComponent(tournamentId.trim())}`;
   return req<unknown>('GET', `/api/public/schedule${q}`, undefined, false);
+}
+
+export async function getPublicSchedules(tournamentId?: string) {
+  const q = tournamentId?.trim() ? `?tournamentId=${encodeURIComponent(tournamentId.trim())}` : '';
+  return req<Record<string, unknown>[]>('GET', `/api/public/schedules${q}`, undefined, false);
 }
 
 export async function getAdminSchedules(tournamentId?: string) {

@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "build:staging": "vite build --mode staging",
-    "build:production": "vite build --mode production",
+    "build": "npm run optimize-images && vite build && node scripts/optimize-dist-assets.mjs",
+    "build:staging": "npm run optimize-images && vite build --mode staging && node scripts/optimize-dist-assets.mjs",
+    "build:production": "npm run optimize-images && vite build --mode production && node scripts/optimize-dist-assets.mjs",
     "preview": "vite preview",
     "preview:staging": "vite preview --mode staging",
     "deploy": "vite build && gh-pages -d dist",

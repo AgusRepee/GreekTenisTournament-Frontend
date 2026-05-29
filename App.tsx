@@ -16,6 +16,7 @@ import AdminLoginScreen from '@/pages/admin/AdminLoginScreen';
 import AdminResetPasswordScreen from '@/pages/admin/AdminResetPasswordScreen';
 import ProtectedAdminRoute from '@/pages/admin/ProtectedAdminRoute';
 import AdminTournamentWorkspace from '@/pages/admin/AdminTournamentWorkspace';
+import { getDataSourceMode } from '@/lib/data/tournamentRepository';
 import {
   AdminConfiguracionPage,
   AdminDashboardPage,
@@ -28,6 +29,38 @@ import { AdminTournamentBuilderCreateRedirect } from '@/pages/admin/tournamentBu
 import AdminTournamentBuilderPage from '@/pages/admin/tournamentBuilder/AdminTournamentBuilderPage';
 
 const TournamentDetailScreen = lazy(() => import('./screens/TournamentDetailScreen').then((m) => ({ default: m.TournamentDetailScreen })));
+
+const DEFAULT_PRODUCTION_API_URL = 'https://api.greektennis.com';
+
+const DataSourceDiagnostics: React.FC = () => {
+  const [apiStatus, setApiStatus] = useState<'checking' | 'ok' | 'error'>('checking');
+  const mode = getDataSourceMode();
+
+  useEffect(() => {
+    if (!import.meta.env.DEV || mode !== 'api') return;
+    const base = (import.meta.env.VITE_API_URL?.trim() || DEFAULT_PRODUCTION_API_URL).replace(/\/+$/, '');
+    let cancelled = false;
+    void fetch(`${base}/health`)
+      .then((res) => {
+        if (!cancelled) setApiStatus(res.ok ? 'ok' : 'error');
+      })
+      .catch(() => {
+        if (!cancelled) setApiStatus('error');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [mode]);
+
+  if (!import.meta.env.DEV) return null;
+  return (
+    <div className="fixed bottom-3 left-3 z-[9999] rounded-lg border border-black/10 bg-white/90 px-3 py-2 text-[11px] font-semibold text-slate-700 shadow-lg backdrop-blur dark:border-white/10 dark:bg-slate-900/90 dark:text-slate-200">
+      <div>Data source: {mode}</div>
+      <div>API status: {mode === 'api' ? apiStatus.toUpperCase() : 'N/A'}</div>
+      <div>Fallback: {mode === 'api' && apiStatus === 'error' ? 'yes' : 'no'}</div>
+    </div>
+  );
+};
 
 type HistoryState = { screen: string; tournamentId?: string | null; playerId?: string | null };
 
@@ -231,6 +264,7 @@ const MainApp: React.FC = () => {
         <div className="flex min-h-0 flex-1 flex-col">{renderScreen()}</div>
         <Footer setScreen={setScreen} />
         <CookieBanner />
+        <DataSourceDiagnostics />
       </div>
     </div>
   );

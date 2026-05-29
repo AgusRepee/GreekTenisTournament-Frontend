@@ -20,6 +20,13 @@ import {
   LIGA3_CLASSIFICATION_RULES,
 } from './liga3Data';
 import { getClubSnapshot } from './clubDataStore';
+import {
+  getRafaNadalHeroTournament,
+  getRafaNadalSeriesStartDate,
+  isRafaNadalTournament,
+  isRafaNadalTournamentId,
+  RAFA_NADAL_SERIES_LABEL,
+} from './tennis/rafaNadalTournaments';
 import { DEFAULT_LIGA2_RESULTS, LIGA2_TOURNAMENT_ID } from './tennis/liga2DefaultResults';
 import { LIGA4_ND_FIXTURES, LIGA4_ND_TOURNAMENT_ID } from './tennis/liga4Nd2026Data';
 import { LIGA5_ND_FIXTURES, LIGA5_ND_TOURNAMENT_ID } from './tennis/liga5Nd2026Data';
@@ -594,7 +601,7 @@ export function getTournamentsByLeague(league: LeagueNum, status?: TournamentSta
   return list.filter(t => (t.league ?? categoryToLeague(t.category)) === league);
 }
 
-const MANUAL_START_TOURNAMENT_IDS = new Set(['t-nadal', 't-federer', 't-masters']);
+const MANUAL_START_TOURNAMENT_IDS = new Set(['t-federer', 't-masters']);
 
 function parseLocalDateOnly(value: string, endOfDay = false): Date {
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(value.trim());
@@ -613,6 +620,13 @@ function parseLocalDateOnly(value: string, endOfDay = false): Date {
 export function isTournamentCurrent(t: Tournament): boolean {
   if (t.status !== 'upcoming') return false;
   if (MANUAL_START_TOURNAMENT_IDS.has(t.id)) return false;
+  // Serie Rafael Nadal (L1, L2, L5, L6): en curso; L3/L4 aún no publicados.
+  if (isRafaNadalTournamentId(t.id)) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const end = parseLocalDateOnly(t.endDate, true);
+    return today <= end;
+  }
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const start = parseLocalDateOnly(t.startDate);
@@ -641,6 +655,8 @@ export function getTournamentIdForImportantMatchCategory(category: string): stri
   const inLeague = getClubSnapshot().tournaments.filter((t) => (t.league ?? categoryToLeague(t.category)) === league);
   if (inLeague.length === 0) return undefined;
   const upcoming = inLeague.filter((t) => t.status === 'upcoming');
+  const rafaCurrent = upcoming.filter(isRafaNadalTournament).find(isTournamentCurrent);
+  if (rafaCurrent) return rafaCurrent.id;
   const current = upcoming.find(isTournamentCurrent);
   if (current) return current.id;
   if (upcoming.length > 0) {
@@ -746,9 +762,32 @@ export function getGroupTables(_tournamentId: string): GroupTable[] {
  * Próximos torneos para el inicio: catálogo del club (no IDs fijos).
  * Excluye los que están en curso hoy (`isTournamentCurrent`).
  */
+/** Hero del inicio: prioriza la serie Rafael Nadal en curso; si no, otro torneo activo por fechas. */
+export function getHomeHeroTournament(): Tournament | null {
+  const tournaments = getClubSnapshot().tournaments;
+  const rafa = getRafaNadalHeroTournament(tournaments);
+  if (rafa) return rafa;
+  const upcoming = tournaments.filter((t) => t.status === 'upcoming');
+  return upcoming.find(isTournamentCurrent) ?? null;
+}
+
+/** Fecha de inicio de la serie Rafael Nadal (mínima entre torneos cargados). */
+export function getHomeHeroSeriesStartDate(): string | null {
+  return getRafaNadalSeriesStartDate(getClubSnapshot().tournaments);
+}
+
+export {
+  RAFA_NADAL_HERO_IMAGE,
+  RAFA_NADAL_SERIES_LABEL,
+  isRafaNadalTournament,
+  isRafaNadalTournamentId,
+} from './tennis/rafaNadalTournaments';
+
 export function getUpcomingTournamentsForHome(): Tournament[] {
   return getClubSnapshot()
-    .tournaments.filter((t) => t.status === 'upcoming' && !isTournamentCurrent(t))
+    .tournaments.filter(
+      (t) => t.status === 'upcoming' && !isTournamentCurrent(t) && !isRafaNadalTournament(t),
+    )
     .sort((a, b) => a.startDate.localeCompare(b.startDate));
 }
 

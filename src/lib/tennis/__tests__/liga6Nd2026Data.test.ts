@@ -48,12 +48,12 @@ describe('Novak Djokovic Liga 6 data', () => {
     expect(groupB.map((r) => [r.played, r.won, r.lost])).toEqual([[3, 3, 0], [3, 2, 1], [3, 1, 2], [3, 0, 3]]);
   });
 
-  it('adds normalized Liga 6 names to the player registry', () => {
+  it('adds normalized Novak Liga 6 names to the player registry', () => {
     const names = new Set(generatePlayersFromLigas().filter((p) => p.liga === 6).map((p) => p.name));
     for (const name of ['De Ruyck G.', 'Amezague J.', 'Cellilli F.', 'Bataglia F.', 'Fedrjanic N.', 'Antuña A.', 'Ballesta F.', 'Fratini M.', 'Ferrarotti E.']) {
       expect(names.has(name)).toBe(true);
     }
-    expect(names.has('Oshiro E.')).toBe(false);
+    expect(Object.values(LIGA6_ND_GROUPS).flat()).not.toContain('Oshiro E.');
     expect(names.has('Antuña R.')).toBe(false);
   });
 

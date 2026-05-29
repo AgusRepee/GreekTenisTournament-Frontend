@@ -3,6 +3,7 @@ import { ChevronUp, ChevronDown } from 'lucide-react';
 import { LEAGUES_RANKING, type LeagueNum, type RankingRow } from '../src/lib/mockData';
 import { useTennisLiveData } from '../src/lib/tennis/useTennisLiveData';
 import { LeagueBadge } from '../components/LeagueBadge';
+import { getLeagueTabActiveClasses } from '../src/lib/leagueColors';
 import { resolvePlayerAvatarFallback, useSiteSettings } from '../src/lib/siteSettings';
 import { isRankingRowPending, uiFormatPointsCell, uiFormatTournamentsPlayed } from '../src/lib/playerUiFormat';
 import { resolvePlayerForPublicRanking } from '../src/lib/tennis/rankingPlayerResolve';
@@ -177,8 +178,8 @@ export const RankingsScreen: React.FC<RankingsScreenProps> = ({ setScreen, setSe
                       onClick={() => setLeagueFilter(tab)}
                       className={`flex flex-col items-center justify-center border-b-[3px] border-t-0 border-x-0 border-solid pb-3 pt-2 min-w-[4.5rem] whitespace-nowrap transition-colors ${
                         isActive
-                          ? 'border-b-primary text-[#111318] dark:text-white'
-                          : 'border-b-transparent text-[#616f89] dark:text-[#9ca3af] hover:text-primary'
+                          ? getLeagueTabActiveClasses(tab)
+                          : 'border-b-transparent text-[#616f89] dark:text-[#9ca3af] hover:opacity-90'
                       }`}
                     >
                       <span className="text-sm font-bold leading-normal">{label}</span>

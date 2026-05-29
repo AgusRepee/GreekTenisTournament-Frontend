@@ -15,11 +15,11 @@ export type LigaThemeTokens = {
  * Alineado con `src/lib/leagueColors.ts` y portadas Novak (L3 azul / novakazul, L4 verde / novajverde…).
  */
 export const coloresLiga: Record<LeagueNum, LigaThemeTokens> = {
-  1: { primary: '#ef4444', rgb: '239 68 68', foreground: '#ffffff' },
+  1: { primary: '#7c3aed', rgb: '124 58 237', foreground: '#ffffff' },
   2: { primary: '#fb923c', rgb: '251 146 60', foreground: '#111318' },
   3: { primary: '#3b82f6', rgb: '59 130 246', foreground: '#ffffff' },
   4: { primary: '#22c55e', rgb: '34 197 94', foreground: '#ffffff' },
-  5: { primary: '#171717', rgb: '23 23 23', foreground: '#ffffff' },
+  5: { primary: '#000000', rgb: '0 0 0', foreground: '#ffffff' },
   6: { primary: '#9ca3af', rgb: '156 163 175', foreground: '#111318' },
 };
 

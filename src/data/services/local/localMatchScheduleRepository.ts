@@ -4,6 +4,10 @@ import { sanitizeMatchScheduleEntry } from '../contracts/matchSchedulePort';
 import { DEFAULT_LIGA4_ND_SCHEDULES } from '@/lib/tennis/liga4Nd2026Data';
 import { DEFAULT_LIGA5_ND_SCHEDULES } from '@/lib/tennis/liga5Nd2026Data';
 import { DEFAULT_LIGA6_ND_SCHEDULES } from '@/lib/tennis/liga6Nd2026Data';
+import { DEFAULT_RAFA_LIGA2_SCHEDULES } from '@/lib/tennis/rafaNadalLiga2Nd2026Data';
+import { DEFAULT_RAFA_LIGA5_SCHEDULES } from '@/lib/tennis/rafaNadalLiga5Nd2026Data';
+import { DEFAULT_RAFA_LIGA6_SCHEDULES } from '@/lib/tennis/rafaNadalLiga6Nd2026Data';
+import { DEFAULT_RAFAEL_LIGA1_SCHEDULES } from '@/lib/tennis/rafaelNadalLiga1Nd2026Data';
 import { DEFAULT_NOVAK_LIGA1_SCHEDULES } from '@/lib/tennis/novakLiga1DefaultResults';
 
 const EMPTY: MatchScheduleEntry[] = Object.freeze([]) as unknown as MatchScheduleEntry[];
@@ -11,11 +15,19 @@ const NOVAK_LIGA1_SCHEDULE_SEED_KEY = 'greek-tennis-schedule-seed-novak-l1-2026-
 const LIGA4_ND_SCHEDULE_SEED_KEY = 'greek-tennis-schedule-seed-liga4-nd-2026-v1';
 const LIGA5_ND_SCHEDULE_SEED_KEY = 'greek-tennis-schedule-seed-liga5-nd-2026-v1';
 const LIGA6_ND_SCHEDULE_SEED_KEY = 'greek-tennis-schedule-seed-liga6-nd-2026-v1';
+const RAFA_LIGA2_SCHEDULE_SEED_KEY = 'greek-tennis-schedule-seed-rafa-l2-rn-2026-v1';
+const RAFA_LIGA5_SCHEDULE_SEED_KEY = 'greek-tennis-schedule-seed-rafa-l5-v1';
+const RAFA_LIGA6_SCHEDULE_SEED_KEY = 'greek-tennis-schedule-seed-rafa-l6-rn-2026-v1';
+const RAFAEL_LIGA1_SCHEDULE_SEED_KEY = 'greek-tennis-schedule-seed-rafael-l1-rn-2026-v1';
 const DEFAULT_SCHEDULE_SEEDS = [
   ...DEFAULT_NOVAK_LIGA1_SCHEDULES,
   ...DEFAULT_LIGA4_ND_SCHEDULES,
   ...DEFAULT_LIGA5_ND_SCHEDULES,
   ...DEFAULT_LIGA6_ND_SCHEDULES,
+  ...DEFAULT_RAFAEL_LIGA1_SCHEDULES,
+  ...DEFAULT_RAFA_LIGA2_SCHEDULES,
+  ...DEFAULT_RAFA_LIGA5_SCHEDULES,
+  ...DEFAULT_RAFA_LIGA6_SCHEDULES,
 ];
 
 export function createLocalMatchScheduleRepository(): MatchSchedulePort {
@@ -92,6 +104,42 @@ export function createLocalMatchScheduleRepository(): MatchSchedulePort {
         }
         rebuild();
         localStorage.setItem(LIGA6_ND_SCHEDULE_SEED_KEY, '1');
+        persist();
+      }
+      if (localStorage.getItem(RAFAEL_LIGA1_SCHEDULE_SEED_KEY) !== '1') {
+        for (const schedule of DEFAULT_RAFAEL_LIGA1_SCHEDULES) {
+          if (byKey[schedule.dedupeKey]) continue;
+          byKey[schedule.dedupeKey] = schedule;
+        }
+        rebuild();
+        localStorage.setItem(RAFAEL_LIGA1_SCHEDULE_SEED_KEY, '1');
+        persist();
+      }
+      if (localStorage.getItem(RAFA_LIGA2_SCHEDULE_SEED_KEY) !== '1') {
+        for (const schedule of DEFAULT_RAFA_LIGA2_SCHEDULES) {
+          if (byKey[schedule.dedupeKey]) continue;
+          byKey[schedule.dedupeKey] = schedule;
+        }
+        rebuild();
+        localStorage.setItem(RAFA_LIGA2_SCHEDULE_SEED_KEY, '1');
+        persist();
+      }
+      if (localStorage.getItem(RAFA_LIGA5_SCHEDULE_SEED_KEY) !== '1') {
+        for (const schedule of DEFAULT_RAFA_LIGA5_SCHEDULES) {
+          if (byKey[schedule.dedupeKey]) continue;
+          byKey[schedule.dedupeKey] = schedule;
+        }
+        rebuild();
+        localStorage.setItem(RAFA_LIGA5_SCHEDULE_SEED_KEY, '1');
+        persist();
+      }
+      if (localStorage.getItem(RAFA_LIGA6_SCHEDULE_SEED_KEY) !== '1') {
+        for (const schedule of DEFAULT_RAFA_LIGA6_SCHEDULES) {
+          if (byKey[schedule.dedupeKey]) continue;
+          byKey[schedule.dedupeKey] = schedule;
+        }
+        rebuild();
+        localStorage.setItem(RAFA_LIGA6_SCHEDULE_SEED_KEY, '1');
         persist();
       }
     } catch {
