@@ -5,8 +5,12 @@ import { LIGA_NUMBERS, type LigaNumKey } from './loadLigasFromDocs';
 import { ligasData } from './loadLigasFromDocs';
 import { novakTournamentId } from './generateTournamentsFromLigas';
 import { RAFA_LIGA2_TEMPLATE, RAFA_LIGA2_TOURNAMENT_ID } from './rafaNadalLiga2Nd2026Data';
+import { RAFA_LIGA3_TEMPLATE, RAFA_LIGA3_TOURNAMENT_ID } from './rafaNadalLiga3Nd2026Data';
+import { RAFA_LIGA4_TEMPLATE, RAFA_LIGA4_TOURNAMENT_ID } from './rafaNadalLiga4Nd2026Data';
 import { RAFA_LIGA5_TEMPLATE, RAFA_LIGA5_TOURNAMENT_ID } from './rafaNadalLiga5Nd2026Data';
 import { RAFA_LIGA6_TEMPLATE, RAFA_LIGA6_TOURNAMENT_ID } from './rafaNadalLiga6Nd2026Data';
+import { NOVAK_LIGA1_TEMPLATE } from './novakLiga1Nd2026Data';
+import { NOVAK_LIGA3_TEMPLATE } from './novakLiga3Nd2026Data';
 import { RAFAEL_LIGA1_TEMPLATE, RAFAEL_LIGA1_TOURNAMENT_ID } from './rafaelNadalLiga1Nd2026Data';
 import { cleanPlayerName, matchInputDedupeKey } from './matchDedupe';
 import { parseLibre, parseVsLine } from './fixtureLineParse';
@@ -161,17 +165,20 @@ function pushFromFechas(
   }
 }
 
-/** Todos los partidos del fixture Novak (ligas 1–6) y Rafael Nadal (L1, L2, L5, L6) para gestión de pendientes. */
+/** Todos los partidos del fixture Novak (ligas 1-6) y Rafael Nadal para gestion de pendientes. */
 export function buildFixtureCatalog(): FixtureCatalogEntry[] {
   const out: FixtureCatalogEntry[] = [];
   for (const ligaNum of LIGA_NUMBERS) {
-    const template = ligasData[ligaNum];
+    const template =
+      ligaNum === 1 ? NOVAK_LIGA1_TEMPLATE : ligaNum === 3 ? NOVAK_LIGA3_TEMPLATE : ligasData[ligaNum];
     const fechas = getTemplateFechas(ligaNum, template);
     const tournamentId = novakTournamentId(ligaNum);
     pushFromFechas(ligaNum, fechas, tournamentId, out);
   }
   pushFromFechas(RAFAEL_LIGA1_TEMPLATE.liga as LigaNumKey, RAFAEL_LIGA1_TEMPLATE.fechas, RAFAEL_LIGA1_TOURNAMENT_ID, out);
   pushFromFechas(RAFA_LIGA2_TEMPLATE.liga as LigaNumKey, RAFA_LIGA2_TEMPLATE.fechas, RAFA_LIGA2_TOURNAMENT_ID, out);
+  pushFromFechas(RAFA_LIGA3_TEMPLATE.liga as LigaNumKey, RAFA_LIGA3_TEMPLATE.fechas, RAFA_LIGA3_TOURNAMENT_ID, out);
+  pushFromFechas(RAFA_LIGA4_TEMPLATE.liga as LigaNumKey, RAFA_LIGA4_TEMPLATE.fechas, RAFA_LIGA4_TOURNAMENT_ID, out);
   pushFromFechas(RAFA_LIGA5_TEMPLATE.liga as LigaNumKey, RAFA_LIGA5_TEMPLATE.fechas, RAFA_LIGA5_TOURNAMENT_ID, out);
   pushFromFechas(RAFA_LIGA6_TEMPLATE.liga as LigaNumKey, RAFA_LIGA6_TEMPLATE.fechas, RAFA_LIGA6_TOURNAMENT_ID, out);
   return out;

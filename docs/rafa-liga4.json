@@ -1,0 +1,51 @@
+{
+  "torneo": "Rafael Nadal",
+  "liga": 4,
+  "grupos": {
+    "A": ["Cardozo M.", "Blanco J.", "Castellanos M.", "Malcangi R.", "Gonzalez Dias F."],
+    "B": ["Repecka J.", "Chantada M.", "Murchio M.", "Rios J.", "Gonzalez Dias C."],
+    "C": ["Beitia J.", "Vera F.", "Cellilli M.", "Cordoba G.", "Garcia J."]
+  },
+  "fechas": [
+    {
+      "numero": 1,
+      "grupos": {
+        "A": ["Cardozo M. (P) vs Blanco J.", "Castellanos M. (P) vs Malcangi R.", "Libre: Gonzalez Dias F."],
+        "B": ["Repecka J. (P) vs Chantada M.", "Murchio M. (P) vs Rios J.", "Libre: Gonzalez Dias C."],
+        "C": ["Beitia J. (P) vs Vera F.", "Cellilli M. (P) vs Cordoba G.", "Libre: Garcia J."]
+      }
+    },
+    {
+      "numero": 2,
+      "grupos": {
+        "A": ["Malcangi R. (P) vs Cardozo M.", "Castellanos M. (P) vs Gonzalez Dias F.", "Libre: Blanco J."],
+        "B": ["Rios J. (P) vs Repecka J.", "Murchio M. (P) vs Gonzalez Dias C.", "Libre: Chantada M."],
+        "C": ["Cordoba G. (P) vs Beitia J.", "Cellilli M. (P) vs Garcia J.", "Libre: Vera F."]
+      }
+    },
+    {
+      "numero": 3,
+      "grupos": {
+        "A": ["Cardozo M. (P) vs Castellanos M.", "Gonzalez Dias F. (P) vs Blanco J.", "Libre: Malcangi R."],
+        "B": ["Repecka J. (P) vs Murchio M.", "Gonzalez Dias C. (P) vs Chantada M.", "Libre: Rios J."],
+        "C": ["Beitia J. (P) vs Cellilli M.", "Garcia J. (P) vs Vera F.", "Libre: Cordoba G."]
+      }
+    },
+    {
+      "numero": 4,
+      "grupos": {
+        "A": ["Gonzalez Dias F. (P) vs Cardozo M.", "Blanco J. (P) vs Malcangi R.", "Libre: Castellanos M."],
+        "B": ["Gonzalez Dias C. (P) vs Repecka J.", "Chantada M. (P) vs Rios J.", "Libre: Murchio M."],
+        "C": ["Garcia J. (P) vs Beitia J.", "Vera F. (P) vs Cordoba G.", "Libre: Cellilli M."]
+      }
+    },
+    {
+      "numero": 5,
+      "grupos": {
+        "A": ["Blanco J. (P) vs Castellanos M.", "Malcangi R. (P) vs Gonzalez Dias F.", "Libre: Cardozo M."],
+        "B": ["Chantada M. (P) vs Murchio M.", "Rios J. (P) vs Gonzalez Dias C.", "Libre: Repecka J."],
+        "C": ["Vera F. (P) vs Cellilli M.", "Cordoba G. (P) vs Garcia J.", "Libre: Beitia J."]
+      }
+    }
+  ]
+}

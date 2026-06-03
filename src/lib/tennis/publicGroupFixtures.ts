@@ -3,14 +3,30 @@
  */
 
 import type { GroupFixtureMatch, GroupFecha, GroupStageGroup } from '@/lib/mockData';
-import { getTournamentById, LIGA3_GROUP_FIXTURES, LIGA4_GROUP_FIXTURES } from '@/lib/mockData';
+import { getTournamentById, LIGA4_GROUP_FIXTURES } from '@/lib/mockData';
 import type { FixtureCatalogEntry } from '@/lib/tennis/buildFixtureCatalog';
 import { buildFixtureCatalog, buildFixtureCatalogEntriesForTournament } from '@/lib/tennis/buildFixtureCatalog';
 import { ligaNumFromNovakTournamentId } from '@/lib/tennis/generateTournamentsFromLigas';
 import {
+  NOVAK_LIGA1_TOURNAMENT_ID,
+  buildNovakLiga1GroupStageFixtures,
+} from '@/lib/tennis/novakLiga1Nd2026Data';
+import {
+  NOVAK_LIGA3_TOURNAMENT_ID,
+  buildNovakLiga3GroupStageFixtures,
+} from '@/lib/tennis/novakLiga3Nd2026Data';
+import {
   RAFA_LIGA2_TOURNAMENT_ID,
   buildRafaLiga2GroupStageFixtures,
 } from '@/lib/tennis/rafaNadalLiga2Nd2026Data';
+import {
+  RAFA_LIGA3_TOURNAMENT_ID,
+  buildRafaLiga3GroupStageFixtures,
+} from '@/lib/tennis/rafaNadalLiga3Nd2026Data';
+import {
+  RAFA_LIGA4_TOURNAMENT_ID,
+  buildRafaLiga4GroupStageFixtures,
+} from '@/lib/tennis/rafaNadalLiga4Nd2026Data';
 import {
   RAFA_LIGA5_TOURNAMENT_ID,
   buildRafaLiga5GroupStageFixtures,
@@ -145,11 +161,23 @@ export function buildPublicGroupStageFixtures(tournamentId: string | undefined |
     resultsByKey.set(matchInputDedupeKey(r), r);
   }
 
+  if (tid === NOVAK_LIGA1_TOURNAMENT_ID) {
+    return hydrateStaticFixtures(tid, buildNovakLiga1GroupStageFixtures(), resultsByKey);
+  }
+  if (tid === NOVAK_LIGA3_TOURNAMENT_ID) {
+    return hydrateStaticFixtures(tid, buildNovakLiga3GroupStageFixtures(), resultsByKey);
+  }
   if (tid === RAFAEL_LIGA1_TOURNAMENT_ID) {
     return hydrateStaticFixtures(tid, buildRafaelLiga1GroupStageFixtures(), resultsByKey);
   }
   if (tid === RAFA_LIGA2_TOURNAMENT_ID) {
     return hydrateStaticFixtures(tid, buildRafaLiga2GroupStageFixtures(), resultsByKey);
+  }
+  if (tid === RAFA_LIGA3_TOURNAMENT_ID) {
+    return hydrateStaticFixtures(tid, buildRafaLiga3GroupStageFixtures(), resultsByKey);
+  }
+  if (tid === RAFA_LIGA4_TOURNAMENT_ID) {
+    return hydrateStaticFixtures(tid, buildRafaLiga4GroupStageFixtures(), resultsByKey);
   }
   if (tid === RAFA_LIGA5_TOURNAMENT_ID) {
     return hydrateStaticFixtures(tid, buildRafaLiga5GroupStageFixtures(), resultsByKey);
@@ -159,7 +187,6 @@ export function buildPublicGroupStageFixtures(tournamentId: string | undefined |
   }
 
   const ln = ligaNumFromNovakTournamentId(tid);
-  if (ln === 3) return hydrateStaticFixtures(tid, LIGA3_GROUP_FIXTURES, resultsByKey);
   if (ln === 4) return hydrateStaticFixtures(tid, LIGA4_GROUP_FIXTURES, resultsByKey);
   if (ln != null) return buildFromFixtureCatalog(tid, resultsByKey);
 

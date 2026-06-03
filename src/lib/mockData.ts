@@ -19,6 +19,7 @@ import {
   LIGA3_POINTS_SYSTEM,
   LIGA3_CLASSIFICATION_RULES,
 } from './liga3Data';
+import { buildNovakLiga3GroupStageFixtures } from './tennis/novakLiga3Nd2026Data';
 import { getClubSnapshot } from './clubDataStore';
 import {
   getRafaNadalHeroTournament,
@@ -348,38 +349,7 @@ export function getDefaultProfilePlayerId(): string {
 }
 
 /** Novak Djokovic – Liga 3: group stage fixtures (3 groups × 5 fechas) */
-export const LIGA3_GROUP_FIXTURES: GroupStageGroup[] = [
-  {
-    name: 'Grupo A',
-    fechas: [
-      { fecha: 1, matches: [{ playerA: 'Pusterla P.', playerB: 'Santi M.', ballsByA: true }, { playerA: 'Rusel S.', playerB: 'Bocchicchio F.', ballsByA: true }], libre: 'Repecka A.' },
-      { fecha: 2, matches: [{ playerA: 'Bocchicchio F.', playerB: 'Pusterla P.', ballsByA: true }, { playerA: 'Rusel S.', playerB: 'Repecka A.', ballsByA: true }], libre: 'Santi M.' },
-      { fecha: 3, matches: [{ playerA: 'Pusterla P.', playerB: 'Rusel S.', ballsByA: true }, { playerA: 'Repecka A.', playerB: 'Santi M.', ballsByA: true }], libre: 'Bocchicchio F.' },
-      { fecha: 4, matches: [{ playerA: 'Repecka A.', playerB: 'Pusterla P.', ballsByA: true }, { playerA: 'Santi M.', playerB: 'Bocchicchio F.', ballsByA: true }], libre: 'Rusel S.' },
-      { fecha: 5, matches: [{ playerA: 'Santi M.', playerB: 'Rusel S.', ballsByA: true }, { playerA: 'Bocchicchio F.', playerB: 'Repecka A.', ballsByA: true }], libre: 'Pusterla P.' },
-    ],
-  },
-  {
-    name: 'Grupo B',
-    fechas: [
-      { fecha: 1, matches: [{ playerA: 'Marin G.', playerB: 'Fernandez B.', ballsByA: true }, { playerA: 'Casadio M.', playerB: 'Aguirre W.', ballsByA: true }], libre: 'Bianco D.' },
-      { fecha: 2, matches: [{ playerA: 'Aguirre W.', playerB: 'Marin G.', ballsByA: true }, { playerA: 'Casadio M.', playerB: 'Bianco D.', ballsByA: true }], libre: 'Fernandez B.' },
-      { fecha: 3, matches: [{ playerA: 'Marin G.', playerB: 'Casadio M.', ballsByA: true }, { playerA: 'Bianco D.', playerB: 'Fernandez B.', ballsByA: true }], libre: 'Aguirre W.' },
-      { fecha: 4, matches: [{ playerA: 'Bianco D.', playerB: 'Marin G.', ballsByA: true }, { playerA: 'Fernandez B.', playerB: 'Aguirre W.', ballsByA: true }], libre: 'Casadio M.' },
-      { fecha: 5, matches: [{ playerA: 'Fernandez B.', playerB: 'Casadio M.', ballsByA: true }, { playerA: 'Aguirre W.', playerB: 'Bianco D.', ballsByA: true }], libre: 'Marin G.' },
-    ],
-  },
-  {
-    name: 'Grupo C',
-    fechas: [
-      { fecha: 1, matches: [{ playerA: 'Vito C.', playerB: 'Santi G.', ballsByA: true }, { playerA: 'Del Valle G.', playerB: 'Ferreres G.', ballsByA: true }], libre: 'Figueroa M.' },
-      { fecha: 2, matches: [{ playerA: 'Ferreres G.', playerB: 'Vito C.', ballsByA: true }, { playerA: 'Del Valle G.', playerB: 'Figueroa M.', ballsByA: true }], libre: 'Santi G.' },
-      { fecha: 3, matches: [{ playerA: 'Vito C.', playerB: 'Del Valle G.', ballsByA: true }, { playerA: 'Figueroa M.', playerB: 'Santi G.', ballsByA: true }], libre: 'Ferreres G.' },
-      { fecha: 4, matches: [{ playerA: 'Figueroa M.', playerB: 'Vito C.', ballsByA: true }, { playerA: 'Santi G.', playerB: 'Ferreres G.', ballsByA: true }], libre: 'Del Valle G.' },
-      { fecha: 5, matches: [{ playerA: 'Santi G.', playerB: 'Del Valle G.', ballsByA: true }, { playerA: 'Ferreres G.', playerB: 'Figueroa M.', ballsByA: true }], libre: 'Vito C.' },
-    ],
-  },
-];
+export const LIGA3_GROUP_FIXTURES: GroupStageGroup[] = buildNovakLiga3GroupStageFixtures();
 
 /** Próximos partidos Liga 3: Fecha 1 según fixture (sin resultados aún). */
 function buildLiga3UpcomingFromFixtures(): UpcomingMatchDisplay[] {

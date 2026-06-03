@@ -3,27 +3,128 @@
   "liga": 3,
   "grupos": {
     "A": [
+      "Pusterla P.",
       "Santi M.",
       "Rusel S.",
-      "Repecka A.",
-      "Pusterla P.",
-      "Bocchicchio F."
+      "Bocchicchio F.",
+      "Repecka A."
     ],
     "B": [
-      "Fernandez B.",
       "Marin G.",
+      "Fernandez B.",
       "Casadio M.",
-      "Bianco D.",
-      "Aguirre W."
+      "Aguirre W.",
+      "Bianco D."
     ],
     "C": [
+      "Vito C.",
       "Santi G.",
-      "Figueroa M.",
       "Del Valle G.",
       "Ferreres G.",
-      "Vito C."
+      "Figueroa M."
     ]
   },
-  "fechas": [],
-  "nota": "Fixtures detallados siguen en mockData LIGA3_GROUP_FIXTURES hasta unificar formato."
+  "fechas": [
+    {
+      "numero": 1,
+      "grupos": {
+        "A": [
+          "Pusterla P. (P) vs Santi M.",
+          "Rusel S. (P) vs Bocchicchio F.",
+          "Libre: Repecka A."
+        ],
+        "B": [
+          "Marin G. (P) vs Fernandez B.",
+          "Casadio M. (P) vs Aguirre W.",
+          "Libre: Bianco D."
+        ],
+        "C": [
+          "Vito C. (P) vs Santi G.",
+          "Del Valle G. (P) vs Ferreres G.",
+          "Libre: Figueroa M."
+        ]
+      }
+    },
+    {
+      "numero": 2,
+      "grupos": {
+        "A": [
+          "Bocchicchio F. (P) vs Pusterla P.",
+          "Rusel S. (P) vs Repecka A.",
+          "Libre: Santi M."
+        ],
+        "B": [
+          "Aguirre W. (P) vs Marin G.",
+          "Casadio M. (P) vs Bianco D.",
+          "Libre: Fernandez B."
+        ],
+        "C": [
+          "Ferreres G. (P) vs Vito C.",
+          "Del Valle G. (P) vs Figueroa M.",
+          "Libre: Santi G."
+        ]
+      }
+    },
+    {
+      "numero": 3,
+      "grupos": {
+        "A": [
+          "Pusterla P. (P) vs Rusel S.",
+          "Repecka A. (P) vs Santi M.",
+          "Libre: Bocchicchio F."
+        ],
+        "B": [
+          "Marin G. (P) vs Casadio M.",
+          "Bianco D. (P) vs Fernandez B.",
+          "Libre: Aguirre W."
+        ],
+        "C": [
+          "Vito C. (P) vs Del Valle G.",
+          "Figueroa M. (P) vs Santi G.",
+          "Libre: Ferreres G."
+        ]
+      }
+    },
+    {
+      "numero": 4,
+      "grupos": {
+        "A": [
+          "Repecka A. (P) vs Pusterla P.",
+          "Santi M. (P) vs Bocchicchio F.",
+          "Libre: Rusel S."
+        ],
+        "B": [
+          "Bianco D. (P) vs Marin G.",
+          "Fernandez B. (P) vs Aguirre W.",
+          "Libre: Casadio M."
+        ],
+        "C": [
+          "Figueroa M. (P) vs Vito C.",
+          "Santi G. (P) vs Ferreres G.",
+          "Libre: Del Valle G."
+        ]
+      }
+    },
+    {
+      "numero": 5,
+      "grupos": {
+        "A": [
+          "Santi M. (P) vs Rusel S.",
+          "Bocchicchio F. (P) vs Repecka A.",
+          "Libre: Pusterla P."
+        ],
+        "B": [
+          "Fernandez B. (P) vs Casadio M.",
+          "Aguirre W. (P) vs Bianco D.",
+          "Libre: Marin G."
+        ],
+        "C": [
+          "Santi G. (P) vs Del Valle G.",
+          "Ferreres G. (P) vs Figueroa M.",
+          "Libre: Vito C."
+        ]
+      }
+    }
+  ],
+  "nota": "(P): Jugador asignado para llevar pelotas en ese partido."
 }

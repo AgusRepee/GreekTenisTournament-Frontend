@@ -1,0 +1,51 @@
+{
+  "torneo": "Rafael Nadal",
+  "liga": 3,
+  "grupos": {
+    "A": ["Santi Mat.", "Casadio M.", "Vito C.", "Aguirre W.", "Del Valle G."],
+    "B": ["Fernandez B.", "Santi Mar.", "Ferreres G.", "Bocchicchio F.", "Bernardini G."],
+    "C": ["Figueroa M.", "Rusel S.", "Marin G.", "Pusterla P.", "Bianco D."]
+  },
+  "fechas": [
+    {
+      "numero": 1,
+      "grupos": {
+        "A": ["Santi Mat. (P) vs Casadio M.", "Vito C. (P) vs Aguirre W.", "Libre: Del Valle G."],
+        "B": ["Fernandez B. (P) vs Santi Mar.", "Ferreres G. (P) vs Bocchicchio F.", "Libre: Bernardini G."],
+        "C": ["Figueroa M. (P) vs Rusel S.", "Marin G. (P) vs Pusterla P.", "Libre: Bianco D."]
+      }
+    },
+    {
+      "numero": 2,
+      "grupos": {
+        "A": ["Aguirre W. (P) vs Santi Mat.", "Vito C. (P) vs Del Valle G.", "Libre: Casadio M."],
+        "B": ["Bocchicchio F. (P) vs Fernandez B.", "Ferreres G. (P) vs Bernardini G.", "Libre: Santi Mar."],
+        "C": ["Pusterla P. (P) vs Figueroa M.", "Marin G. (P) vs Bianco D.", "Libre: Rusel S."]
+      }
+    },
+    {
+      "numero": 3,
+      "grupos": {
+        "A": ["Santi Mat. (P) vs Vito C.", "Del Valle G. (P) vs Casadio M.", "Libre: Aguirre W."],
+        "B": ["Fernandez B. (P) vs Ferreres G.", "Bernardini G. (P) vs Santi Mar.", "Libre: Bocchicchio F."],
+        "C": ["Figueroa M. (P) vs Marin G.", "Bianco D. (P) vs Rusel S.", "Libre: Pusterla P."]
+      }
+    },
+    {
+      "numero": 4,
+      "grupos": {
+        "A": ["Del Valle G. (P) vs Santi Mat.", "Casadio M. (P) vs Aguirre W.", "Libre: Vito C."],
+        "B": ["Bernardini G. (P) vs Fernandez B.", "Santi Mar. (P) vs Bocchicchio F.", "Libre: Ferreres G."],
+        "C": ["Bianco D. (P) vs Figueroa M.", "Rusel S. (P) vs Pusterla P.", "Libre: Marin G."]
+      }
+    },
+    {
+      "numero": 5,
+      "grupos": {
+        "A": ["Casadio M. (P) vs Vito C.", "Aguirre W. (P) vs Del Valle G.", "Libre: Santi Mat."],
+        "B": ["Santi Mar. (P) vs Ferreres G.", "Bocchicchio F. (P) vs Bernardini G.", "Libre: Fernandez B."],
+        "C": ["Rusel S. (P) vs Marin G.", "Pusterla P. (P) vs Bianco D.", "Libre: Figueroa M."]
+      }
+    }
+  ]
+}

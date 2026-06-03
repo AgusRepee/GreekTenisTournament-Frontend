@@ -1,12 +1,16 @@
 import { RAFA_LIGA2_TOURNAMENT_ID } from './rafaNadalLiga2Nd2026Data';
+import { RAFA_LIGA3_TOURNAMENT_ID } from './rafaNadalLiga3Nd2026Data';
+import { RAFA_LIGA4_TOURNAMENT_ID } from './rafaNadalLiga4Nd2026Data';
 import { RAFA_LIGA5_TOURNAMENT_ID } from './rafaNadalLiga5Nd2026Data';
 import { RAFA_LIGA6_TOURNAMENT_ID } from './rafaNadalLiga6Nd2026Data';
 import { RAFAEL_LIGA1_TOURNAMENT_ID } from './rafaelNadalLiga1Nd2026Data';
 
-/** Torneos Rafael Nadal con fixture confirmado (L3 y L4 pendientes de grupos/fechas). */
+/** Torneos Rafael Nadal con fixture confirmado. */
 export const RAFA_NADAL_ACTIVE_TOURNAMENT_IDS = [
   RAFAEL_LIGA1_TOURNAMENT_ID,
   RAFA_LIGA2_TOURNAMENT_ID,
+  RAFA_LIGA3_TOURNAMENT_ID,
+  RAFA_LIGA4_TOURNAMENT_ID,
   RAFA_LIGA5_TOURNAMENT_ID,
   RAFA_LIGA6_TOURNAMENT_ID,
 ] as const;

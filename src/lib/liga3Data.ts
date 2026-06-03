@@ -75,9 +75,9 @@ export const LIGA3_GROUP_RESULTS: Liga3GroupMatchResult[] = [];
 
 /** Plantilla por grupo (mismo orden que `LIGA3_GROUP_FIXTURES` en mockData) para tablas 0-0 sin partidos. */
 const LIGA3_GROUP_ROSTERS: Record<string, string[]> = {
-  'Grupo A': ['Santi M.', 'Rusel S.', 'Repecka A.', 'Pusterla P.', 'Bocchicchio F.'],
-  'Grupo B': ['Fernandez B.', 'Marin G.', 'Casadio M.', 'Bianco D.', 'Aguirre W.'],
-  'Grupo C': ['Santi G.', 'Figueroa M.', 'Del Valle G.', 'Ferreres G.', 'Vito C.'],
+  'Grupo A': ['Pusterla P.', 'Santi M.', 'Rusel S.', 'Bocchicchio F.', 'Repecka A.'],
+  'Grupo B': ['Marin G.', 'Fernandez B.', 'Casadio M.', 'Aguirre W.', 'Bianco D.'],
+  'Grupo C': ['Vito C.', 'Santi G.', 'Del Valle G.', 'Ferreres G.', 'Figueroa M.'],
 };
 
 /** Partidos de fase de grupos con resultado (para "Partidos por fase de grupos") */

@@ -22,6 +22,16 @@ import {
   RAFA_LIGA2_TOURNAMENT_ID,
 } from './tennis/rafaNadalLiga2Nd2026Data';
 import {
+  RAFA_LIGA3_LEAGUE_NUM,
+  RAFA_LIGA3_TEMPLATE,
+  RAFA_LIGA3_TOURNAMENT_ID,
+} from './tennis/rafaNadalLiga3Nd2026Data';
+import {
+  RAFA_LIGA4_LEAGUE_NUM,
+  RAFA_LIGA4_TEMPLATE,
+  RAFA_LIGA4_TOURNAMENT_ID,
+} from './tennis/rafaNadalLiga4Nd2026Data';
+import {
   RAFA_LIGA5_LEAGUE_NUM,
   RAFA_LIGA5_TEMPLATE,
   RAFA_LIGA5_TOURNAMENT_ID,
@@ -140,6 +150,36 @@ export function buildClubDataDefaults(): { defaultPlayers: Player[]; defaultTour
       slotsTotal: 15,
       slotsTaken: 15,
       ligaDoc: RAFA_LIGA2_TEMPLATE,
+    },
+    {
+      id: RAFA_LIGA3_TOURNAMENT_ID,
+      name: 'Rafael Nadal - Liga 3',
+      category: leagueNumToCategory(RAFA_LIGA3_LEAGUE_NUM),
+      tournamentType: 'greek500',
+      status: 'upcoming',
+      startDate: '2026-05-31',
+      endDate: '2026-12-31',
+      location: 'Club de Tenis',
+      coverImage: 'rafa-hero.webp',
+      league: RAFA_LIGA3_LEAGUE_NUM as LeagueNum,
+      slotsTotal: 15,
+      slotsTaken: 15,
+      ligaDoc: RAFA_LIGA3_TEMPLATE,
+    },
+    {
+      id: RAFA_LIGA4_TOURNAMENT_ID,
+      name: 'Rafael Nadal - Liga 4',
+      category: leagueNumToCategory(RAFA_LIGA4_LEAGUE_NUM),
+      tournamentType: 'greek500',
+      status: 'upcoming',
+      startDate: '2026-06-01',
+      endDate: '2026-12-31',
+      location: 'Club de Tenis',
+      coverImage: 'rafa-negro.webp',
+      league: RAFA_LIGA4_LEAGUE_NUM as LeagueNum,
+      slotsTotal: 15,
+      slotsTaken: 15,
+      ligaDoc: RAFA_LIGA4_TEMPLATE,
     },
     {
       id: RAFA_LIGA5_TOURNAMENT_ID,
